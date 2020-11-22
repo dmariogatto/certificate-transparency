@@ -60,6 +60,6 @@ namespace Cats.CertificateTransparency.Extensions
             writer.Write(data, 0, data.Length);
         }
 
-        private static int BytesForDataLength(int maxDataLength) => (int)(Math.Ceiling(Math.Log(maxDataLength, 2)) / Constants.BitsInByte);
+        private static int BytesForDataLength(int maxDataLength) => (int)Math.Ceiling(Math.Log(maxDataLength, 2) / Constants.BitsInByte);
     }
 }

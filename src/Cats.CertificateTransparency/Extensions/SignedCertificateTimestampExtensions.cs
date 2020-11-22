@@ -139,34 +139,19 @@ namespace Cats.CertificateTransparency.Extensions
         }
 
         private static SctVerificationResult VerifySctSignatureOverBytes(this SignedCertificateTimestamp sct, Log logServer, byte[] toVerify)
-        {
-            var isValid = false;
-
-            var key = GetKeyAlgorithm(logServer.KeyBytes);
-
-            switch (key.sigAlg)
+        { 
+            var (oid, sigAlg) = GetKeyAlgorithm(logServer.KeyBytes);
+            var signer = sigAlg switch
             {
-                case CtSignatureAlgorithm.Ecdsa:
-                    {
-                        var signer = SignerUtilities.GetSigner(Constants.Sha256withEcdsa);
-                        var pubKey = PublicKeyFactory.CreateKey(logServer.KeyBytes);
-                        signer.Init(false, pubKey);
-                        signer.BlockUpdate(toVerify, 0, toVerify.Length);
-                        isValid = signer.VerifySignature(sct.Signature.SignatureData);
-                    }
-                    break;
-                case CtSignatureAlgorithm.Rsa:
-                    {
-                        var signer = SignerUtilities.GetSigner(Constants.Sha256WithRsa);
-                        var pubKey = PublicKeyFactory.CreateKey(GetKeyRawBytes(logServer.KeyBytes));
-                        signer.Init(false, pubKey);
-                        signer.BlockUpdate(toVerify, 0, toVerify.Length);
-                        isValid = signer.VerifySignature(sct.Signature.SignatureData);
-                    }
-                    break;
-                default:
-                    throw new NotImplementedException($"Signature algothrim '{key.sigAlg}' not supported, with OID '{key.oid}'");
-            }
+                CtSignatureAlgorithm.Ecdsa => SignerUtilities.GetSigner(Constants.Sha256withEcdsa),
+                CtSignatureAlgorithm.Rsa => SignerUtilities.GetSigner(Constants.Sha256WithRsa),
+                _ => throw new NotImplementedException($"Signature algothrim '{sigAlg}' not supported, with OID '{oid}'"),
+            };
+
+            var pubKey = PublicKeyFactory.CreateKey(logServer.KeyBytes);
+            signer.Init(false, pubKey);
+            signer.BlockUpdate(toVerify, 0, toVerify.Length);
+            var isValid = signer.VerifySignature(sct.Signature.SignatureData);
 
             return isValid 
                 ? SctVerificationResult.Valid() 
@@ -227,20 +212,6 @@ namespace Cats.CertificateTransparency.Extensions
             }
 
             return (string.Empty, CtSignatureAlgorithm.Unknown);
-        }
-
-        private static byte[] GetKeyRawBytes(byte[] keyBytes)
-        {
-            var seq = Asn1Sequence.GetInstance(keyBytes);
-
-            if (seq.Count > 1)
-            {
-                var bitString = seq[1] as DerBitString;
-                var bytes = bitString.GetBytes();
-                return bytes;
-            }
-
-            return new byte[0];
         }
     }
 }

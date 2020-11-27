@@ -17,13 +17,13 @@ namespace Cats.CertificateTransparency.Android
         private readonly Func<string, DotNetX509Certificate, IList<DotNetX509Certificate>, CtVerificationResult, bool> _verifyResultFunc;
 
         public CatsHostNameVerifier() 
-             : this(null, CertificateChainBuilder.Default, CertificateTransparencyVerifier.Default)
+             : this(null, Instance.CertificateChainBuilder, Instance.CertificateTransparencyVerifier)
         {
         }
 
         public CatsHostNameVerifier(
             Func<string, DotNetX509Certificate, IList<DotNetX509Certificate>, CtVerificationResult, bool> verifyResultFunc)
-             : this(verifyResultFunc, CertificateChainBuilder.Default, CertificateTransparencyVerifier.Default)
+             : this(verifyResultFunc, Instance.CertificateChainBuilder, Instance.CertificateTransparencyVerifier)
         {
         }
 

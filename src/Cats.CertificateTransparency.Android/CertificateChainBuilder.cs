@@ -1,6 +1,4 @@
-﻿using Java.Security;
-using Javax.Net.Ssl;
-using System;
+﻿using Javax.Net.Ssl;
 using System.Collections.Generic;
 using System.Linq;
 using JavaX509Certificate = Java.Security.Cert.X509Certificate;
@@ -9,18 +7,7 @@ namespace Cats.CertificateTransparency.Android
 {
     public class CertificateChainBuilder : ICertificateChainBuilder
     {
-        public const int MaxChainDepth = 9;
-
-        private static readonly Lazy<ICertificateChainBuilder> DefaultCertCleaner =
-            new Lazy<ICertificateChainBuilder>(() =>
-            {
-                var trustManager = TrustManagerFactory.GetInstance(TrustManagerFactory.DefaultAlgorithm);
-                trustManager.Init(null as KeyStore);
-                var localTrustManager = trustManager.GetTrustManagers().OfType<IX509TrustManager>().First();
-                return new CertificateChainBuilder(localTrustManager);
-            });
-
-        public static ICertificateChainBuilder Default => DefaultCertCleaner.Value;
+        private const int MaxChainDepth = 9;
 
         private readonly Dictionary<string, List<JavaX509Certificate>> _subjectCaCerts;
 

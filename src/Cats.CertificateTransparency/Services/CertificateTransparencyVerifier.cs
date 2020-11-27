@@ -13,19 +13,6 @@ namespace Cats.CertificateTransparency.Services
 {
     public class CertificateTransparencyVerifier : ICertificateTransparencyVerifier
     {
-        private static readonly Lazy<ICertificateTransparencyVerifier> DefaultCertVerifier =
-            new Lazy<ICertificateTransparencyVerifier>(() =>
-            {
-                var logListApi = RestService.For<ILogListApi>(Constants.GoogleLogListUrl);
-                var logStoreService = new LogStoreService();
-                var logListService = new LogListService(logListApi, logStoreService);
-                var hostnameValidator = new HostnameAlwaysTrue();
-                var ctPolicy = new CtPolicyDefault();
-                return new CertificateTransparencyVerifier(hostnameValidator, logListService, ctPolicy);
-            });
-
-        public static ICertificateTransparencyVerifier Default => DefaultCertVerifier.Value;
-
         private readonly IHostnameValidator _hostnameValidator;
         private readonly ILogListService _logListService;
         private readonly ICtPolicy _ctPolicy;

@@ -13,7 +13,7 @@ namespace Cats.CertificateTransparency.Console
     {
         static async Task Main(string[] args)
         {
-            var certVerifier = CertificateTransparencyVerifier.Default;
+            var certVerifier = Instance.CertificateTransparencyVerifier;
 
             var path = args.Length > 0
                 ? args[0]

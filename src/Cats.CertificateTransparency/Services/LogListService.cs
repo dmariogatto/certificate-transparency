@@ -35,7 +35,7 @@ namespace Cats.CertificateTransparency.Services
             if (!_logStoreService.TryGetValue(LogListRootKey, out logListRoot))
             {
                 var logListTask = _logListApi.GetLogListJson(cancellationToken)
-                .ContinueWith(t => t.Result.ReadAsByteArrayAsync());
+                    .ContinueWith(t => t.Result.ReadAsByteArrayAsync());
                 var logListSignatureTask = _logListApi.GetLogListSignature(cancellationToken)
                     .ContinueWith(t => t.Result.ReadAsByteArrayAsync());
 

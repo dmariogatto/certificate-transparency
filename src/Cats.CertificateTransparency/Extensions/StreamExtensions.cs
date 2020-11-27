@@ -24,7 +24,7 @@ namespace Cats.CertificateTransparency.Extensions
 
         internal static byte[] ReadVariableLength(this Stream stream, int maxDataLength)
         {
-            var bytesForDataLength = BytesForDataLength(maxDataLength);
+            var bytesForDataLength = BytesToStoreValue(maxDataLength);
             var dataLength = ReadLong(stream, bytesForDataLength);
 
             var data = new byte[dataLength];
@@ -55,11 +55,25 @@ namespace Cats.CertificateTransparency.Extensions
         {
             if (data.Length > maxDataLength) throw new ArgumentOutOfRangeException($"Length {data.Length} is greater than max data length {maxDataLength}");
             
-            var bytesForDataLength = BytesForDataLength(maxDataLength);
+            var bytesForDataLength = BytesToStoreValue(maxDataLength);
             writer.WriteLong(data.Length, bytesForDataLength);
             writer.Write(data, 0, data.Length);
         }
 
-        private static int BytesForDataLength(int maxDataLength) => (int)Math.Ceiling(Math.Log(maxDataLength, 2) / Constants.BitsInByte);
+        private static int BytesToStoreValue(int value)
+        {
+            if (value < 0) throw new ArgumentOutOfRangeException(nameof(value), "Cannot be negative");
+
+            var numBytes = 0;
+            var local = value;
+
+            while (local > 0)
+            {
+                local >>= Constants.BitsInByte;
+                numBytes++;
+            }
+
+            return numBytes;
+        }
     }
 }

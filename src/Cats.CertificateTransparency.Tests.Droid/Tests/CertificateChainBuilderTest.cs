@@ -24,8 +24,7 @@ namespace Cats.CertificateTransparency.Tests.Droid
 
             // when we clean an empty certificate chain
             // then an exception is thrown
-            Assert.Throws<SSLPeerUnverifiedException>(
-                () => chainBuilder.GetCertificateChain(Enumerable.Empty<X509Certificate>()));
+            Assert.Throws<SSLPeerUnverifiedException>(() => chainBuilder.GetCertificateChain(Enumerable.Empty<X509Certificate>()));
         }
 
         [Test]

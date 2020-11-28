@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Cats.CertificateTransparency.Models
 {
@@ -148,5 +149,11 @@ namespace Cats.CertificateTransparency.Models
     {
         [JsonProperty("operators")]
         public List<Operator> Operators { get; set; }
+
+        public IDictionary<string, Log> ToDictionary()
+            => Operators
+                .Where(o => o.Logs?.Any() == true)
+                .SelectMany(o => o.Logs)
+                .ToDictionary(l => l.LogId, l => l);
     }
 }

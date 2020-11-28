@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -10,11 +11,17 @@ namespace Cats.CertificateTransparency.Services
         private readonly IList<Regex> _excludedPatterns;
 
         public HostnameRegex(
-            IList<Regex> includedPatterns,
-            IList<Regex> excludedPatterns)
+            IEnumerable<Regex> includedPatterns,
+            IEnumerable<Regex> excludedPatterns)
         {
-            _includedPatterns = includedPatterns ?? new List<Regex>(0);
-            _excludedPatterns = excludedPatterns ?? new List<Regex>(0);
+            if (includedPatterns?.Any() != true)
+                throw new ArgumentException("No included patterns");
+
+            if (excludedPatterns?.Any() == true && includedPatterns.Any(i => excludedPatterns.Contains(i)))
+                throw new ArgumentException("Same pattern found in both included & excluded");
+
+            _includedPatterns = includedPatterns?.ToList() ?? new List<Regex>(0);
+            _excludedPatterns = excludedPatterns?.ToList() ?? new List<Regex>(0);
         }
 
         public bool ValidateHost(string host)

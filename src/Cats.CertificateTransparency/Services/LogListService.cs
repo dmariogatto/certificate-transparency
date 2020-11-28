@@ -63,18 +63,14 @@ namespace Cats.CertificateTransparency.Services
 
         public async Task<IDictionary<string, Log>> GetLogDictionaryAsync(CancellationToken cancellationToken)
         {
-            var logDictionary = default(Dictionary<string, Log>);
+            var logDictionary = default(IDictionary<string, Log>);
 
             if (!_logStoreService.TryGetValue(LogDictionaryKey, out logDictionary))
             {
                 var logListRoot = await GetLogListRootAsync(cancellationToken).ConfigureAwait(false);
                 if (logListRoot?.Operators != null)
                 {
-                    logDictionary = logListRoot.Operators
-                        .Where(o => o.Logs?.Any() == true)
-                        .SelectMany(o => o.Logs)
-                        .ToDictionary(l => l.LogId, l => l);
-
+                    logDictionary = logListRoot.ToDictionary();
                     if (logDictionary.Any())
                         _logStoreService.SetValue(LogDictionaryKey, logDictionary);
                 }

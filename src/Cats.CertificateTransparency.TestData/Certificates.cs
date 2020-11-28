@@ -1,8 +1,10 @@
+using Newtonsoft.Json;
 using Org.BouncyCastle.Utilities.IO.Pem;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using System.Text;
 
 namespace Cats.CertificateTransparency.TestData
 {
@@ -80,12 +82,12 @@ namespace Cats.CertificateTransparency.TestData
 
         public const string SELF_SIGNED_ROOT_CERT = DATA_ROOT + "chaincleaner.self-signed-root-cert.pem";
 
-        public static List<X509Certificate2> Load(params string[] certs)
+        public static List<X509Certificate2> LoadCerts(params string[] certs)
         {
-            return certs.SelectMany(c => Load(c)).ToList();
+            return certs.SelectMany(c => LoadCerts(c)).ToList();
         }
 
-        public static List<X509Certificate2> Load(string cert)
+        public static List<X509Certificate2> LoadCerts(string cert)
         {
             using var stream = GetResourceStream(cert);
             using var reader = new StreamReader(stream);
@@ -103,10 +105,22 @@ namespace Cats.CertificateTransparency.TestData
             return pemObjs.Select(po => new X509Certificate2(po.Content)).ToList();
         }
 
+        public static T LoadJson<T>(string path) where T : class
+        {
+            using var stream = GetResourceStream(path);
+            return Deserialise<T>(stream);
+        }
+
         private static Stream GetResourceStream(string name)
         {
             var assembly = typeof(Certificates).Assembly;
             return assembly.GetManifestResourceStream(name);
+        }
+
+        private static T Deserialise<T>(Stream stream) where T : class
+        {
+            using var reader = new StreamReader(stream, Encoding.UTF8);
+            return JsonSerializer.Create().Deserialize(reader, typeof(T)) as T;
         }
     }
 }

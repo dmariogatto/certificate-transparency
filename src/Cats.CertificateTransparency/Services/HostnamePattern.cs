@@ -15,15 +15,24 @@ namespace Cats.CertificateTransparency.Services
         private readonly IList<(string pattern, string host)> _excludedPatterns;
 
         public HostnamePattern(
-            IList<string> includedPatterns,
-            IList<string> excludedPatterns)
+            IEnumerable<string> includedPatterns,
+            IEnumerable<string> excludedPatterns)
         {
-            _includedPatterns = includedPatterns.Select(p => (p, GetCanonicalHost(p))).ToList() ?? new List<(string, string)>(0);
-            _excludedPatterns = excludedPatterns.Select(p => (p, GetCanonicalHost(p))).ToList() ?? new List<(string, string)>(0);
+            if (includedPatterns?.Any() != true)
+                throw new ArgumentException("No included patterns");
+
+            if (excludedPatterns?.Any() == true && excludedPatterns.Any(i => i.StartsWith(Wildcard)))
+                throw new ArgumentException("Wildcards not allow for excluded patterns");
+
+            if (excludedPatterns?.Any() == true && includedPatterns.Any(i => excludedPatterns.Contains(i)))
+                throw new ArgumentException("Same pattern found in both included & excluded");
+
+            _includedPatterns = includedPatterns?.Select(p => (p, GetCanonicalHost(p)))?.ToList() ?? new List<(string, string)>(0);
+            _excludedPatterns = excludedPatterns?.Select(p => (p, GetCanonicalHost(p)))?.ToList() ?? new List<(string, string)>(0);
         }
 
-        public string[] Included => _includedPatterns.Select(i => i.Item1).ToArray();
-        public string[] Excluded => _excludedPatterns.Select(i => i.Item1).ToArray();
+        public IReadOnlyList<string> Included => _includedPatterns.Select(i => i.pattern).ToArray();
+        public IReadOnlyList<string> Excluded => _excludedPatterns.Select(i => i.pattern).ToArray();
 
         public bool ValidateHost(string host)
             => (!_includedPatterns.Any() || _includedPatterns.Any(i => Matches(host, i.pattern, i.host))) &&

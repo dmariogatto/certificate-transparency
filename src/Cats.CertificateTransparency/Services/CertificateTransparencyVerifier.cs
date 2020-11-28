@@ -27,21 +27,25 @@ namespace Cats.CertificateTransparency.Services
             _ctPolicy = ctPolicy;
         }
 
-        public async Task<CtVerificationResult> IsValidAsync(string hostname, X509Certificate2 certificate, IList<X509Certificate2> chain, CancellationToken cancellationToken)
+        public async Task<CtVerificationResult> IsValidAsync(string hostname, IList<X509Certificate2> chain, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(hostname)) throw new ArgumentNullException(nameof(hostname));
 
             if (_hostnameValidator.ValidateHost(hostname))
             {
-                return await IsValidAsync(certificate, chain, cancellationToken).ConfigureAwait(false);
+                return await IsValidAsync(chain, cancellationToken).ConfigureAwait(false);
             }
 
             return CtVerificationResult.DisabledForHost(hostname);
         }
 
-        public async Task<CtVerificationResult> IsValidAsync(X509Certificate2 certificate, IList<X509Certificate2> chain, CancellationToken cancellationToken)
+        public async Task<CtVerificationResult> IsValidAsync(IList<X509Certificate2> chain, CancellationToken cancellationToken)
         {
-            var scts = certificate.GetSignedCertificateTimestamps();
+            if (chain?.Any() != true)
+                return CtVerificationResult.NoCertificates();
+
+            var leaf = chain.First();
+            var scts = leaf.GetSignedCertificateTimestamps();
 
             if (scts?.Any() != true)
                 return CtVerificationResult.NoScts();
@@ -59,7 +63,7 @@ namespace Cats.CertificateTransparency.Services
                     : (sct.LogIdBase64, SctVerificationResult.NoTrustedLogServerFound()))
                 .ToDictionary(t => t.LogIdBase64, t => t.Item2);
 
-            return _ctPolicy.PolicyVerificationResult(certificate, sctResults);
-        }
+            return _ctPolicy.PolicyVerificationResult(leaf, sctResults);
+        }        
     }
 }

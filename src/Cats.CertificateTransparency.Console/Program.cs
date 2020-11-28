@@ -1,5 +1,4 @@
-﻿using Cats.CertificateTransparency.Services;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -37,7 +36,7 @@ namespace Cats.CertificateTransparency.Console
                 var certs = certChain.ChainElements.OfType<X509ChainElement>().Select(i => i.Certificate).ToList();
                 if (isValidChain)
                 {
-                    var ctResult = await certVerifier.IsValidAsync(certs.First(), certs, default);
+                    var ctResult = await certVerifier.IsValidAsync(certs, default);
                     if (ctResult.IsValid)
                     {
                         System.Console.WriteLine($"Valid! Result: {ctResult.Description}");
@@ -70,7 +69,7 @@ namespace Cats.CertificateTransparency.Console
                 {
                     System.Console.WriteLine($"Validating request '{request.RequestUri}'");
                     var certs = certChain.ChainElements.OfType<X509ChainElement>().Select(i => i.Certificate).ToList();
-                    var ctResult = certVerifier.IsValidAsync(certs.First(), certs, default).Result;
+                    var ctResult = certVerifier.IsValidAsync(certs, default).Result;
 
                     if (ctResult.IsValid)
                     {

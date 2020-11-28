@@ -8,7 +8,7 @@ namespace Cats.CertificateTransparency.Tests
     {
         internal static IList<X509Certificate2> Build(X509Certificate2 leaf, IEnumerable<X509Certificate2> chain, X509Certificate rootCert = null)
         {
-            rootCert ??= TestData.Certificates.Load(TestData.Certificates.ROOT_CA_CERT).First();
+            rootCert ??= TestData.Certificates.LoadCerts(TestData.Certificates.ROOT_CA_CERT).First();
 
             using var chainBuilder = new X509Chain();            
             chainBuilder.ChainPolicy.VerificationFlags = X509VerificationFlags.NoFlag;            
@@ -25,6 +25,7 @@ namespace Cats.CertificateTransparency.Tests
                 s => s.Status == X509ChainStatusFlags.UntrustedRoot ||
                      s.Status == X509ChainStatusFlags.HasNotSupportedCriticalExtension ||
                      s.Status == X509ChainStatusFlags.InvalidExtension ||
+                     s.Status == X509ChainStatusFlags.NotTimeValid ||
                      (s.Status == X509ChainStatusFlags.PartialChain && chain.Contains(rootCert)));
 
             return isValidChain || chain.Contains(rootCert)

@@ -14,6 +14,7 @@ using Google.Android.Material.FloatingActionButton;
 using Google.Android.Material.Snackbar;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using DotNetX509Certificate = System.Security.Cryptography.X509Certificates.X509Certificate2;
@@ -108,8 +109,10 @@ namespace Cats.CertificateTransparency.Droid.Sample
             }            
         }
 
-        private bool VerifyCtResult(string hostname, DotNetX509Certificate leafCert, IList<DotNetX509Certificate> certChain, CtVerificationResult ctVerificationResult)
+        private bool VerifyCtResult(string hostname, IList<DotNetX509Certificate> certChain, CtVerificationResult ctVerificationResult)
         {
+            var leafCert = certChain.First();
+
             var builder = new StringBuilder();
 
             builder.AppendFormat("<p><b># Hostname:</b> {0}</p>", hostname);

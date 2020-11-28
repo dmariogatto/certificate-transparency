@@ -14,7 +14,7 @@ namespace Cats.CertificateTransparency.Android
         private readonly ICertificateChainBuilder _certificateCleaner;
         private readonly ICertificateTransparencyVerifier _certificateTransparencyVerifier;
 
-        private readonly Func<string, DotNetX509Certificate, IList<DotNetX509Certificate>, CtVerificationResult, bool> _verifyResultFunc;
+        private readonly Func<string, IList<DotNetX509Certificate>, CtVerificationResult, bool> _verifyResultFunc;
 
         public CatsHostNameVerifier() 
              : this(null, Instance.CertificateChainBuilder, Instance.CertificateTransparencyVerifier)
@@ -22,13 +22,13 @@ namespace Cats.CertificateTransparency.Android
         }
 
         public CatsHostNameVerifier(
-            Func<string, DotNetX509Certificate, IList<DotNetX509Certificate>, CtVerificationResult, bool> verifyResultFunc)
+            Func<string, IList<DotNetX509Certificate>, CtVerificationResult, bool> verifyResultFunc)
              : this(verifyResultFunc, Instance.CertificateChainBuilder, Instance.CertificateTransparencyVerifier)
         {
         }
 
         public CatsHostNameVerifier(
-            Func<string, DotNetX509Certificate, IList<DotNetX509Certificate>, CtVerificationResult, bool> verifyResultFunc,
+            Func<string, IList<DotNetX509Certificate>, CtVerificationResult, bool> verifyResultFunc,
             ICertificateChainBuilder certificateCleaner,
             ICertificateTransparencyVerifier certificateTransparencyVerifier)
         {
@@ -44,8 +44,8 @@ namespace Cats.CertificateTransparency.Android
             if (certChain.Any())
             {
                 var dotNetCertChain = certChain.Select(c => c.ToDotNetX509Certificate()).ToList();
-                var ctResult = _certificateTransparencyVerifier.IsValidAsync(hostname, dotNetCertChain.First(), dotNetCertChain, default).Result;
-                var customResult = _verifyResultFunc?.Invoke(hostname, dotNetCertChain.First(), dotNetCertChain, ctResult);
+                var ctResult = _certificateTransparencyVerifier.IsValidAsync(hostname, dotNetCertChain, default).Result;
+                var customResult = _verifyResultFunc?.Invoke(hostname, dotNetCertChain, ctResult);
                 return customResult ?? ctResult.IsValid;
             }
 

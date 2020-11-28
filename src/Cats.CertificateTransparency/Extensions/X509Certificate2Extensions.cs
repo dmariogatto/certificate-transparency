@@ -75,7 +75,16 @@ namespace Cats.CertificateTransparency.Extensions
 
             var result = new List<SignedCertificateTimestamp>();
 
+#if DEBUG
+            var sctExtension = certificate is MoqX509Certificate2 moqCert
+                ? moqCert.Extensions
+                         .Cast<X509Extension>()
+                         .Where(i => i.Oid.Value.Equals(Constants.SctCertificateOid))
+                         .FirstOrDefault()
+                : certificate.GetExtension(Constants.SctCertificateOid);
+#else
             var sctExtension = certificate.GetExtension(Constants.SctCertificateOid);
+#endif
             if (sctExtension != null)
             {
                 var octets = Asn1OctetString.GetInstance(sctExtension.RawData).GetOctets();

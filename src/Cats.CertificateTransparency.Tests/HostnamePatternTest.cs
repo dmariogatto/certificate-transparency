@@ -1,6 +1,6 @@
 using Cats.CertificateTransparency.Services;
 using NUnit.Framework;
-using System.Collections.Generic;
+using System;
 
 namespace Cats.CertificateTransparency.Tests
 {
@@ -9,25 +9,17 @@ namespace Cats.CertificateTransparency.Tests
         [Test]
         public void EmptyPatterns()
         {
-            var included = new List<string>()
-            { 
-            };
-            var excluded = new List<string>()
-            {
-            };
-
-            var hostnamePattern = new HostnamePattern(included, excluded);
-            Assert.True(hostnamePattern != null);
+            Assert.Throws<ArgumentException>(() => new HostnamePattern(Array.Empty<string>(), Array.Empty<string>()));
         }
 
         [Test]
         public void IncludeWildcard()
         {
-            var included = new List<string>()
+            var included = new string[]
             {
                 "*.*"
             };
-            var excluded = new List<string>()
+            var excluded = new string[]
             {
             };
 
@@ -38,12 +30,12 @@ namespace Cats.CertificateTransparency.Tests
         [Test]
         public void IncludedNoWildcard()
         {
-            var included = new List<string>()
+            var included = new string[]
             {
                 "a.example.com",
                 "b.example.com"
             };
-            var excluded = new List<string>()
+            var excluded = new string[]
             {
             };
 
@@ -56,12 +48,12 @@ namespace Cats.CertificateTransparency.Tests
         [Test]
         public void IncludedNoWildcardCaseInsensitive()
         {
-            var included = new List<string>()
+            var included = new string[]
             {
                 "a.exAmpLe.com",
                 "B.example.com"
             };
-            var excluded = new List<string>()
+            var excluded = new string[]
             {
             };
 
@@ -74,11 +66,11 @@ namespace Cats.CertificateTransparency.Tests
         [Test]
         public void IncludeWildcardWithExclusion()
         {
-            var included = new List<string>()
+            var included = new string[]
             {
                 "*.example.com",                
             };
-            var excluded = new List<string>()
+            var excluded = new string[]
             {
                 "b.example.com"
             };
@@ -88,6 +80,20 @@ namespace Cats.CertificateTransparency.Tests
             Assert.True(hostnamePattern.ValidateHost("a.example.com"));
             Assert.False(hostnamePattern.ValidateHost("b.example.com"));
             Assert.True(hostnamePattern.ValidateHost("c.example.com"));
+        }
+
+        [Test]
+        public void InvalidUrl()
+        {
+            var included = new string[]
+            {
+                "*.exam!ple.com",
+            };
+            var excluded = new string[]
+            {
+            };
+
+            Assert.Throws<ArgumentException>(() => new HostnamePattern(included, excluded));
         }
     }
 }

@@ -1,15 +1,14 @@
 using Cats.CertificateTransparency.Extensions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NUnit.Framework;
 using System;
 using System.IO;
 using System.Linq;
 
 namespace Cats.CertificateTransparency.Tests
 {
-    [TestClass]
     public class StreamExtensionsTest
     {
-        [TestMethod]
+        [Test]
         public void ReadWrite_Long()
         {
             using var ms = new MemoryStream();
@@ -29,7 +28,7 @@ namespace Cats.CertificateTransparency.Tests
             Assert.AreEqual(value, result);
         }
 
-        [TestMethod]
+        [Test]
         public void ReadWrite_VariableLength()
         {
             using var ms = new MemoryStream();

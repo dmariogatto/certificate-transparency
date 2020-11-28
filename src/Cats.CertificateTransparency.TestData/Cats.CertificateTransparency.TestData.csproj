@@ -1,0 +1,83 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Public log key -->
+    <EmbeddedResource Include="testdata\ct-server-key-public.pem" />
+    <EmbeddedResource Include="testdata\rsa\ct-server-key-public-rsa.pem" />
+    <EmbeddedResource Include="testdata\google-ct-pilot-server-key-public.pem" />
+    <EmbeddedResource Include="testdata\google-ct-skydiver-server-key-public.pem" />
+    <EmbeddedResource Include="testdata\digicert-ct-server-key-public.pem" />
+
+    <!-- Root CA cert. -->
+    <EmbeddedResource Include="testdata\ca-cert.pem" />
+
+    <!-- Ordinary cert signed by ca-cert, with SCT served separately.  -->
+    <EmbeddedResource Include="testdata\test-cert.pem" />
+    <EmbeddedResource Include="testdata\test-cert.proof" />
+    <EmbeddedResource Include="testdata\rsa\test-cert-rsa.proof" />
+
+    <!-- PreCertificate signed by ca-cert.  -->
+    <EmbeddedResource Include="testdata\test-embedded-pre-cert.pem" />
+    <EmbeddedResource Include="testdata\test-embedded-pre-cert.proof" />
+    <EmbeddedResource Include="testdata\rsa\test-embedded-pre-cert-rsa.proof" />
+
+    <!-- PreCertificate Signing cert, signed by ca-cert.pem  -->
+    <EmbeddedResource Include="testdata\ca-pre-cert.pem" />
+
+    <!-- PreCertificate signed by the PreCertificate Signing Cert above.  -->
+    <EmbeddedResource Include="testdata\test-embedded-with-preca-pre-cert.pem" />
+    <EmbeddedResource Include="testdata\test-embedded-with-preca-pre-cert.proof" />
+
+    <!-- intermediate CA cert signed by ca-cert  -->
+    <EmbeddedResource Include="testdata\intermediate-cert.pem" />
+
+    <!-- Certificate signed by intermediate CA. -->
+    <EmbeddedResource Include="testdata\test-intermediate-cert.pem" />
+    <EmbeddedResource Include="testdata\test-intermediate-cert.proof" />
+
+    <EmbeddedResource Include="testdata\test-embedded-with-intermediate-pre-cert.pem" />
+    <EmbeddedResource Include="testdata\test-embedded-with-intermediate-pre-cert.proof" />
+
+    <EmbeddedResource Include="testdata\intermediate-pre-cert.pem" />
+    <EmbeddedResource Include="testdata\test-embedded-with-intermediate-preca-pre-cert.pem" />
+    <EmbeddedResource Include="testdata\test-embedded-with-intermediate-preca-pre-cert.proof" />
+    <EmbeddedResource Include="testdata\test-root-certs" />
+    <EmbeddedResource Include="testdata\github-chain.pem" />
+
+    <EmbeddedResource Include="testdata\loglist\log_list.json" />
+    <EmbeddedResource Include="testdata\loglist\log_list_too_big.json" />
+    <EmbeddedResource Include="testdata\loglist\log_list_valid_until.json" />
+    <EmbeddedResource Include="testdata\loglist\log_list_incomplete.json" />
+    <EmbeddedResource Include="testdata\loglist\log_list.sig" />
+    <EmbeddedResource Include="testdata\loglist\log_list_too_big.sig" />
+
+    <EmbeddedResource Include="testdata\loglist\log_list.zip" />
+    <EmbeddedResource Include="testdata\loglist\log_list_too_big.zip" />
+
+    <EmbeddedResource Include="testdata\loglist\log_list_json_missing.zip" />
+    <EmbeddedResource Include="testdata\loglist\log_list_sig_missing.zip" />
+    <EmbeddedResource Include="testdata\loglist\log_list_json_too_big.zip" />
+    <EmbeddedResource Include="testdata\loglist\log_list_sig_too_big.zip" />
+
+    <EmbeddedResource Include="testdata\mitmproxy-ca-cert.pem" />
+    <EmbeddedResource Include="testdata\mitmproxy-attack-chain.pem" />
+    <EmbeddedResource Include="testdata\mitmproxy-original-chain.pem" />
+
+    <EmbeddedResource Include="testdata\chaincleaner\ten-certs-chain.pem" />
+    <EmbeddedResource Include="testdata\chaincleaner\ten-certs-root-cert.pem" />
+
+    <EmbeddedResource Include="testdata\chaincleaner\eleven-certs-chain.pem" />
+    <EmbeddedResource Include="testdata\chaincleaner\eleven-certs-root-cert.pem" />
+
+    <EmbeddedResource Include="testdata\chaincleaner\self-signed-root-cert.pem" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BouncyCastle.NetCore" Version="1.8.8" />
+  </ItemGroup>
+
+</Project>

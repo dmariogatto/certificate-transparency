@@ -18,7 +18,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{82221379-8EB9-4D51-96CE-30FCACF9CB70}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cats.CertificateTransparency.Tests", "Cats.CertificateTransparency.Tests\Cats.CertificateTransparency.Tests.csproj", "{3597084C-4AE3-45E5-A9C2-FA6375C9FA62}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{EC994E11-0FEB-4EAA-B2F8-3A72A4317BBC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cats.CertificateTransparency.Tests.Droid", "Cats.CertificateTransparency.Tests.Droid\Cats.CertificateTransparency.Tests.Droid.csproj", "{18497B17-CD53-46DC-AC16-D3F1BD3178D7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cats.CertificateTransparency.Tests", "Cats.CertificateTransparency.Tests\Cats.CertificateTransparency.Tests.csproj", "{515FB7C4-F8AC-4D02-9978-D350A246F408}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cats.CertificateTransparency.TestData", "Cats.CertificateTransparency.TestData\Cats.CertificateTransparency.TestData.csproj", "{28ED2DC4-22B1-456E-9C23-2882DC5508C4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -44,10 +50,20 @@ Global
 		{9C97A1CD-FA18-4472-A274-AFBEFFDD2F5B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C97A1CD-FA18-4472-A274-AFBEFFDD2F5B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9C97A1CD-FA18-4472-A274-AFBEFFDD2F5B}.Release|Any CPU.Deploy.0 = Release|Any CPU
-		{3597084C-4AE3-45E5-A9C2-FA6375C9FA62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3597084C-4AE3-45E5-A9C2-FA6375C9FA62}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3597084C-4AE3-45E5-A9C2-FA6375C9FA62}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3597084C-4AE3-45E5-A9C2-FA6375C9FA62}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18497B17-CD53-46DC-AC16-D3F1BD3178D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18497B17-CD53-46DC-AC16-D3F1BD3178D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18497B17-CD53-46DC-AC16-D3F1BD3178D7}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{18497B17-CD53-46DC-AC16-D3F1BD3178D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18497B17-CD53-46DC-AC16-D3F1BD3178D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18497B17-CD53-46DC-AC16-D3F1BD3178D7}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{515FB7C4-F8AC-4D02-9978-D350A246F408}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{515FB7C4-F8AC-4D02-9978-D350A246F408}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{515FB7C4-F8AC-4D02-9978-D350A246F408}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{515FB7C4-F8AC-4D02-9978-D350A246F408}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28ED2DC4-22B1-456E-9C23-2882DC5508C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28ED2DC4-22B1-456E-9C23-2882DC5508C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28ED2DC4-22B1-456E-9C23-2882DC5508C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28ED2DC4-22B1-456E-9C23-2882DC5508C4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -55,6 +71,9 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{ECE27EB8-AE09-4B56-AC9F-52F35E6A3100} = {82221379-8EB9-4D51-96CE-30FCACF9CB70}
 		{9C97A1CD-FA18-4472-A274-AFBEFFDD2F5B} = {82221379-8EB9-4D51-96CE-30FCACF9CB70}
+		{18497B17-CD53-46DC-AC16-D3F1BD3178D7} = {EC994E11-0FEB-4EAA-B2F8-3A72A4317BBC}
+		{515FB7C4-F8AC-4D02-9978-D350A246F408} = {EC994E11-0FEB-4EAA-B2F8-3A72A4317BBC}
+		{28ED2DC4-22B1-456E-9C23-2882DC5508C4} = {EC994E11-0FEB-4EAA-B2F8-3A72A4317BBC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {70BA6A45-D92F-4A03-BDE0-0D851B48A4A6}

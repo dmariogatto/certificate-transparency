@@ -201,11 +201,11 @@ namespace Cats.CertificateTransparency.Extensions
             var seq = Asn1Sequence.GetInstance(keyBytes);
 
             if (seq.Count > 0 && seq[0] is DerSequence derSeq &&
-                derSeq.Count > 1 && derSeq[1] is DerObjectIdentifier oi)
+                derSeq.Count > 0 && derSeq[0] is DerObjectIdentifier oi)
             {
                 if (oi.Equals(PkcsObjectIdentifiers.RsaEncryption))
                     return (oi.Id, CtSignatureAlgorithm.Rsa);
-                if (oi.Equals(X9ObjectIdentifiers.IdECPublicKey) || oi.Equals(X9ObjectIdentifiers.Prime256v1))
+                if (oi.Equals(X9ObjectIdentifiers.IdECPublicKey))
                     return (oi.Id, CtSignatureAlgorithm.Ecdsa);
 
                 return (oi.Id, CtSignatureAlgorithm.Unknown);

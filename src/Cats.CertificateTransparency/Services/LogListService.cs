@@ -20,6 +20,8 @@ namespace Cats.CertificateTransparency.Services
         protected readonly ILogListApi LogListApi;
         protected readonly ILogStoreService LogStoreService;
 
+        private readonly SemaphoreSlim _logListSemaphore = new SemaphoreSlim(1, 1);
+
         public LogListService(
             ILogListApi logListApi,
             ILogStoreService logStoreService)
@@ -37,28 +39,44 @@ namespace Cats.CertificateTransparency.Services
 
             if (!LogStoreService.TryGetValue(LogListRootKey, out logListRoot))
             {
-                var logListTask = LogListApi.GetLogListJson(cancellationToken)
-                    .ContinueWith(t => t.Result.ReadAsByteArrayAsync());
-                var logListSignatureTask = LogListApi.GetLogListSignature(cancellationToken)
-                    .ContinueWith(t => t.Result.ReadAsByteArrayAsync());
+                await _logListSemaphore.WaitAsync().ConfigureAwait(false);
 
-                await Task.WhenAll(logListTask, logListSignatureTask).ConfigureAwait(false);
-                cancellationToken.ThrowIfCancellationRequested();
-                await Task.WhenAll(logListTask.Result, logListSignatureTask.Result).ConfigureAwait(false);
-                cancellationToken.ThrowIfCancellationRequested();
+                try
+                {
+                    if (!LogStoreService.TryGetValue(LogListRootKey, out logListRoot))
+                    {
+                        var logListTask = LogListApi.GetLogListJson(cancellationToken)
+                            .ContinueWith(t => t.Result.ReadAsByteArrayAsync());
+                        var logListSignatureTask = LogListApi.GetLogListSignature(cancellationToken)
+                            .ContinueWith(t => t.Result.ReadAsByteArrayAsync());
 
-                var logListBytes = logListTask.Result.Result;
-                var logListSignatureBytes = logListSignatureTask.Result.Result;
+                        await Task.WhenAll(logListTask, logListSignatureTask).ConfigureAwait(false);
+                        cancellationToken.ThrowIfCancellationRequested();
+                        await Task.WhenAll(logListTask.Result, logListSignatureTask.Result).ConfigureAwait(false);
+                        cancellationToken.ThrowIfCancellationRequested();
 
-                var isValid = VerifyGoogleSignature(logListBytes, logListSignatureBytes);
+                        var logListBytes = logListTask.Result.Result;
+                        var logListSignatureBytes = logListSignatureTask.Result.Result;
 
-                if (!isValid)
-                    throw new InvalidDataException("Log list failed signature verification!");
+                        var isValid = VerifyGoogleSignature(logListBytes, logListSignatureBytes);
 
-                logListRoot = Deserialise<LogListRoot>(logListBytes);
+                        if (!isValid)
+                            throw new InvalidDataException("Log list failed signature verification!");
 
-                if (logListRoot?.Operators != null)
-                    LogStoreService.SetValue(LogListRootKey, logListRoot);
+                        logListRoot = Deserialise<LogListRoot>(logListBytes);
+
+                        if (logListRoot?.Operators != null)
+                            LogStoreService.SetValue(LogListRootKey, logListRoot);
+                    }
+                }
+                catch (Exception)
+                {
+                    throw;
+                }
+                finally
+                {
+                    _logListSemaphore.Release();
+                }
             }
 
             stopwatch.Stop();

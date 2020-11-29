@@ -6,8 +6,8 @@ namespace Cats.CertificateTransparency.Models
     {
         public static CtVerificationResult DisabledForHost(string host)
             => new CtVerificationResult(CtResult.DisabledForHost, $"Success: SCT not enabled for {host}");
-        public static CtVerificationResult Trusted(IDictionary<string, SctVerificationResult> sctResults)
-            => new CtVerificationResult(CtResult.Trusted, "Success: SCT trusted logs", sctResults);
+        public static CtVerificationResult Trusted(IDictionary<string, SctVerificationResult> sctResults, int minimumTrustedScts)
+            => new CtVerificationResult(CtResult.Trusted, "Success: SCT trusted logs", sctResults, minimumTrustedScts);
         public static CtVerificationResult InsecureConnection(string host)
            => new CtVerificationResult(CtResult.InsecureConnection, $"Success: SCT not enabled for insecure connection to {host}");
         public static CtVerificationResult NoCertificates()
@@ -17,13 +17,14 @@ namespace Cats.CertificateTransparency.Models
         public static CtVerificationResult NoScts()
           => new CtVerificationResult(CtResult.NoScts, $"Failure: Certificate does not have any Signed Certificate Timestamps in it");
         public static CtVerificationResult TooFewSctsTrusted(IDictionary<string, SctVerificationResult> sctResults, int trustedCount, int minimumTrustedScts)
-          => new CtVerificationResult(CtResult.TooFewSctsTrusted, $"Failure: Too few trusted SCTs, expected {minimumTrustedScts}, got {trustedCount}", sctResults);
+          => new CtVerificationResult(CtResult.TooFewSctsTrusted, $"Failure: Too few trusted SCTs, expected {minimumTrustedScts}, got {trustedCount}", sctResults, minimumTrustedScts);
         
-        public CtVerificationResult(CtResult result, string description, IDictionary<string, SctVerificationResult> sctResults)
+        public CtVerificationResult(CtResult result, string description, IDictionary<string, SctVerificationResult> sctResults, int minSctCount = -1)
         {
             Result = result;
             Description = description;
             SctResults = sctResults ?? new Dictionary<string, SctVerificationResult>(0);
+            MinSctCount = minSctCount;
         }
 
         public CtVerificationResult(CtResult result, string description) : this (result, description, new Dictionary<string, SctVerificationResult>(0))
@@ -34,6 +35,8 @@ namespace Cats.CertificateTransparency.Models
 
         public CtResult Result { get; private set; }
         public string Description { get; private set; }
+
+        public int MinSctCount { get; private set; }
 
         public bool IsValid =>
             Result == CtResult.Trusted ||

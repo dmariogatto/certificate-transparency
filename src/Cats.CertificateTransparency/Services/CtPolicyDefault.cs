@@ -14,8 +14,14 @@ namespace Cats.CertificateTransparency.Services
 
         public CtVerificationResult PolicyVerificationResult(X509Certificate2 leafCertificate, IDictionary<string, SctVerificationResult> sctResults)
         {
+#if DEBUG
+            var moqCert = leafCertificate as MoqX509Certificate2;
+            var before = moqCert?.NotBefore ?? leafCertificate.NotBefore;
+            var after = moqCert?.NotAfter ?? leafCertificate.NotAfter;
+#else
             var before = leafCertificate.NotBefore;
             var after = leafCertificate.NotAfter;
+#endif
 
             var (months, partial) = FlooredMonth(before, after);
             var minValidScts = MinimumValidSignedCertificateTimestamps(months, partial);
@@ -24,7 +30,7 @@ namespace Cats.CertificateTransparency.Services
             if (validScts < minValidScts)
                 return CtVerificationResult.TooFewSctsTrusted(sctResults, validScts, minValidScts);
 
-            return CtVerificationResult.Trusted(sctResults);
+            return CtVerificationResult.Trusted(sctResults, minValidScts);
         }
 
         private static int MinimumValidSignedCertificateTimestamps(int months, bool partial)

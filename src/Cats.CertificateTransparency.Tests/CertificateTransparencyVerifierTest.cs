@@ -303,6 +303,8 @@ namespace Cats.CertificateTransparency.Tests
         private X509Certificate2 SingleSctOnly(X509Certificate2 certificate)
         {
             var moqCert = new Moq.Mock<MoqX509Certificate2>(certificate) { CallBase = true };
+            moqCert.Setup(c => c.MoqNotBefore).Returns(certificate.NotBefore);
+            moqCert.Setup(c => c.MoqNotAfter).Returns(certificate.NotAfter);
             moqCert
                 .Setup(c => c.GetMoqExtensions())
                 .Returns(() =>

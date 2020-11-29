@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
+#if DEBUG
 [assembly: InternalsVisibleTo("Cats.CertificateTransparency.Tests")]
+[assembly: InternalsVisibleTo("Cats.CertificateTransparency.Tests.Droid")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
+#endif
 
 namespace Cats.CertificateTransparency
 {

@@ -1,7 +1,5 @@
-﻿using Cats.CertificateTransparency.Api;
-using Cats.CertificateTransparency.Extensions;
+﻿using Cats.CertificateTransparency.Extensions;
 using Cats.CertificateTransparency.Models;
-using Refit;
 using System;
 using System.Collections.Generic;
 using System.Linq;

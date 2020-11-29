@@ -14,29 +14,32 @@ namespace Cats.CertificateTransparency.Services
 {
     public class LogListService : ILogListService
     {
-        private const string LogListRootKey = nameof(LogListService) + "_" + nameof(GetLogListRootAsync);
-        private const string LogDictionaryKey = nameof(LogListService) + "_" + nameof(GetLogDictionaryAsync);
+        protected const string LogListRootKey = nameof(LogListService) + "_" + nameof(GetLogListRootAsync);
+        protected const string LogDictionaryKey = nameof(LogListService) + "_" + nameof(GetLogDictionaryAsync);
 
-        private readonly ILogListApi _logListApi;
-        private readonly ILogStoreService _logStoreService;
+        protected readonly ILogListApi LogListApi;
+        protected readonly ILogStoreService LogStoreService;
 
         public LogListService(
             ILogListApi logListApi,
             ILogStoreService logStoreService)
         {
-            _logListApi = logListApi;
-            _logStoreService = logStoreService;
+            LogListApi = logListApi;
+            LogStoreService = logStoreService;
         }
 
-        public async Task<LogListRoot> GetLogListRootAsync(CancellationToken cancellationToken)
+        public async virtual Task<LogListRoot> GetLogListRootAsync(CancellationToken cancellationToken)
         {
             var logListRoot = default(LogListRoot);
 
-            if (!_logStoreService.TryGetValue(LogListRootKey, out logListRoot))
+            var stopwatch = new System.Diagnostics.Stopwatch();
+            stopwatch.Start();
+
+            if (!LogStoreService.TryGetValue(LogListRootKey, out logListRoot))
             {
-                var logListTask = _logListApi.GetLogListJson(cancellationToken)
+                var logListTask = LogListApi.GetLogListJson(cancellationToken)
                     .ContinueWith(t => t.Result.ReadAsByteArrayAsync());
-                var logListSignatureTask = _logListApi.GetLogListSignature(cancellationToken)
+                var logListSignatureTask = LogListApi.GetLogListSignature(cancellationToken)
                     .ContinueWith(t => t.Result.ReadAsByteArrayAsync());
 
                 await Task.WhenAll(logListTask, logListSignatureTask).ConfigureAwait(false);
@@ -55,8 +58,10 @@ namespace Cats.CertificateTransparency.Services
                 logListRoot = Deserialise<LogListRoot>(logListBytes);
 
                 if (logListRoot?.Operators != null)
-                    _logStoreService.SetValue(LogListRootKey, logListRoot);
+                    LogStoreService.SetValue(LogListRootKey, logListRoot);
             }
+
+            stopwatch.Stop();
 
             return logListRoot;            
         }
@@ -65,21 +70,21 @@ namespace Cats.CertificateTransparency.Services
         {
             var logDictionary = default(IDictionary<string, Log>);
 
-            if (!_logStoreService.TryGetValue(LogDictionaryKey, out logDictionary))
+            if (!LogStoreService.TryGetValue(LogDictionaryKey, out logDictionary))
             {
                 var logListRoot = await GetLogListRootAsync(cancellationToken).ConfigureAwait(false);
                 if (logListRoot?.Operators != null)
                 {
                     logDictionary = logListRoot.ToDictionary();
                     if (logDictionary.Any())
-                        _logStoreService.SetValue(LogDictionaryKey, logDictionary);
+                        LogStoreService.SetValue(LogDictionaryKey, logDictionary);
                 }
             }
 
             return logDictionary ?? new Dictionary<string, Log>(0);
         }
 
-        private static bool VerifyGoogleSignature(byte[] data, byte[] signature)
+        protected static bool VerifyGoogleSignature(byte[] data, byte[] signature)
         {
             var signer = SignerUtilities.GetSigner(Constants.Sha256WithRsa);
             var pubKey = PublicKeyFactory.CreateKey(ReadPemPublicKey(Constants.GoogleLogListPublicKey));
@@ -89,7 +94,7 @@ namespace Cats.CertificateTransparency.Services
             return isValid;
         }
 
-        private static byte[] ReadPemPublicKey(string publicKey)
+        protected static byte[] ReadPemPublicKey(string publicKey)
         {
             string encodedPublicKey = publicKey
                 .Replace(Constants.BeginPublicKey, string.Empty)
@@ -98,7 +103,7 @@ namespace Cats.CertificateTransparency.Services
             return Convert.FromBase64String(encodedPublicKey);
         }
 
-        private static T Deserialise<T>(byte[] data) where T : class
+        protected static T Deserialise<T>(byte[] data) where T : class
         {
             using var stream = new MemoryStream(data);
             using var reader = new StreamReader(stream, Encoding.UTF8);

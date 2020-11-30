@@ -23,7 +23,7 @@ namespace Cats.CertificateTransparency.Tests
                 TestData.Certificates.PRE_CERT_SIGNING_BY_INTERMEDIATE,
                 TestData.Certificates.INTERMEDIATE_CA_CERT);
 
-            var builtChain = CertificateChainBuilder.Build(certsChain.First(), certsChain.Skip(1));
+            var builtChain = CertificateChainBuilder.Build(certsChain);
 
             // then the expected chain is returned
             Assert.True(_expectedChain.SequenceEqual(builtChain));
@@ -37,7 +37,7 @@ namespace Cats.CertificateTransparency.Tests
                 TestData.Certificates.TEST_PRE_CERT_SIGNED_BY_PRECA_INTERMEDIATE,
                 TestData.Certificates.INTERMEDIATE_CA_CERT);
 
-            var builtChain = CertificateChainBuilder.Build(certsChain.First(), certsChain.Skip(1));
+            var builtChain = CertificateChainBuilder.Build(certsChain);
 
             Assert.AreEqual(builtChain, null);
         }
@@ -51,7 +51,7 @@ namespace Cats.CertificateTransparency.Tests
                 TestData.Certificates.INTERMEDIATE_CA_CERT,
                 TestData.Certificates.PRE_CERT_SIGNING_BY_INTERMEDIATE);
 
-            var builtChain = CertificateChainBuilder.Build(certsChain.First(), certsChain.Skip(1));
+            var builtChain = CertificateChainBuilder.Build(certsChain);
 
             // then the expected chain is returned
             Assert.True(_expectedChain.SequenceEqual(builtChain));
@@ -72,7 +72,7 @@ namespace Cats.CertificateTransparency.Tests
 
                 TestData.Certificates.INTERMEDIATE_CA_CERT);
 
-            var builtChain = CertificateChainBuilder.Build(certsChain.First(), certsChain.Skip(1));
+            var builtChain = CertificateChainBuilder.Build(certsChain);
 
             // then the expected chain is returned
             Assert.True(_expectedChain.SequenceEqual(builtChain));
@@ -85,7 +85,7 @@ namespace Cats.CertificateTransparency.Tests
             var certsChain = TestData.Certificates.LoadCerts(
                 TestData.Certificates.TEST_PRE_CERT_SIGNED_BY_PRECA_INTERMEDIATE);
 
-            var builtChain = CertificateChainBuilder.Build(certsChain.First(), certsChain.Skip(1));
+            var builtChain = CertificateChainBuilder.Build(certsChain);
 
             Assert.AreEqual(builtChain, null);
         }
@@ -98,7 +98,7 @@ namespace Cats.CertificateTransparency.Tests
             var certsChain = TestData.Certificates.LoadCerts(
                 TestData.Certificates.TEN_CERTS_CHAIN);
 
-            var builtChain = CertificateChainBuilder.Build(certsChain.First(), certsChain.Skip(1), rootCert);
+            var builtChain = CertificateChainBuilder.Build(certsChain, rootCert);
 
             var expected = certsChain.ToList();
             expected.Add(rootCert);
@@ -114,7 +114,7 @@ namespace Cats.CertificateTransparency.Tests
                 TestData.Certificates.TEN_CERTS_CHAIN);
             var trustedCert = certsChain[5];
 
-            var builtChain = CertificateChainBuilder.Build(certsChain.First(), certsChain.Skip(1), trustedCert);
+            var builtChain = CertificateChainBuilder.Build(certsChain, trustedCert);
 
             // then the expected chain is returned
             Assert.True(certsChain.SequenceEqual(builtChain));
@@ -128,7 +128,7 @@ namespace Cats.CertificateTransparency.Tests
             var certsChain = TestData.Certificates.LoadCerts(
                 TestData.Certificates.ELEVEN_CERTS_CHAIN);
 
-            var builtChain = CertificateChainBuilder.Build(certsChain.First(), certsChain.Skip(1), rootCert);
+            var builtChain = CertificateChainBuilder.Build(certsChain, rootCert);
 
             // when we clean a chain with more than 10 certs (inc root)
             Assert.IsTrue(builtChain.Count > 10);
@@ -142,7 +142,7 @@ namespace Cats.CertificateTransparency.Tests
 
             var certsChain = new[] { rootCert };
 
-            var builtChain = CertificateChainBuilder.Build(certsChain.First(), certsChain.Skip(1), rootCert);
+            var builtChain = CertificateChainBuilder.Build(certsChain, rootCert);
 
             // then the expected chain is returned
             Assert.True(certsChain.SequenceEqual(builtChain));

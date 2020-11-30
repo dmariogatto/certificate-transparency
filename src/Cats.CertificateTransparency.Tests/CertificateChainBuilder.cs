@@ -6,9 +6,14 @@ namespace Cats.CertificateTransparency.Tests
 {
     internal static class CertificateChainBuilder
     {
-        internal static IList<X509Certificate2> Build(X509Certificate2 leaf, IEnumerable<X509Certificate2> chain, X509Certificate rootCert = null)
+        internal static IList<X509Certificate2> Build(IEnumerable<X509Certificate2> chain, X509Certificate rootCert = null)
         {
+            if (chain?.Any() != true) return null;
+
             rootCert ??= TestData.Certificates.LoadCerts(TestData.Certificates.ROOT_CA_CERT).First();
+
+            var leaf = chain.First();
+            chain = chain.Skip(1);
 
             using var chainBuilder = new X509Chain();            
             chainBuilder.ChainPolicy.VerificationFlags = X509VerificationFlags.NoFlag;            

@@ -26,7 +26,7 @@ namespace Cats.CertificateTransparency.Tests
             var rootCert = TestData.Certificates.LoadCerts(TestData.Certificates.TEST_MITMPROXY_ROOT_CERT);
             var certsToCheck = TestData.Certificates.LoadCerts(TestData.Certificates.TEST_MITMPROXY_ATTACK_CHAIN);
 
-            var certsChain = CertificateChainBuilder.Build(certsToCheck.First(), certsToCheck.Skip(1), rootCert.Single());
+            var certsChain = CertificateChainBuilder.Build(certsToCheck, rootCert.Single());
 
             var result = ctv.IsValidAsync(BabylonHealthCom, certsChain, default).Result;
 
@@ -41,7 +41,7 @@ namespace Cats.CertificateTransparency.Tests
             var rootCert = TestData.Certificates.LoadCerts(TestData.Certificates.TEST_MITMPROXY_ROOT_CERT);
             var certsToCheck = TestData.Certificates.LoadCerts(TestData.Certificates.TEST_MITMPROXY_ATTACK_CHAIN);
 
-            var certsChain = CertificateChainBuilder.Build(certsToCheck.First(), certsToCheck.Skip(1), rootCert.Single());
+            var certsChain = CertificateChainBuilder.Build(certsToCheck, rootCert.Single());
 
             var result = ctv.IsValidAsync(BabylonHealthCom, certsChain, default).Result;
 
@@ -56,7 +56,7 @@ namespace Cats.CertificateTransparency.Tests
             var rootCert = TestData.Certificates.LoadCerts(TestData.Certificates.TEST_MITMPROXY_ROOT_CERT);
             var certsToCheck = TestData.Certificates.LoadCerts(TestData.Certificates.TEST_MITMPROXY_ORIGINAL_CHAIN);
 
-            var certsChain = CertificateChainBuilder.Build(certsToCheck.First(), certsToCheck.Skip(1), rootCert.Single());
+            var certsChain = CertificateChainBuilder.Build(certsToCheck, rootCert.Single());
 
             var result = ctv.IsValidAsync(BabylonHealthCom, certsChain, default).Result;
 
@@ -71,7 +71,7 @@ namespace Cats.CertificateTransparency.Tests
             var rootCert = TestData.Certificates.LoadCerts(TestData.Certificates.TEST_MITMPROXY_ROOT_CERT);
             var certsToCheck = TestData.Certificates.LoadCerts(TestData.Certificates.TEST_MITMPROXY_ORIGINAL_CHAIN);
 
-            var certsChain = CertificateChainBuilder.Build(certsToCheck.First(), certsToCheck.Skip(1), rootCert.Single());
+            var certsChain = CertificateChainBuilder.Build(certsToCheck, rootCert.Single());
 
             var result = ctv.IsValidAsync(BabylonHealthCom, certsChain, default).Result;
 
@@ -86,7 +86,7 @@ namespace Cats.CertificateTransparency.Tests
 
             var certsToCheck = TestData.Certificates.LoadCerts(TestData.Certificates.TEST_MITMPROXY_ATTACK_CHAIN);
 
-            var certsChain = CertificateChainBuilder.Build(certsToCheck.First(), certsToCheck.Skip(1));
+            var certsChain = CertificateChainBuilder.Build(certsToCheck);
 
             Assert.AreEqual(certsChain, null);
         }
@@ -106,7 +106,7 @@ namespace Cats.CertificateTransparency.Tests
             var rootCert = TestData.Certificates.LoadCerts(TestData.Certificates.TEST_MITMPROXY_ROOT_CERT);
             var certsToCheck = TestData.Certificates.LoadCerts(TestData.Certificates.TEST_MITMPROXY_ORIGINAL_CHAIN);
 
-            var certsChain = CertificateChainBuilder.Build(certsToCheck.First(), certsToCheck.Skip(1), rootCert.Single());
+            var certsChain = CertificateChainBuilder.Build(certsToCheck, rootCert.Single());
 
             var result = ctv.IsValidAsync(BabylonHealthCom, certsChain, default).Result;
 
@@ -121,7 +121,7 @@ namespace Cats.CertificateTransparency.Tests
             var rootCert = TestData.Certificates.LoadCerts(TestData.Certificates.TEST_MITMPROXY_ROOT_CERT);
             var certsToCheck = TestData.Certificates.LoadCerts(TestData.Certificates.TEST_MITMPROXY_ORIGINAL_CHAIN);
 
-            var certsChain = CertificateChainBuilder.Build(certsToCheck.First(), certsToCheck.Skip(1), rootCert.Single());
+            var certsChain = CertificateChainBuilder.Build(certsToCheck, rootCert.Single());
 
             var result = ctv.IsValidAsync(BabylonHealthCom, certsChain, default).Result;
 
@@ -136,7 +136,7 @@ namespace Cats.CertificateTransparency.Tests
             var rootCert = TestData.Certificates.LoadCerts(TestData.Certificates.TEST_MITMPROXY_ROOT_CERT);
             var certsToCheck = TestData.Certificates.LoadCerts(TestData.Certificates.TEST_MITMPROXY_ORIGINAL_CHAIN);
 
-            var certsChain = CertificateChainBuilder.Build(certsToCheck.First(), certsToCheck.Skip(1), rootCert.Single());
+            var certsChain = CertificateChainBuilder.Build(certsToCheck, rootCert.Single());
 
             var certWithSingleSct = SingleSctOnly(certsChain.First());
             certsChain.RemoveAt(0);
@@ -165,7 +165,7 @@ namespace Cats.CertificateTransparency.Tests
             var rootCert = TestData.Certificates.LoadCerts(TestData.Certificates.TEST_MITMPROXY_ROOT_CERT);
             var certsToCheck = TestData.Certificates.LoadCerts(TestData.Certificates.TEST_MITMPROXY_ORIGINAL_CHAIN);
 
-            var certsChain = CertificateChainBuilder.Build(certsToCheck.First(), certsToCheck.Skip(1), rootCert.Single());
+            var certsChain = CertificateChainBuilder.Build(certsToCheck, rootCert.Single());
 
             var result = ctv.IsValidAsync(AllowedRandomCom, certsChain, default).Result;
 
@@ -180,7 +180,7 @@ namespace Cats.CertificateTransparency.Tests
             var rootCert = TestData.Certificates.LoadCerts(TestData.Certificates.TEST_MITMPROXY_ROOT_CERT);
             var certsToCheck = TestData.Certificates.LoadCerts(TestData.Certificates.TEST_MITMPROXY_ORIGINAL_CHAIN);
 
-            var certsChain = CertificateChainBuilder.Build(certsToCheck.First(), certsToCheck.Skip(1), rootCert.Single());
+            var certsChain = CertificateChainBuilder.Build(certsToCheck, rootCert.Single());
 
             var result = ctv.IsValidAsync(DisallowedRandomCom, certsChain, default).Result;
 
@@ -195,7 +195,7 @@ namespace Cats.CertificateTransparency.Tests
             var rootCert = TestData.Certificates.LoadCerts(TestData.Certificates.TEST_MITMPROXY_ROOT_CERT);
             var certsToCheck = TestData.Certificates.LoadCerts(TestData.Certificates.TEST_MITMPROXY_ORIGINAL_CHAIN);
 
-            var certsChain = CertificateChainBuilder.Build(certsToCheck.First(), certsToCheck.Skip(1), rootCert.Single());
+            var certsChain = CertificateChainBuilder.Build(certsToCheck, rootCert.Single());
 
             var result = ctv.IsValidAsync(AllowedRandomCom, certsChain, default).Result;
 
@@ -210,7 +210,7 @@ namespace Cats.CertificateTransparency.Tests
             var rootCert = TestData.Certificates.LoadCerts(TestData.Certificates.TEST_MITMPROXY_ROOT_CERT);
             var certsToCheck = TestData.Certificates.LoadCerts(TestData.Certificates.TEST_MITMPROXY_ORIGINAL_CHAIN);
 
-            var certsChain = CertificateChainBuilder.Build(certsToCheck.First(), certsToCheck.Skip(1), rootCert.Single());
+            var certsChain = CertificateChainBuilder.Build(certsToCheck, rootCert.Single());
 
             var result = ctv.IsValidAsync(AllowedRandomCom, certsChain, default).Result;
 
@@ -225,7 +225,7 @@ namespace Cats.CertificateTransparency.Tests
             var rootCert = TestData.Certificates.LoadCerts(TestData.Certificates.TEST_MITMPROXY_ROOT_CERT);
             var certsToCheck = TestData.Certificates.LoadCerts(TestData.Certificates.TEST_MITMPROXY_ORIGINAL_CHAIN);
 
-            var certsChain = CertificateChainBuilder.Build(certsToCheck.First(), certsToCheck.Skip(1), rootCert.Single());
+            var certsChain = CertificateChainBuilder.Build(certsToCheck, rootCert.Single());
 
             var result = ctv.IsValidAsync(AllowedRandomCom, certsChain, default).Result;
 

@@ -9,9 +9,6 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using DigitallySigned = Cats.CertificateTransparency.Models.DigitallySigned;
-using CtHashAlgorithm = Cats.CertificateTransparency.Models.CtHashAlgorithm;
-using CtSignatureAlgorithm = Cats.CertificateTransparency.Models.CtSignatureAlgorithm;
-using SctVersion = Cats.CertificateTransparency.Models.SctVersion;
 
 namespace Cats.CertificateTransparency.Extensions
 {

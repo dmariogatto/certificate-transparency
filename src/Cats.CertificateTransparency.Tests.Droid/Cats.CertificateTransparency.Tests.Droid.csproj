@@ -62,8 +62,21 @@
     <Reference Include="Xamarin.Android.NUnitLite" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\Cats.CertificateTransparency.Tests\CertificateTransparencyVerifierTest.cs">
+      <Link>Tests\CertificateTransparencyVerifierTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Cats.CertificateTransparency.Tests\CtPolicyDefaultTest.cs">
+      <Link>Tests\CtPolicyDefaultTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Cats.CertificateTransparency.Tests\HostnamePatternTest.cs">
+      <Link>Tests\HostnamePatternTest.cs</Link>
+    </Compile>
+    <Compile Include="..\Cats.CertificateTransparency.Tests\StreamExtensionsTest.cs">
+      <Link>Tests\StreamExtensionsTest.cs</Link>
+    </Compile>
     <Compile Include="Helpers\JavaX509CertificateEquality.cs" />
     <Compile Include="Helpers\Extensions.cs" />
+    <Compile Include="Tests\CertificateChainBuilder.cs" />
     <Compile Include="Tests\CertificateChainBuilderTest.cs" />
     <Compile Include="MainActivity.cs" />
     <Compile Include="Resources\Resource.designer.cs" />

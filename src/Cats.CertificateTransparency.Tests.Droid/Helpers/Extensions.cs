@@ -1,6 +1,7 @@
 ﻿using Java.Security.Cert;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using DotNetX509Certificate = System.Security.Cryptography.X509Certificates.X509Certificate2;
 using JavaX509Certificate = Java.Security.Cert.X509Certificate;
 
@@ -20,7 +21,12 @@ namespace Cats.CertificateTransparency.Tests.Droid
                 javaCerts.Add(javaCert);
             }
 
-            return javaCerts.ToArray();
+            return javaCerts;
+        }
+
+        public static IList<DotNetX509Certificate> ToDotNetCerts(this IEnumerable<JavaX509Certificate> certificates)
+        {            
+            return certificates.Select(c => new DotNetX509Certificate(c.GetEncoded())).ToList();
         }
     }
 }

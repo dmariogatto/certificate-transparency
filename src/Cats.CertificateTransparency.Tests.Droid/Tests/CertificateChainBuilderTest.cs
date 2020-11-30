@@ -1,11 +1,12 @@
 ﻿using Cats.CertificateTransparency.Android;
+using Cats.CertificateTransparency.Tests.Droid;
 using Java.Security.Cert;
 using Javax.Net.Ssl;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Cats.CertificateTransparency.Tests.Droid
+namespace Cats.CertificateTransparency.Tests
 {
     [TestFixture]
     public class CertificateChainBuilderTest
@@ -196,7 +197,7 @@ namespace Cats.CertificateTransparency.Tests.Droid
                                            .ToArray()
                                  : new[] { rootCert });
 
-            return new CertificateChainBuilder(trustManager.Object);
+            return new Android.CertificateChainBuilder(trustManager.Object);
         }
     }
 }

@@ -5,11 +5,9 @@ VisualStudioVersion = 16.0.30711.63
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cats.CertificateTransparency", "Cats.CertificateTransparency\Cats.CertificateTransparency.csproj", "{E9314C8B-7CA6-4295-9FB3-0BBB22C9455D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cats.CertificateTransparency.Console", "Cats.CertificateTransparency.Console\Cats.CertificateTransparency.Console.csproj", "{ECE27EB8-AE09-4B56-AC9F-52F35E6A3100}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Samples.Console", "Samples\Samples.Console\Samples.Console.csproj", "{ECE27EB8-AE09-4B56-AC9F-52F35E6A3100}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cats.CertificateTransparency.Android", "Cats.CertificateTransparency.Android\Cats.CertificateTransparency.Android.csproj", "{50D6F858-A6D3-4663-86E9-355BD331EA20}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cats.CertificateTransparency.Droid.Sample", "Cats.CertificateTransparency.Droid.Sample\Cats.CertificateTransparency.Droid.Sample.csproj", "{9C97A1CD-FA18-4472-A274-AFBEFFDD2F5B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Samples.Droid", "Samples\Samples.Droid\Samples.Droid.csproj", "{9C97A1CD-FA18-4472-A274-AFBEFFDD2F5B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3848C085-D8BE-4B9C-BF18-9F36ECB9504F}"
 	ProjectSection(SolutionItems) = preProject
@@ -20,11 +18,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{8222
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{EC994E11-0FEB-4EAA-B2F8-3A72A4317BBC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cats.CertificateTransparency.Tests.Droid", "Cats.CertificateTransparency.Tests.Droid\Cats.CertificateTransparency.Tests.Droid.csproj", "{18497B17-CD53-46DC-AC16-D3F1BD3178D7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.Droid", "Tests\Tests.Droid\Tests.Droid.csproj", "{18497B17-CD53-46DC-AC16-D3F1BD3178D7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Cats.CertificateTransparency.Tests", "Cats.CertificateTransparency.Tests\Cats.CertificateTransparency.Tests.csproj", "{515FB7C4-F8AC-4D02-9978-D350A246F408}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests\Tests.csproj", "{515FB7C4-F8AC-4D02-9978-D350A246F408}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Cats.CertificateTransparency.TestData", "Cats.CertificateTransparency.TestData\Cats.CertificateTransparency.TestData.csproj", "{28ED2DC4-22B1-456E-9C23-2882DC5508C4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.Data", "Tests\Tests.Data\Tests.Data.csproj", "{28ED2DC4-22B1-456E-9C23-2882DC5508C4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -40,10 +38,6 @@ Global
 		{ECE27EB8-AE09-4B56-AC9F-52F35E6A3100}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ECE27EB8-AE09-4B56-AC9F-52F35E6A3100}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ECE27EB8-AE09-4B56-AC9F-52F35E6A3100}.Release|Any CPU.Build.0 = Release|Any CPU
-		{50D6F858-A6D3-4663-86E9-355BD331EA20}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{50D6F858-A6D3-4663-86E9-355BD331EA20}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{50D6F858-A6D3-4663-86E9-355BD331EA20}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{50D6F858-A6D3-4663-86E9-355BD331EA20}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9C97A1CD-FA18-4472-A274-AFBEFFDD2F5B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9C97A1CD-FA18-4472-A274-AFBEFFDD2F5B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C97A1CD-FA18-4472-A274-AFBEFFDD2F5B}.Debug|Any CPU.Deploy.0 = Debug|Any CPU

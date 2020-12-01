@@ -143,7 +143,7 @@ namespace Cats.CertificateTransparency.Extensions
             var (oid, sigAlg) = GetKeyAlgorithm(logServer.KeyBytes);
             var signer = sigAlg switch
             {
-                CtSignatureAlgorithm.Ecdsa => SignerUtilities.GetSigner(Constants.Sha256withEcdsa),
+                CtSignatureAlgorithm.Ecdsa => SignerUtilities.GetSigner(Constants.Sha256WithEcdsa),
                 CtSignatureAlgorithm.Rsa => SignerUtilities.GetSigner(Constants.Sha256WithRsa),
                 _ => throw new NotImplementedException($"Signature algothrim '{sigAlg}' not supported, with OID '{oid}'"),
             };

@@ -53,11 +53,11 @@ namespace Cats.CertificateTransparency.Services
                         using var logListSignatureStream = logListSignatureEntry.Open();
                         using var ms = new MemoryStream();
 
-                        await logListStream.CopyToAsync(ms, cancellationToken).ConfigureAwait(false);
+                        await logListStream.CopyToAsync(ms, 81920, cancellationToken).ConfigureAwait(false);
                         var logListBytes = ms.ToArray();
 
                         ms.SetLength(0);
-                        await logListSignatureStream.CopyToAsync(ms, cancellationToken).ConfigureAwait(false);
+                        await logListSignatureStream.CopyToAsync(ms, 81920, cancellationToken).ConfigureAwait(false);
                         var logListSignatureBytes = ms.ToArray();
 
                         var isValid = VerifyGoogleSignature(logListBytes, logListSignatureBytes);

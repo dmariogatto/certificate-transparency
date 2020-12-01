@@ -1,9 +1,28 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="MSBuild.Sdk.Extras/2.1.2">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
-    <ProduceReferenceAssembly>true</ProduceReferenceAssembly>
+    <TargetFrameworks>netstandard2.0;netstandard2.1;monoandroid81;monoandroid90;monoandroid10.0;</TargetFrameworks>
     <LangVersion>latest</LangVersion>
+
+    <AssemblyName>Cats.CertificateTransparency</AssemblyName>
+    <RootNamespace>Cats.CertificateTransparency</RootNamespace>
+    <PackageId>Cats.CertificateTransparency</PackageId>
+    <PackageIcon></PackageIcon>
+    <Summary>Certificate Transparency Validation for .NET</Summary>
+    <PackageTags>certificate transparency certificatetransparency ct sct https</PackageTags>
+    <Title>Cats.CertificateTransparency</Title>
+    <Description>Certificate Transparency aims to remedy certificate-based threats by making the issuance and existence of SSL certificates open to scrutiny by domain owners, CAs, and domain users.</Description>
+    <Product>$(AssemblyName) ($(TargetFramework))</Product>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <AssemblyFileVersion>1.0.0.0</AssemblyFileVersion>
+    <Version>1.0.0</Version>
+    <PackageVersion>1.0.0</PackageVersion>
+    <Authors>dmariogatto</Authors>
+    <Owners>dmariogatto</Owners>
+    <NeutralLanguage>en</NeutralLanguage>
+    <Copyright>© Daniel Gatto</Copyright>
+    <RepositoryUrl>https://github.com/dmariogatto/certificate-transparency</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -14,6 +33,16 @@
   <ItemGroup>
     <PackageReference Include="Portable.BouncyCastle" Version="1.8.8" />
     <PackageReference Include="Refit" Version="5.2.4" />
+
+    <Compile Remove="Platforms\**\*.*" />
+    <None Include="Platforms\**\*.*" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+
+    <Compile Include="Platforms\Android\**\*.cs" />
   </ItemGroup>
 
 </Project>

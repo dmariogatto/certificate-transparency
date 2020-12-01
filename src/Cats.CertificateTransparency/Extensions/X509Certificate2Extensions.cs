@@ -82,67 +82,63 @@ namespace Cats.CertificateTransparency.Extensions
 #else
             var sctExtension = certificate.GetExtension(Constants.SctCertificateOid);
 #endif
-            if (sctExtension != null)
+            if (sctExtension?.RawData?.Any() == true)
             {
-                var octets = Asn1OctetString.GetInstance(sctExtension.RawData).GetOctets();
+                var octets = Asn1OctetString.GetInstance(sctExtension.RawData).GetOctets();                
+                // could be a nested OCTET string, check leading byte
+                var derOctetString = octets[0] == 0x04
+                    ? Asn1Object.FromByteArray(octets) as DerOctetString
+                    : Asn1Object.FromByteArray(sctExtension.RawData) as DerOctetString;
 
-                if (octets.Length > 0)
+                using var inputStream = derOctetString.GetOctetStream();
+
+                TlsUtilities.ReadUint16(inputStream);
+
+                while (inputStream.Length - inputStream.Position > 2)
                 {
-                    // could be a nested OCTET string, check leading byte
-                    var derOctetString = octets[0] == 0x04
-                        ? Asn1Object.FromByteArray(octets) as DerOctetString
-                        : Asn1Object.FromByteArray(sctExtension.RawData) as DerOctetString;
+                    var sctBytes = TlsUtilities.ReadOpaque16(inputStream);
 
-                    using var inputStream = derOctetString.GetOctetStream();
+                    using var sctStream = new MemoryStream(sctBytes);
 
-                    TlsUtilities.ReadUint16(inputStream);
+                    var version = (SctVersion)sctStream.ReadByte();
+                    if (version != SctVersion.V1)
+                        throw new NotSupportedException(UnknowError(nameof(SctVersion), version));
 
-                    while (inputStream.Length - inputStream.Position > 2)
+                    var keyId = new byte[Constants.KeyIdLength];
+                    sctStream.Read(keyId, 0, keyId.Length);
+
+                    var timestamp = sctStream.ReadLong(Constants.TimestampLength);
+
+                    var extensions = sctStream.ReadVariableLength(Constants.ExtensionsMaxLength);
+
+                    var hashAlgo = (CtHashAlgorithm)sctStream.ReadByte();
+                    if (!Enum.IsDefined(typeof(CtHashAlgorithm), hashAlgo))
+                        throw new NotSupportedException(UnknowError(nameof(CtHashAlgorithm), hashAlgo));
+
+                    var signatureAlgo = (CtSignatureAlgorithm)sctStream.ReadByte();
+                    if (!Enum.IsDefined(typeof(CtSignatureAlgorithm), signatureAlgo))
+                        throw new NotSupportedException(UnknowError(nameof(CtSignatureAlgorithm), signatureAlgo));
+
+                    var signature = sctStream.ReadVariableLength(Constants.SignatureMaxLength);
+
+                    var digitallySigned = new DigitallySigned()
                     {
-                        var sctBytes = TlsUtilities.ReadOpaque16(inputStream);
+                        Hash = hashAlgo,
+                        Signature = signatureAlgo,
+                        SignatureData = signature
+                    };
 
-                        using var sctStream = new MemoryStream(sctBytes);
+                    var sct = new SignedCertificateTimestamp()
+                    {
+                        SctVersion = version,
+                        LogId = keyId,
+                        TimestampMs = timestamp,
+                        Extensions = extensions,
+                        Signature = digitallySigned
+                    };
 
-                        var version = (SctVersion)sctStream.ReadByte();
-                        if (version != SctVersion.V1)
-                            throw new NotSupportedException(UnknowError(nameof(SctVersion), version));
-
-                        var keyId = new byte[Constants.KeyIdLength];
-                        sctStream.Read(keyId);
-
-                        var timestamp = sctStream.ReadLong(Constants.TimestampLength);
-
-                        var extensions = sctStream.ReadVariableLength(Constants.ExtensionsMaxLength);
-
-                        var hashAlgo = (CtHashAlgorithm)sctStream.ReadByte();
-                        if (!Enum.IsDefined(typeof(CtHashAlgorithm), hashAlgo))
-                            throw new NotSupportedException(UnknowError(nameof(CtHashAlgorithm), hashAlgo));
-
-                        var signatureAlgo = (CtSignatureAlgorithm)sctStream.ReadByte();
-                        if (!Enum.IsDefined(typeof(CtSignatureAlgorithm), signatureAlgo))
-                            throw new NotSupportedException(UnknowError(nameof(CtSignatureAlgorithm), signatureAlgo));
-
-                        var signature = sctStream.ReadVariableLength(Constants.SignatureMaxLength);                        
-
-                        var digitallySigned = new DigitallySigned()
-                        {
-                            Hash = hashAlgo,
-                            Signature = signatureAlgo,
-                            SignatureData = signature
-                        };
-
-                        var sct = new SignedCertificateTimestamp()
-                        {
-                            SctVersion = version,
-                            LogId = keyId,
-                            TimestampMs = timestamp,
-                            Extensions = extensions,
-                            Signature = digitallySigned
-                        };
-
-                        result.Add(sct);
-                    }
-                }                
+                    result.Add(sct);
+                }
             }
 
             return result;

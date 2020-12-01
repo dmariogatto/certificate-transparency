@@ -7,7 +7,7 @@ namespace Cats.CertificateTransparency.Extensions
         internal static string ToHexString(this byte[] array)
         {
             var hex = new StringBuilder(array.Length * 2);
-            foreach (byte b in array) hex.AppendFormat("{0:x2}", b);
+            foreach (var b in array) hex.AppendFormat("{0:x2}", b);
             return hex.ToString();
         }
     }

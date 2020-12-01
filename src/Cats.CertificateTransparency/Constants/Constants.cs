@@ -2,8 +2,8 @@
 using System.Runtime.CompilerServices;
 
 #if DEBUG
-[assembly: InternalsVisibleTo("Cats.CertificateTransparency.Tests")]
-[assembly: InternalsVisibleTo("Cats.CertificateTransparency.Tests.Droid")]
+[assembly: InternalsVisibleTo("Tests")]
+[assembly: InternalsVisibleTo("Tests.Droid")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 #endif
 
@@ -34,6 +34,6 @@ namespace Cats.CertificateTransparency
         public const string EndPublicKey = "-----END PUBLIC KEY-----";
 
         public const string Sha256WithRsa = "SHA256withRSA";
-        public const string Sha256withEcdsa = "SHA256withECDSA";
+        public const string Sha256WithEcdsa = "SHA256withECDSA";
     }
 }

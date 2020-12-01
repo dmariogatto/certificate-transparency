@@ -5,7 +5,7 @@ using System;
 
 namespace Cats.CertificateTransparency
 {
-    public static class Instance
+    public static partial class Instance
     {
         private static readonly Lazy<ICertificateTransparencyVerifier> DefaultCertVerifier =
            new Lazy<ICertificateTransparencyVerifier>(() =>

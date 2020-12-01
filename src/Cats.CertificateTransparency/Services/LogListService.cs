@@ -14,8 +14,8 @@ namespace Cats.CertificateTransparency.Services
 {
     public class LogListService : ILogListService
     {
-        protected const string LogListRootKey = nameof(LogListService) + "_" + nameof(GetLogListRootAsync);
-        protected const string LogDictionaryKey = nameof(LogListService) + "_" + nameof(GetLogDictionaryAsync);
+        protected const string LogListRootKey = nameof(Cats) + "_" + nameof(LogListService) + "_" + nameof(GetLogListRootAsync);
+        protected const string LogDictionaryKey = nameof(Cats) + "_" + nameof(LogListService) + "_" + nameof(GetLogDictionaryAsync);
 
         protected readonly ILogListApi LogListApi;
         protected readonly ILogStoreService LogStoreService;
@@ -28,6 +28,22 @@ namespace Cats.CertificateTransparency.Services
         {
             LogListApi = logListApi;
             LogStoreService = logStoreService;
+        }
+
+        public bool HasLogList => LogStoreService.ContainsKey(LogListRootKey);
+
+        public async Task<bool> LoadLogListAsync(CancellationToken cancellationToken)
+        {
+            if (!HasLogList)
+                await GetLogListRootAsync(cancellationToken).ConfigureAwait(false);
+            
+            return HasLogList;
+        }
+
+        public void ClearLogList()
+        {
+            LogStoreService.Remove(LogListRootKey);
+            LogStoreService.Remove(LogDictionaryKey);
         }
 
         public async virtual Task<LogListRoot> GetLogListRootAsync(CancellationToken cancellationToken)

@@ -39,6 +39,8 @@ namespace Samples.Droid
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
+            _ = Instance.LogListService.LoadLogListAsync(default);
+
             base.OnCreate(savedInstanceState);
             Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             SetContentView(Resource.Layout.activity_main);

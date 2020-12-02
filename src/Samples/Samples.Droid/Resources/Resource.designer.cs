@@ -11531,19 +11531,22 @@ namespace Samples.Droid
 		{
 			
 			// aapt resource value: 0x7F120000
-			public const int standalone_badge = 2131886080;
+			public const int network_security_config = 2131886080;
 			
 			// aapt resource value: 0x7F120001
-			public const int standalone_badge_gravity_bottom_end = 2131886081;
+			public const int standalone_badge = 2131886081;
 			
 			// aapt resource value: 0x7F120002
-			public const int standalone_badge_gravity_bottom_start = 2131886082;
+			public const int standalone_badge_gravity_bottom_end = 2131886082;
 			
 			// aapt resource value: 0x7F120003
-			public const int standalone_badge_gravity_top_start = 2131886083;
+			public const int standalone_badge_gravity_bottom_start = 2131886083;
 			
 			// aapt resource value: 0x7F120004
-			public const int xamarin_essentials_fileprovider_file_paths = 2131886084;
+			public const int standalone_badge_gravity_top_start = 2131886084;
+			
+			// aapt resource value: 0x7F120005
+			public const int xamarin_essentials_fileprovider_file_paths = 2131886085;
 			
 			static Xml()
 			{

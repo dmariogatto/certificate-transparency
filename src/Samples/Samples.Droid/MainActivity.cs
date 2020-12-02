@@ -53,7 +53,9 @@ namespace Samples.Droid
 
             var fab = FindViewById<FloatingActionButton>(Resource.Id.fab);
             fab.Click += FabOnClick;
-            
+
+            _uriEditText.SetOnKeyListener(new EnterKeyListener(() => fab.CallOnClick()));
+
             var httpHandler = new CatsAndroidClientHandler(VerifyCtResult);
             _httpClient = new HttpClient(httpHandler);
         }
@@ -98,7 +100,13 @@ namespace Samples.Droid
                 await _httpClient.GetAsync(uri);
                 
                 if (_hostnameCache.ContainsKey(uri.Host))
+                {
                     _resultText.TextFormatted = _hostnameCache[uri.Host];
+                }
+                else
+                {
+                    _resultText.Text = $"Loaded '{_uriEditText.Text}', no SCT information!";
+                }
             }
             catch (Exception ex)
             {
@@ -140,5 +148,26 @@ namespace Samples.Droid
 
             base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
         }
-	}
+
+        private class EnterKeyListener : Java.Lang.Object, View.IOnKeyListener
+        {
+            private readonly Action _action;
+
+            public EnterKeyListener(Action onEnterKeyPress)
+            {
+                _action = onEnterKeyPress;
+            }
+
+            public bool OnKey(View v, [GeneratedEnum] Keycode keyCode, KeyEvent e)
+            {
+                if (keyCode == Keycode.Enter)
+                {
+                    _action?.Invoke();
+                    return true;
+                }
+
+                return false;
+            }
+        }
+    }
 }

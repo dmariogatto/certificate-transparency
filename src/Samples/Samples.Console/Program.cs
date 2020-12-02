@@ -13,13 +13,16 @@ namespace Samples.Console
     {
         static async Task Main(string[] args)
         {
+            Instance.InitDomains(new[] { "*.*" }, null);
             var certVerifier = Instance.CertificateTransparencyVerifier;
 
             var path = args.Length > 0
                 ? args[0]
-                : @$"{AppDomain.CurrentDomain.BaseDirectory}\\..\\..\\..\\..\\certificates";
+                : @$"{AppDomain.CurrentDomain.BaseDirectory}\certificates";
             var di = new DirectoryInfo(path);
-            var files = di.GetFiles().Where(i => i.Extension.Equals(".cer", StringComparison.OrdinalIgnoreCase)).ToList();
+            var files = di.Exists
+                        ? di.GetFiles().Where(i => i.Extension.Equals(".cer", StringComparison.OrdinalIgnoreCase)).ToList()
+                        : new List<FileInfo>(0);
             
             System.Console.WriteLine($"Found {files.Count} certs to validate!");
             
@@ -70,7 +73,7 @@ namespace Samples.Console
                 {
                     System.Console.WriteLine($"Validating request '{request.RequestUri}'");
                     var certs = certChain.ChainElements.OfType<X509ChainElement>().Select(i => i.Certificate).ToList();
-                    var ctResult = certVerifier.IsValidAsync(certs, default).Result;
+                    var ctResult = certVerifier.IsValidAsync(request.RequestUri.Host, certs, default).Result;
 
                     if (ctResult.IsValid)
                     {

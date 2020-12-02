@@ -6,6 +6,8 @@ using Xamarin.Android.NUnitLite;
 
 namespace Tests.Droid
 {
+    // adb shell am instrument -w com.tests.certificatetransparency/app.tests.TestInstrumentation
+
     [Instrumentation(Name = "app.tests.TestInstrumentation")]
     public class TestInstrumentation : TestSuiteInstrumentation
     {

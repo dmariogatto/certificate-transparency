@@ -83,8 +83,6 @@ namespace Tests
         [Test]
         public void UntrustedCertificateThrowsException()
         {
-            var ctv = GetCertVerifier(_includeRandom);
-
             var certsToCheck = Data.LoadCerts(Data.TEST_MITMPROXY_ATTACK_CHAIN);
 
             try

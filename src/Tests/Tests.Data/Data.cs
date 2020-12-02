@@ -120,7 +120,8 @@ namespace Tests
         private static T Deserialise<T>(Stream stream) where T : class
         {
             using var reader = new StreamReader(stream, Encoding.UTF8);
-            return JsonSerializer.Create().Deserialize(reader, typeof(T)) as T;
+            var jsonSettings = new JsonSerializerSettings() { DateTimeZoneHandling = DateTimeZoneHandling.Utc };
+            return JsonSerializer.Create(jsonSettings).Deserialize(reader, typeof(T)) as T;
         }
     }
 }

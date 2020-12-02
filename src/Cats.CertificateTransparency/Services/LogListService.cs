@@ -141,7 +141,8 @@ namespace Cats.CertificateTransparency.Services
         {
             using var stream = new MemoryStream(data);
             using var reader = new StreamReader(stream, Encoding.UTF8);
-            return JsonSerializer.Create().Deserialize(reader, typeof(T)) as T;
+            var jsonSettings = new JsonSerializerSettings() { DateTimeZoneHandling = DateTimeZoneHandling.Utc };
+            return JsonSerializer.Create(jsonSettings).Deserialize(reader, typeof(T)) as T;
         }
     }
 }

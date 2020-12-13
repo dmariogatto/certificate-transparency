@@ -4,6 +4,7 @@ using System;
 
 namespace Tests
 {
+    [TestFixture]
     public class HostnamePatternTest
     {
         [Test]

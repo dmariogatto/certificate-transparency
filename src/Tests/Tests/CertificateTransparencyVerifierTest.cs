@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 
 namespace Tests
 {
+    // https://github.com/babylonhealth/certificate-transparency-android/blob/main/certificatetransparency/src/test/kotlin/com/babylon/certificatetransparency/internal/CertificateTransparencyBaseTest.kt
+
+    [TestFixture]
     public class CertificateTransparencyVerifierTest
     {
         private const string BabylonHealthCom = "www.babylonhealth.com";

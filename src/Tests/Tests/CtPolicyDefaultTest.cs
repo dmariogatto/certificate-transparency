@@ -6,6 +6,9 @@ using System.Collections.Generic;
 
 namespace Tests
 {
+    // https://github.com/babylonhealth/certificate-transparency-android/blob/main/certificatetransparency/src/test/kotlin/com/babylon/certificatetransparency/internal/verifier/DefaultPolicyTest.kt
+
+    [TestFixture]
     public class CtPolicyDefaultTest
     {
         private readonly PolicyTestParams[] _testParams = new[]

@@ -6,6 +6,7 @@ using System.Linq;
 
 namespace Tests
 {
+    [TestFixture]
     public class StreamExtensionsTest
     {
         [Test]

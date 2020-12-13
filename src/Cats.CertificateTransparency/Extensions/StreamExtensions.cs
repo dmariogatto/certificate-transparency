@@ -8,7 +8,7 @@ namespace Cats.CertificateTransparency.Extensions
         internal static long ReadLong(this Stream stream, int numberOfBytes)
         {
             if (numberOfBytes > Constants.BitsInByte)
-                throw new ArgumentOutOfRangeException(nameof(numberOfBytes), "Can read a number of more than CtConstants.BitsInByte bytes");
+                throw new ArgumentOutOfRangeException(nameof(numberOfBytes), $"Cannot read long of length {numberOfBytes} bytes");
 
             var result = 0L;
 

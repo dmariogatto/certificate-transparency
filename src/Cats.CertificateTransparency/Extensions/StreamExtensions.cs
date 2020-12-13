@@ -28,7 +28,7 @@ namespace Cats.CertificateTransparency.Extensions
             var dataLength = ReadLong(stream, bytesForDataLength);
 
             var data = new byte[dataLength];
-            var readBytes = stream.Read(data, 0 , (int)dataLength);
+            var readBytes = stream.Read(data, 0, (int)dataLength);
 
             if (readBytes != dataLength) throw new IOException($"Incomplete data. Expected {dataLength} bytes, got {readBytes}");
 

@@ -51,7 +51,7 @@ bool VerifyCtResult(string hostname, IList<DotNetX509Certificate> certificateCha
 }
 
 // optionally pass in a function to manually handle the transparency result
-var httpHandler = new Cats.CertificateTransparency.Android.CatsAndroidClientHandler(VerifyCtResult);
+var httpHandler = new Cats.CertificateTransparency.CatsAndroidClientHandler(VerifyCtResult);
 var client = new HttpClient(httpHandler);
 ```
 

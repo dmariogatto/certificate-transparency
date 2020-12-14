@@ -13,6 +13,8 @@ Download : [Nuget Package](https://www.nuget.org/packages/Cats.CertificateTransp
     Install-Package Cats.CertificateTransparency
 ```
 
+[Blog Post](https://dgatto.com/posts/2020/12/cats-certificate-transparency/)
+
 The library is designed to be dependency injection friendly, every service class has a matching interfaces. However, to get things up and running quickly there is also a static `Instance` class which will construct a lazy singletons for both `ILogListService` and `CertificateTransparencyVerifier`.
 
 If you want to provide a custom list of included and excluded domains to these static instances you must first call `Instance.InitDomains`. By default validation will be enabled for all TLS secured domains.
@@ -49,13 +51,13 @@ bool VerifyCtResult(string hostname, IList<DotNetX509Certificate> certificateCha
 }
 
 // optionally pass in a function to manually handle the transparency result
-var httpHandler = new Cats.CertificateTransparency.CatsAndroidClientHandler(VerifyCtResult);
+var httpHandler = new Cats.CertificateTransparency.Android.CatsAndroidClientHandler(VerifyCtResult);
 var client = new HttpClient(httpHandler);
 ```
 
 ### Xamarin iOS
 
-There is currently no platform specific implementation for iOS. From iOS 10 it is possible to enable certificate transparency via a plist setting [NSRequiresCertificateTransparency](https://developer.apple.com/documentation/bundleresources/information_property_list/nsapptransportsecurity/nsexceptiondomains).
+There is currently no platform specific implementation for iOS. Certificate transparency is already enabled since iOS 12.1.1, however, it can be disabled per domain via a property list setting [NSRequiresCertificateTransparency](https://developer.apple.com/documentation/bundleresources/information_property_list/nsapptransportsecurity/nsexceptiondomains).
 
 If you are keen you could use the `CertificateVerifier` to build your own `HttpClientHandler`, similar to the included Android implementation.
 

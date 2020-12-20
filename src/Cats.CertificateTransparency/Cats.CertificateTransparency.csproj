@@ -16,7 +16,7 @@
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <AssemblyFileVersion>1.0.0.0</AssemblyFileVersion>
     <Version>0.0.1-pre</Version>
-    <PackageVersion>0.0.1-pre</PackageVersion>
+    <PackageVersion>0.0.2-pre</PackageVersion>
     <Authors>dmariogatto</Authors>
     <Owners>dmariogatto</Owners>
     <NeutralLanguage>en</NeutralLanguage>
@@ -47,7 +47,7 @@
       <PackagePath></PackagePath>
     </None>
 
-    <PackageReference Include="Portable.BouncyCastle" Version="1.8.8" />
+    <PackageReference Include="Portable.BouncyCastle" Version="1.8.9" />
     <PackageReference Include="Refit" Version="5.2.4" PrivateAssets="All" />
 
     <Compile Remove="Platforms\**\*.*" />

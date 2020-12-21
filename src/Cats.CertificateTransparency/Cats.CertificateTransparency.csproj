@@ -15,7 +15,7 @@
     <Product>$(AssemblyName) ($(TargetFramework))</Product>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <AssemblyFileVersion>1.0.0.0</AssemblyFileVersion>
-    <Version>0.0.1-pre</Version>
+    <Version>0.0.2-pre</Version>
     <PackageVersion>0.0.2-pre</PackageVersion>
     <Authors>dmariogatto</Authors>
     <Owners>dmariogatto</Owners>

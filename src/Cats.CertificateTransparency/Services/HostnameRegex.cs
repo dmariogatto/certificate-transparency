@@ -27,5 +27,5 @@ namespace Cats.CertificateTransparency.Services
         public bool ValidateHost(string host)
             => (!_includedPatterns.Any() || _includedPatterns.Any(r => r.IsMatch(host))) &&
                _excludedPatterns.All(r => !r.IsMatch(host));
-    } 
+    }
 }

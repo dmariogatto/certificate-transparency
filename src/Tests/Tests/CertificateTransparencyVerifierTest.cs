@@ -159,7 +159,7 @@ namespace Tests
         public void NoCertificatesDisallowed()
         {
             var ctv = GetCertVerifier(_includeBabylon);
-                        
+
             var result = ctv.IsValidAsync(BabylonHealthCom, new List<X509Certificate2>(0), default).Result;
 
             Assert.IsTrue(result.Result == CtResult.NoCertificates);
@@ -252,7 +252,7 @@ namespace Tests
 
         [Test]
         public void ExcludeHostsWithWildcardNotAllowed()
-        {            
+        {
             Assert.Throws<ArgumentException>(() => GetCertVerifier(new[] { AllowedRandomCom }, _includeRandom));
         }
 
@@ -332,6 +332,6 @@ namespace Tests
                 });
 
             return moqCert.Object;
-        }        
-    }    
+        }
+    }
 }

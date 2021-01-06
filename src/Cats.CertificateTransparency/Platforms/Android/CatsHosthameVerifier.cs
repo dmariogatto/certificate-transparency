@@ -37,11 +37,11 @@ namespace Cats.CertificateTransparency
             _certificateCleaner = certificateCleaner;
             _certificateTransparencyVerifier = certificateTransparencyVerifier;
         }
-        
+
         public bool Verify(string hostname, ISSLSession session)
         {
             var certChain = _certificateCleaner.Clean(session.GetPeerCertificates().OfType<X509Certificate>());
-            
+
             if (certChain.Any())
             {
                 var dotNetCertChain = certChain.Select(c => c.ToDotNetX509Certificate()).ToList();

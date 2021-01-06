@@ -67,5 +67,5 @@ namespace Cats.CertificateTransparency.Services
 
             return uri.Host;
         }
-    } 
+    }
 }

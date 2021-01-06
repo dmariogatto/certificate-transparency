@@ -39,7 +39,7 @@ namespace Cats.CertificateTransparency.Extensions
         {
             if (value < 0) throw new ArgumentOutOfRangeException(nameof(value));
             if (value > Math.Pow(256, numberOfBytes)) throw new InvalidOperationException($"Value {value} cannot be stored in {numberOfBytes} bytes");
-            
+
             var numberOfBytesRemaining = numberOfBytes;
             while (numberOfBytesRemaining > 0)
             {
@@ -54,7 +54,7 @@ namespace Cats.CertificateTransparency.Extensions
         internal static void WriteVariableLength(this BinaryWriter writer, byte[] data, int maxDataLength)
         {
             if (data.Length > maxDataLength) throw new ArgumentOutOfRangeException($"Length {data.Length} is greater than max data length {maxDataLength}");
-            
+
             var bytesForDataLength = BytesToStoreValue(maxDataLength);
             writer.WriteLong(data.Length, bytesForDataLength);
             writer.Write(data, 0, data.Length);

@@ -27,11 +27,11 @@ namespace Cats.CertificateTransparency.Extensions
         {
             var x509Cert = new X509CertificateParser().ReadCertificate(certificate.GetRawCertData());
             var info = SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo(x509Cert.GetPublicKey());
-            
+
             var pkBytes = info.GetDerEncoded();
-            using var sha2 = new SHA256Managed();            
+            using var sha2 = new SHA256Managed();
             var digest = sha2.ComputeHash(pkBytes);
-            
+
             return digest;
         }
 
@@ -44,10 +44,10 @@ namespace Cats.CertificateTransparency.Extensions
 
         internal static IssuerInformation IssuerInformationFromPreCertificate(this X509Certificate2 certificate, X509Certificate2 preCertificate)
         {
-            var x509Cert = new X509CertificateParser().ReadCertificate(certificate.GetRawCertData());            
+            var x509Cert = new X509CertificateParser().ReadCertificate(certificate.GetRawCertData());
             var asn1Obj = Asn1Object.FromByteArray(x509Cert.GetTbsCertificate());
             var tbsCert = Org.BouncyCastle.Asn1.X509.TbsCertificateStructure.GetInstance(asn1Obj);
-            
+
             var issuerExtensions = tbsCert?.Extensions;
             var x509AuthorityKeyIdentifier = issuerExtensions?.GetExtension(new DerObjectIdentifier(Constants.X509AuthorityKeyIdentifier));
 
@@ -84,7 +84,7 @@ namespace Cats.CertificateTransparency.Extensions
 #endif
             if (sctExtension?.RawData?.Any() == true)
             {
-                var octets = Asn1OctetString.GetInstance(sctExtension.RawData).GetOctets();                
+                var octets = Asn1OctetString.GetInstance(sctExtension.RawData).GetOctets();
                 // could be a nested OCTET string, check leading byte
                 var derOctetString = octets[0] == 0x04
                     ? Asn1Object.FromByteArray(octets) as DerOctetString
@@ -143,7 +143,7 @@ namespace Cats.CertificateTransparency.Extensions
 
             return result;
         }
-                
+
         private static string UnknowError(string propName, object value) => $"Unknown {propName}: {value ?? "null"}";
     }
 }

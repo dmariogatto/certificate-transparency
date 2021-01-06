@@ -83,7 +83,7 @@ namespace Cats.CertificateTransparency.Services
 
             stopwatch.Stop();
 
-            return logListRoot;            
+            return logListRoot;
         }
     }
 }

@@ -9,5 +9,5 @@ namespace Cats.CertificateTransparency.Services
         }
 
         public bool ValidateHost(string host) => true;
-    } 
+    }
 }

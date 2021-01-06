@@ -69,7 +69,7 @@ namespace Tests
         {
             var included = new string[]
             {
-                "*.example.com",                
+                "*.example.com",
             };
             var excluded = new string[]
             {

@@ -15,8 +15,8 @@ namespace Tests
             var leaf = chain.First();
             chain = chain.Skip(1);
 
-            using var chainBuilder = new X509Chain();            
-            chainBuilder.ChainPolicy.VerificationFlags = X509VerificationFlags.NoFlag;            
+            using var chainBuilder = new X509Chain();
+            chainBuilder.ChainPolicy.VerificationFlags = X509VerificationFlags.NoFlag;
             chainBuilder.ChainPolicy.RevocationMode = X509RevocationMode.NoCheck;
 
             foreach (var c in chain)

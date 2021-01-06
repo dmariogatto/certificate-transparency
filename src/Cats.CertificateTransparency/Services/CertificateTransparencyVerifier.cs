@@ -62,6 +62,6 @@ namespace Cats.CertificateTransparency.Services
                 .ToDictionary(t => t.LogIdBase64, t => t.Item2);
 
             return _ctPolicy.PolicyVerificationResult(leaf, sctResults);
-        }        
+        }
     }
 }

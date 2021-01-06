@@ -75,7 +75,7 @@ namespace Cats.CertificateTransparency.Extensions
             var toVerify = sct.SerialiseSignedSctDataForPreCertificate(preCertificateTbs.GetEncoded(), issuerInfo.KeyHash);
             return sct.VerifySctSignatureOverBytes(logServer, toVerify);
         }
-                
+
         private static TbsCertificateStructure CreateTbsForVerification(X509Certificate2 preCertificate, IssuerInformation issuerInformation)
         {
             if (preCertificate.Version < 3) throw new InvalidOperationException("PreCertificate version must be 3 or higher!");
@@ -139,7 +139,7 @@ namespace Cats.CertificateTransparency.Extensions
         }
 
         private static SctVerificationResult VerifySctSignatureOverBytes(this SignedCertificateTimestamp sct, Log logServer, byte[] toVerify)
-        { 
+        {
             var (oid, sigAlg) = GetKeyAlgorithm(logServer.KeyBytes);
             var signer = sigAlg switch
             {
@@ -153,8 +153,8 @@ namespace Cats.CertificateTransparency.Extensions
             signer.BlockUpdate(toVerify, 0, toVerify.Length);
             var isValid = signer.VerifySignature(sct.Signature.SignatureData);
 
-            return isValid 
-                ? SctVerificationResult.Valid() 
+            return isValid
+                ? SctVerificationResult.Valid()
                 : SctVerificationResult.FailedVerification();
         }
 

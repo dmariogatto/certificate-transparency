@@ -36,7 +36,7 @@ namespace Cats.CertificateTransparency.Services
         {
             if (!HasLogList)
                 await GetLogListRootAsync(cancellationToken).ConfigureAwait(false);
-            
+
             return HasLogList;
         }
 
@@ -97,7 +97,7 @@ namespace Cats.CertificateTransparency.Services
 
             stopwatch.Stop();
 
-            return logListRoot;            
+            return logListRoot;
         }
 
         public async Task<IDictionary<string, Log>> GetLogDictionaryAsync(CancellationToken cancellationToken)

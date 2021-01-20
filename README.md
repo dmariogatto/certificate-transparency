@@ -15,7 +15,7 @@ Download : [Nuget Package](https://www.nuget.org/packages/Cats.CertificateTransp
 
 [Blog Post](https://dgatto.com/posts/2020/12/cats-certificate-transparency/)
 
-The library is designed to be dependency injection friendly, every service class has a matching interfaces. However, to get things up and running quickly there is also a static `Instance` class which will construct a lazy singletons for both `ILogListService` and `CertificateTransparencyVerifier`.
+The library is designed to be dependency injection friendly, every service class has a matching interface. However, to get things up and running quickly there is also a static `Instance` class which will construct lazy singletons for both `ILogListService` and `CertificateTransparencyVerifier`.
 
 If you want to provide a custom list of included and excluded domains to these static instances you must first call `Instance.InitDomains`. By default validation will be enabled for all TLS secured domains.
 

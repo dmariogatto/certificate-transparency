@@ -61,18 +61,14 @@ namespace Cats.CertificateTransparency.Services
                 {
                     if (!LogStoreService.TryGetValue(LogListRootKey, out logListRoot))
                     {
-                        var logListTask = LogListApi.GetLogListJson(cancellationToken)
-                            .ContinueWith(t => t.Result.ReadAsByteArrayAsync());
-                        var logListSignatureTask = LogListApi.GetLogListSignature(cancellationToken)
-                            .ContinueWith(t => t.Result.ReadAsByteArrayAsync());
+                        var logListTask = LogListApi.GetLogListAsync(cancellationToken);
+                        var logListSignatureTask = LogListApi.GetLogListSignatureAsync(cancellationToken);
 
                         await Task.WhenAll(logListTask, logListSignatureTask).ConfigureAwait(false);
                         cancellationToken.ThrowIfCancellationRequested();
-                        await Task.WhenAll(logListTask.Result, logListSignatureTask.Result).ConfigureAwait(false);
-                        cancellationToken.ThrowIfCancellationRequested();
 
-                        var logListBytes = logListTask.Result.Result;
-                        var logListSignatureBytes = logListSignatureTask.Result.Result;
+                        var logListBytes = logListTask.Result;
+                        var logListSignatureBytes = logListSignatureTask.Result;
 
                         var isValid = VerifyGoogleSignature(logListBytes, logListSignatureBytes);
 

@@ -1,6 +1,5 @@
 ﻿using Cats.CertificateTransparency.Api;
 using Cats.CertificateTransparency.Services;
-using Refit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,14 +11,14 @@ namespace Cats.CertificateTransparency
         private static readonly Lazy<ILogListService> DefaultLogListService =
            new Lazy<ILogListService>(() =>
            {
-               var logListApi = RestService.For<ILogListApi>(Constants.GoogleLogListUrl);
+               var logListApi = new GoogleLogListApi(Constants.GoogleLogListUrl);
                var logStoreService = new LogStoreService();
-               return new LogListService(logListApi, logStoreService);
+               return new LogListZipService(logListApi, logStoreService);
            });
 
         private static readonly Lazy<ICertificateTransparencyVerifier> DefaultCertVerifier =
            new Lazy<ICertificateTransparencyVerifier>(() =>
-           {               
+           {
                var hostnameValidator = IncludedDomains?.Any() == true
                                        ? new HostnamePattern(IncludedDomains, ExcludedDomains)
                                        : new HostnameAlwaysTrue() as IHostnameValidator;

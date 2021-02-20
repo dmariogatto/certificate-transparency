@@ -23,9 +23,9 @@ namespace Samples.Console
             var files = di.Exists
                         ? di.GetFiles().Where(i => i.Extension.Equals(".cer", StringComparison.OrdinalIgnoreCase)).ToList()
                         : new List<FileInfo>(0);
-            
+
             System.Console.WriteLine($"Found {files.Count} certs to validate!");
-            
+
             foreach (var f in files)
             {
                 System.Console.WriteLine($"Validating '{f.Name}'");
@@ -91,7 +91,7 @@ namespace Samples.Console
             foreach (var url in urlsToValidate)
             {
                 await client.GetAsync(url);
-            }            
+            }
         }
     }
 }

@@ -4,13 +4,13 @@ namespace Cats.CertificateTransparency.Services
 {
     public class LogStoreService : ILogStoreService
     {
-        private readonly ConcurrentDictionary<object, object> _cache = new ConcurrentDictionary<object, object>();
+        private readonly ConcurrentDictionary<string, object> _cache = new ConcurrentDictionary<string, object>();
 
         public LogStoreService()
         {
         }
 
-        public T GetValue<T>(object key)
+        public T GetValue<T>(string key)
         {
             if (key != null && _cache.TryGetValue(key, out var objValue) && objValue is T t)
                 return t;
@@ -18,7 +18,7 @@ namespace Cats.CertificateTransparency.Services
             return default;
         }
 
-        public bool TryGetValue<T>(object key, out T value)
+        public bool TryGetValue<T>(string key, out T value)
         {
             if (key != null && _cache.TryGetValue(key, out var objValue) && objValue is T t)
             {
@@ -30,17 +30,17 @@ namespace Cats.CertificateTransparency.Services
             return false;
         }
 
-        public bool ContainsKey(object key)
+        public bool ContainsKey(string key)
         {
             return _cache.ContainsKey(key);
         }
 
-        public void SetValue<T>(object key, T value)
+        public void SetValue<T>(string key, T value)
         {
             _cache.AddOrUpdate(key, value, (k, v) => value);
         }
 
-        public void Remove(object key)
+        public void Remove(string key)
         {
             _cache.TryRemove(key, out _);
         }

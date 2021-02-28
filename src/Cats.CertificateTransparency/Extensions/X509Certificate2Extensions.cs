@@ -14,7 +14,7 @@ namespace Cats.CertificateTransparency.Extensions
 {
     internal static class X509Certificate2Extensions
     {
-        internal static bool IsPreCertificateSigningCert(this X509Certificate2 certificate) 
+        internal static bool IsPreCertificateSigningCert(this X509Certificate2 certificate)
             => certificate.GetExtension(Constants.PreCertificateSigningOid) != null;
 
         internal static bool IsPreCertificate(this X509Certificate2 certificate)
@@ -62,7 +62,7 @@ namespace Cats.CertificateTransparency.Extensions
 
         internal static X509Extension GetExtension(this X509Certificate2 certificate, string oid)
             => (certificate.Extensions ?? new X509ExtensionCollection())
-                    .Cast<X509Extension>()
+                    .OfType<X509Extension>()
                     .Where(i => i.Oid.Value.Equals(oid))
                     .FirstOrDefault();
 
@@ -75,7 +75,7 @@ namespace Cats.CertificateTransparency.Extensions
 #if DEBUG
             var sctExtension = certificate is MoqX509Certificate2 moqCert
                 ? moqCert.Extensions
-                         .Cast<X509Extension>()
+                         .OfType<X509Extension>()
                          .Where(i => i.Oid.Value.Equals(Constants.SctCertificateOid))
                          .FirstOrDefault()
                 : certificate.GetExtension(Constants.SctCertificateOid);

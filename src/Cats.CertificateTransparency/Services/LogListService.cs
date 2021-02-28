@@ -32,7 +32,7 @@ namespace Cats.CertificateTransparency.Services
 
         public bool HasLogList => LogStoreService.ContainsKey(LogListRootKey);
 
-        public async Task<bool> LoadLogListAsync(CancellationToken cancellationToken)
+        public async ValueTask<bool> LoadLogListAsync(CancellationToken cancellationToken)
         {
             if (!HasLogList)
                 await GetLogListRootAsync(cancellationToken).ConfigureAwait(false);
@@ -46,7 +46,7 @@ namespace Cats.CertificateTransparency.Services
             LogStoreService.Remove(LogDictionaryKey);
         }
 
-        public async virtual Task<LogListRoot> GetLogListRootAsync(CancellationToken cancellationToken)
+        public async virtual ValueTask<LogListRoot> GetLogListRootAsync(CancellationToken cancellationToken)
         {
             var logListRoot = default(LogListRoot);
 
@@ -96,7 +96,7 @@ namespace Cats.CertificateTransparency.Services
             return logListRoot;
         }
 
-        public async Task<IDictionary<string, Log>> GetLogDictionaryAsync(CancellationToken cancellationToken)
+        public async ValueTask<IDictionary<string, Log>> GetLogDictionaryAsync(CancellationToken cancellationToken)
         {
             var logDictionary = default(IDictionary<string, Log>);
 

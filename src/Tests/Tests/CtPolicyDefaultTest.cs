@@ -39,10 +39,10 @@ namespace Tests
 
                 var numScts = rand.Next(tp.SctsRequired);
                 for (var i = 0; i < numScts; i++)
-                    scts[i.ToString()] = SctVerificationResult.Valid();
+                    scts[i.ToString()] = SctVerificationResult.Valid(DateTime.UtcNow, Guid.NewGuid().ToString());
 
                 for (var i = 0; i < 10; i++)
-                    scts[(i + 100).ToString()] = SctVerificationResult.FailedVerification();
+                    scts[(i + 100).ToString()] = SctVerificationResult.FailedVerification(DateTime.UtcNow, Guid.NewGuid().ToString());
 
                 var result = new CtPolicyDefault().PolicyVerificationResult(cert, scts);
 
@@ -64,10 +64,10 @@ namespace Tests
                 var scts = new Dictionary<string, SctVerificationResult>();
 
                 for (var i = 0; i < tp.SctsRequired; i++)
-                    scts[i.ToString()] = SctVerificationResult.Valid();
+                    scts[i.ToString()] = SctVerificationResult.Valid(DateTime.UtcNow, Guid.NewGuid().ToString());
 
                 for (var i = 0; i < 10; i++)
-                    scts[(i + 100).ToString()] = SctVerificationResult.FailedVerification();
+                    scts[(i + 100).ToString()] = SctVerificationResult.FailedVerification(DateTime.UtcNow, Guid.NewGuid().ToString());
 
                 var result = new CtPolicyDefault().PolicyVerificationResult(cert, scts);
 

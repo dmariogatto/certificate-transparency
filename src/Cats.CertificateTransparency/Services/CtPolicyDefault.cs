@@ -28,9 +28,9 @@ namespace Cats.CertificateTransparency.Services
 
             var validScts = sctResults.Count(kv => kv.Value.IsValid);
             if (validScts < minValidScts)
-                return CtVerificationResult.TooFewSctsTrusted(sctResults, validScts, minValidScts);
+                return CtVerificationResult.TooFewSctsTrusted(sctResults.Values, minValidScts);
 
-            return CtVerificationResult.Trusted(sctResults, minValidScts);
+            return CtVerificationResult.Trusted(sctResults.Values, minValidScts);
         }
 
         private static int MinimumValidSignedCertificateTimestamps(int months, bool partial)

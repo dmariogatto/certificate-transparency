@@ -12,7 +12,7 @@ namespace Cats.CertificateTransparency.Models
     }
 
     public enum CtHashAlgorithm
-    { 
+    {
         None = 0,
         Md5 = 1,
         Sha1 = 2,
@@ -23,7 +23,7 @@ namespace Cats.CertificateTransparency.Models
     }
 
     public enum SctVersion
-    { 
+    {
         V1 = 0,
         Unknow = 256
     }

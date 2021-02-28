@@ -18,14 +18,14 @@ namespace Cats.CertificateTransparency.Extensions
         internal static SctVerificationResult VerifySignature(this SignedCertificateTimestamp sct, Log logServer, IList<X509Certificate2> chain)
         {
             if (logServer == null || sct == null || chain?.Any() != true || logServer.LogId != sct.LogIdBase64)
-                return SctVerificationResult.FailedVerification("Invalid verification arguments");
+                return SctVerificationResult.FailedVerification(sct.TimestampUtc, logServer?.LogId, "Invalid verification arguments");
 
             var nowUtc = DateTime.UtcNow;
             if (sct.TimestampUtc > nowUtc)
-                return SctVerificationResult.FutureTimestamp(sct.TimestampUtc, nowUtc);
+                return SctVerificationResult.FutureTimestamp(sct.TimestampUtc, logServer.LogId);
 
             if (logServer.ValidUntilUtc.HasValue && sct.TimestampUtc > logServer.ValidUntilUtc)
-                return SctVerificationResult.LogServerUntrusted(sct.TimestampUtc, logServer.ValidUntilUtc.Value);
+                return SctVerificationResult.LogServerUntrusted(sct.TimestampUtc, logServer.LogId);
 
             try
             {
@@ -40,7 +40,7 @@ namespace Cats.CertificateTransparency.Extensions
                 }
 
                 if (chain.Count < 2)
-                    return SctVerificationResult.FailedVerification("Chain with PreCertificate or Certificate must contain issuer");
+                    return SctVerificationResult.FailedVerification(sct.TimestampUtc, logServer.LogId, "Chain with PreCertificate or Certificate must contain issuer");
 
                 // PreCertificate or final certificate with embedded SCTs, we want the issuerInformation
                 var issuerCert = chain[1];
@@ -54,7 +54,7 @@ namespace Cats.CertificateTransparency.Extensions
                 }
                 else if (chain.Count < 3)
                 {
-                    return SctVerificationResult.FailedVerification("Chain with PreCertificate signed by PreCertificate Signing Cert must contain issuer");
+                    return SctVerificationResult.FailedVerification(sct.TimestampUtc, logServer.LogId, "Chain with PreCertificate signed by PreCertificate Signing Cert must contain issuer");
                 }
                 else
                 {
@@ -65,7 +65,7 @@ namespace Cats.CertificateTransparency.Extensions
             }
             catch (Exception ex)
             {
-                return SctVerificationResult.FailedWithException(ex);
+                return SctVerificationResult.FailedWithException(sct.TimestampUtc, logServer.LogId, ex);
             }
         }
 
@@ -154,8 +154,8 @@ namespace Cats.CertificateTransparency.Extensions
             var isValid = signer.VerifySignature(sct.Signature.SignatureData);
 
             return isValid
-                ? SctVerificationResult.Valid()
-                : SctVerificationResult.FailedVerification();
+                ? SctVerificationResult.Valid(sct.TimestampUtc, logServer.LogId)
+                : SctVerificationResult.FailedVerification(sct.TimestampUtc, logServer.LogId);
         }
 
         private static byte[] SerialiseSignedSctData(this SignedCertificateTimestamp sct, X509Certificate2 certificate)

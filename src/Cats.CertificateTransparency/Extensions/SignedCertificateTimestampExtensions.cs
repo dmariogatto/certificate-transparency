@@ -80,9 +80,7 @@ namespace Cats.CertificateTransparency.Extensions
         {
             if (preCertificate.Version < 3) throw new InvalidOperationException("PreCertificate version must be 3 or higher!");
 
-            var preCertParsed = new Org.BouncyCastle.X509.X509CertificateParser().ReadCertificate(preCertificate.GetRawCertData());
-
-            var asn1Obj = Asn1Object.FromByteArray(preCertParsed.GetTbsCertificate());
+            var asn1Obj = Asn1Object.FromByteArray(preCertificate.GetTbsCertificateRaw());
             var tbsCert = TbsCertificateStructure.GetInstance(asn1Obj);
             var hasX509AuthorityKeyIdentifier = tbsCert.Extensions.GetExtension(new DerObjectIdentifier(Constants.X509AuthorityKeyIdentifier)) != null;
 

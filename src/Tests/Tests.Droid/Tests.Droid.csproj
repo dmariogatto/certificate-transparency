@@ -102,7 +102,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Moq">
-      <Version>4.15.2</Version>
+      <Version>4.16.1</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

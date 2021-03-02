@@ -32,7 +32,7 @@ namespace Cats.CertificateTransparency.Services
 
         public bool HasLogList => LogStoreService.ContainsKey(LogListRootKey);
 
-        public async Task<bool> LoadLogListAsync(CancellationToken cancellationToken)
+        public async ValueTask<bool> LoadLogListAsync(CancellationToken cancellationToken)
         {
             if (!HasLogList)
                 await GetLogListRootAsync(cancellationToken).ConfigureAwait(false);
@@ -46,7 +46,7 @@ namespace Cats.CertificateTransparency.Services
             LogStoreService.Remove(LogDictionaryKey);
         }
 
-        public async virtual Task<LogListRoot> GetLogListRootAsync(CancellationToken cancellationToken)
+        public async virtual ValueTask<LogListRoot> GetLogListRootAsync(CancellationToken cancellationToken)
         {
             var logListRoot = default(LogListRoot);
 
@@ -61,18 +61,14 @@ namespace Cats.CertificateTransparency.Services
                 {
                     if (!LogStoreService.TryGetValue(LogListRootKey, out logListRoot))
                     {
-                        var logListTask = LogListApi.GetLogListJson(cancellationToken)
-                            .ContinueWith(t => t.Result.ReadAsByteArrayAsync());
-                        var logListSignatureTask = LogListApi.GetLogListSignature(cancellationToken)
-                            .ContinueWith(t => t.Result.ReadAsByteArrayAsync());
+                        var logListTask = LogListApi.GetLogListAsync(cancellationToken);
+                        var logListSignatureTask = LogListApi.GetLogListSignatureAsync(cancellationToken);
 
                         await Task.WhenAll(logListTask, logListSignatureTask).ConfigureAwait(false);
                         cancellationToken.ThrowIfCancellationRequested();
-                        await Task.WhenAll(logListTask.Result, logListSignatureTask.Result).ConfigureAwait(false);
-                        cancellationToken.ThrowIfCancellationRequested();
 
-                        var logListBytes = logListTask.Result.Result;
-                        var logListSignatureBytes = logListSignatureTask.Result.Result;
+                        var logListBytes = logListTask.Result;
+                        var logListSignatureBytes = logListSignatureTask.Result;
 
                         var isValid = VerifyGoogleSignature(logListBytes, logListSignatureBytes);
 
@@ -100,7 +96,7 @@ namespace Cats.CertificateTransparency.Services
             return logListRoot;
         }
 
-        public async Task<IDictionary<string, Log>> GetLogDictionaryAsync(CancellationToken cancellationToken)
+        public async ValueTask<IDictionary<string, Log>> GetLogDictionaryAsync(CancellationToken cancellationToken)
         {
             var logDictionary = default(IDictionary<string, Log>);
 

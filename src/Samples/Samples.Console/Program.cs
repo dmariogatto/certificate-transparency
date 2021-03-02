@@ -23,9 +23,9 @@ namespace Samples.Console
             var files = di.Exists
                         ? di.GetFiles().Where(i => i.Extension.Equals(".cer", StringComparison.OrdinalIgnoreCase)).ToList()
                         : new List<FileInfo>(0);
-            
+
             System.Console.WriteLine($"Found {files.Count} certs to validate!");
-            
+
             foreach (var f in files)
             {
                 System.Console.WriteLine($"Validating '{f.Name}'");
@@ -72,8 +72,11 @@ namespace Samples.Console
                 ServerCertificateCustomValidationCallback = (request, certificate, certChain, sslPolicyErrors) =>
                 {
                     System.Console.WriteLine($"Validating request '{request.RequestUri}'");
-                    var certs = certChain.ChainElements.OfType<X509ChainElement>().Select(i => i.Certificate).ToList();
-                    var ctResult = certVerifier.IsValidAsync(request.RequestUri.Host, certs, default).Result;
+                    var certs = certChain.ChainElements.OfType<X509ChainElement>().Select(i => i.Certificate).ToArray();
+                    var ctValueTask = certVerifier.IsValidAsync(request.RequestUri.Host, certs, default);
+                    var ctResult = ctValueTask.IsCompleted
+                        ? ctValueTask.Result
+                        : ctValueTask.AsTask().Result;
 
                     if (ctResult.IsValid)
                     {
@@ -91,7 +94,7 @@ namespace Samples.Console
             foreach (var url in urlsToValidate)
             {
                 await client.GetAsync(url);
-            }            
+            }
         }
     }
 }

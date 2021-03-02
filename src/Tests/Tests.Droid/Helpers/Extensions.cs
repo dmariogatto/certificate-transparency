@@ -25,7 +25,7 @@ namespace Tests.Droid
         }
 
         public static IList<DotNetX509Certificate> ToDotNetCerts(this IEnumerable<JavaX509Certificate> certificates)
-        {            
+        {
             return certificates.Select(c => new DotNetX509Certificate(c.GetEncoded())).ToList();
         }
     }

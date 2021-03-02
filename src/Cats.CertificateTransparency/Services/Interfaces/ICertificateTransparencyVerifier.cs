@@ -8,7 +8,7 @@ namespace Cats.CertificateTransparency.Services
 {
     public interface ICertificateTransparencyVerifier
     {
-        public Task<CtVerificationResult> IsValidAsync(string hostname, IList<X509Certificate2> chain, CancellationToken cancellationToken);
-        public Task<CtVerificationResult> IsValidAsync(IList<X509Certificate2> chain, CancellationToken cancellationToken);
+        public ValueTask<CtVerificationResult> IsValidAsync(string hostname, IList<X509Certificate2> chain, CancellationToken cancellationToken);
+        public ValueTask<CtVerificationResult> IsValidAsync(IList<X509Certificate2> chain, CancellationToken cancellationToken);
     }
 }

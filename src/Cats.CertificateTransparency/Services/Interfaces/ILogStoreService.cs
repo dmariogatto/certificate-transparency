@@ -4,14 +4,14 @@ namespace Cats.CertificateTransparency.Services
 {
     public interface ILogStoreService
     {
-        T GetValue<T>(object key);
-        bool TryGetValue<T>(object key, out T value);
+        T GetValue<T>(string key);
+        bool TryGetValue<T>(string key, out T value);
 
-        bool ContainsKey(object key);
+        bool ContainsKey(string key);
 
-        void SetValue<T>(object key, T value);
+        void SetValue<T>(string key, T value);
 
-        void Remove(object key);
+        void Remove(string key);
         void Clear();
     }
 }

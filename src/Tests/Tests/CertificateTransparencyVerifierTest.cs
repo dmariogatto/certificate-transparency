@@ -80,7 +80,7 @@ namespace Tests
             var result = ctv.IsValidAsync(BabylonHealthCom, certsChain, default).Result;
 
             Assert.IsTrue(result.Result == CtResult.Trusted);
-            Assert.AreEqual(2, result.SctResults.Count(kv => kv.Value.IsValid));
+            Assert.AreEqual(2, result.ValidSctCount);
         }
 
         [Test]
@@ -271,10 +271,10 @@ namespace Tests
 
             logService
                 .Setup(m => m.GetLogListRootAsync(default))
-                .Returns(() => Task.FromResult(logListRoot));
+                .Returns(() => new ValueTask<LogListRoot>(logListRoot));
             logService
                 .Setup(m => m.GetLogDictionaryAsync(default))
-                .Returns(() => Task.FromResult(logDictionary));
+                .Returns(() => new ValueTask<IDictionary<string, Log>>(logDictionary));
 
             var hostnameValidator = inclHostPatterns?.Any() == true
                 ? new HostnamePattern(inclHostPatterns, exclHostPatterns)
@@ -290,10 +290,10 @@ namespace Tests
 
             logService
                 .Setup(m => m.GetLogListRootAsync(default))
-                .Returns(() => Task.FromResult(default(LogListRoot)));
+                .Returns(() => new ValueTask<LogListRoot>(default(LogListRoot)));
             logService
                 .Setup(m => m.GetLogDictionaryAsync(default))
-                .Returns(() => Task.FromResult<IDictionary<string, Log>>(new Dictionary<string, Log>(0)));
+                .Returns(() => new ValueTask<IDictionary<string, Log>>(new Dictionary<string, Log>(0)));
 
             var hostnameValidator = inclHostPatterns?.Any() == true
                 ? new HostnamePattern(inclHostPatterns, exclHostPatterns)

@@ -34,9 +34,13 @@ var client = new HttpClient(new HttpClientHandler()
     {
         var certificateChain = chain.ChainElements.OfType<X509ChainElement>().Select(i => i.Certificate).ToList();
         var certificateVerifier = Cats.CertificateTransparency.Instance.CertificateTransparencyVerifier;
-        var result = certificateVerifier.IsValidAsync(request.RequestUri.Host, certificateChain, CancellationToken.None).Result;
+        var ctValueTask = certificateVerifier.IsValidAsync(request.RequestUri.Host, certificateChain, CancellationToken.None);
 
-        return result.IsValid;
+        var ctResult = ctValueTask.IsCompleted
+            ? ctValueTask.Result
+            : ctValueTask.AsTask().Result;
+
+        return ctResult.IsValid;
     }
 });
 ```

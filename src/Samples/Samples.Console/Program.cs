@@ -72,8 +72,11 @@ namespace Samples.Console
                 ServerCertificateCustomValidationCallback = (request, certificate, certChain, sslPolicyErrors) =>
                 {
                     System.Console.WriteLine($"Validating request '{request.RequestUri}'");
-                    var certs = certChain.ChainElements.OfType<X509ChainElement>().Select(i => i.Certificate).ToList();
-                    var ctResult = certVerifier.IsValidAsync(request.RequestUri.Host, certs, default).Result;
+                    var certs = certChain.ChainElements.OfType<X509ChainElement>().Select(i => i.Certificate).ToArray();
+                    var ctValueTask = certVerifier.IsValidAsync(request.RequestUri.Host, certs, default);
+                    var ctResult = ctValueTask.IsCompleted
+                        ? ctValueTask.Result
+                        : ctValueTask.AsTask().Result;
 
                     if (ctResult.IsValid)
                     {

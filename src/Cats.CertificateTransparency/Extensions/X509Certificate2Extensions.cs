@@ -68,7 +68,7 @@ namespace Cats.CertificateTransparency.Extensions
         }
 
         internal static X509Extension GetExtension(this X509Certificate2 certificate, string oid)
-        => (certificate.Extensions ?? new X509ExtensionCollection())
+            => (certificate.Extensions ?? new X509ExtensionCollection())
                 .OfType<X509Extension>()
                 .Where(i => i.Oid.Value.Equals(oid))
                 .FirstOrDefault();

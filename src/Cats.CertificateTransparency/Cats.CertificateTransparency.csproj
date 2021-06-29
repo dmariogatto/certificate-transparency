@@ -25,9 +25,10 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
     <PackageReleaseNotes>
-      - Removed Refit dependency
-      - Interfaces `ILogListApi` and `ILogStoreService` updated
-      - Updated `BouncyCastle`</PackageReleaseNotes>
+- Removed Refit dependency
+- Updated `BouncyCastle`
+- Migration to `ValueTask`
+    </PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -51,7 +52,7 @@
       <PackagePath></PackagePath>
     </None>
 
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 
     <PackageReference Include="Portable.BouncyCastle" Version="1.8.10" />
 

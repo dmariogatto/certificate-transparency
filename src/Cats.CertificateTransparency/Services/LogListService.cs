@@ -126,7 +126,7 @@ namespace Cats.CertificateTransparency.Services
 
         protected static byte[] ReadPemPublicKey(string publicKey)
         {
-            string encodedPublicKey = publicKey
+            var encodedPublicKey = publicKey
                 .Replace(Constants.BeginPublicKey, string.Empty)
                 .Replace(Constants.EndPublicKey, string.Empty)
                 .Trim();

@@ -17,7 +17,7 @@ namespace Cats.CertificateTransparency
 
         private readonly Func<string, IList<DotNetX509Certificate>, CtVerificationResult, bool> _verifyResultFunc;
 
-        public CatsHostnameVerifier() 
+        public CatsHostnameVerifier()
              : this(null, Instance.CertificateChainCleaner, Instance.CertificateTransparencyVerifier)
         {
         }

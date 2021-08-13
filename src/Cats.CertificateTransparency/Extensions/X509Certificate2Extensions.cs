@@ -14,7 +14,7 @@ namespace Cats.CertificateTransparency.Extensions
 {
     internal static class X509Certificate2Extensions
     {
-        internal static bool IsPreCertificateSigningCert(this X509Certificate2 certificate) 
+        internal static bool IsPreCertificateSigningCert(this X509Certificate2 certificate)
             => certificate.GetExtension(Constants.PreCertificateSigningOid) != null;
 
         internal static bool IsPreCertificate(this X509Certificate2 certificate)

@@ -15,10 +15,10 @@ namespace Cats.CertificateTransparency.Models
         public static CtVerificationResult LogServersFailed()
           => new CtVerificationResult(CtResult.LogServersFailed, $"Failure: Unable to load log servers");
         public static CtVerificationResult NoScts()
-          => new CtVerificationResult(CtResult.NoScts, $"Failure: Certificate does not have any Signed Certificate Timestamps in it");
+          => new CtVerificationResult(CtResult.NoScts, $"Failure: Certificate does not contain any SCTs");
         public static CtVerificationResult TooFewSctsTrusted(IDictionary<string, SctVerificationResult> sctResults, int trustedCount, int minimumTrustedScts)
           => new CtVerificationResult(CtResult.TooFewSctsTrusted, $"Failure: Too few trusted SCTs, expected {minimumTrustedScts}, got {trustedCount}", sctResults, minimumTrustedScts);
-        
+
         public CtVerificationResult(CtResult result, string description, IDictionary<string, SctVerificationResult> sctResults, int minSctCount = -1)
         {
             Result = result;

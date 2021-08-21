@@ -1,7 +1,7 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras/2.1.2">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;netstandard2.1;monoandroid81;monoandroid90;monoandroid10.0;</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;monoandroid10.0;</TargetFrameworks>
     <LangVersion>latest</LangVersion>
 
     <AssemblyName>Cats.CertificateTransparency</AssemblyName>
@@ -13,10 +13,10 @@
     <Title>Cats.CertificateTransparency</Title>
     <Description>Certificate Transparency aims to remedy certificate-based threats by making the issuance and existence of SSL certificates open to scrutiny by domain owners, CAs, and domain users.</Description>
     <Product>$(AssemblyName) ($(TargetFramework))</Product>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <AssemblyFileVersion>1.0.0.0</AssemblyFileVersion>
-    <Version>1.0.1</Version>
-    <PackageVersion>1.0.0</PackageVersion>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <AssemblyFileVersion>1.1.0.0</AssemblyFileVersion>
+    <Version>1.1.0</Version>
+    <PackageVersion>1.1.0</PackageVersion>
     <Authors>dmariogatto</Authors>
     <Owners>dmariogatto</Owners>
     <NeutralLanguage>en</NeutralLanguage>

@@ -72,11 +72,9 @@ namespace Cats.CertificateTransparency.Api
             using var listMs = new MemoryStream();
             using var sigMs = new MemoryStream();
 
-            const int bufferSize = 81920;
-
             await Task.WhenAll(
-                logListStream.CopyToAsync(listMs, bufferSize, cancellationToken),
-                logListSigStream.CopyToAsync(sigMs, bufferSize, cancellationToken)).ConfigureAwait(false);
+                logListStream.CopyToAsync(listMs, cancellationToken),
+                logListSigStream.CopyToAsync(sigMs, cancellationToken)).ConfigureAwait(false);
 
             return (listMs.ToArray(), sigMs.ToArray());
         }

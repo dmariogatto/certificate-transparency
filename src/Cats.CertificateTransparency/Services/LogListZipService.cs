@@ -16,7 +16,7 @@ namespace Cats.CertificateTransparency.Services
         {
         }
 
-        public async override Task<LogListRoot> GetLogListRootAsync(CancellationToken cancellationToken)
+        public async override ValueTask<LogListRoot> GetLogListRootAsync(CancellationToken cancellationToken)
         {
             var logListRoot = default(LogListRoot);
 

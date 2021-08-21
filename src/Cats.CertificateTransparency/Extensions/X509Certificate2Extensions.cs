@@ -1,7 +1,6 @@
 ﻿using Cats.CertificateTransparency.Models;
 using Org.BouncyCastle.Asn1;
 using Org.BouncyCastle.Crypto.Tls;
-using Org.BouncyCastle.X509;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -25,13 +24,16 @@ namespace Cats.CertificateTransparency.Extensions
 
         internal static byte[] PublicKeyHash(this X509Certificate2 certificate)
         {
-            var x509Cert = new X509CertificateParser().ReadCertificate(certificate.GetRawCertData());
-            var info = SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo(x509Cert.GetPublicKey());
+            var x509Cert = Org.BouncyCastle.Security.DotNetUtilities.FromX509Certificate(certificate);
+            var spki = Org.BouncyCastle.X509.SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo(x509Cert.GetPublicKey());
 
-            var pkBytes = info.GetDerEncoded();
+            var spkiBytes = spki.GetDerEncoded();
+
+            // Not supported in Xamarin
+            // certificate.PublicKey.Key.ExportSubjectPublicKeyInfo();
+
             using var sha2 = new SHA256Managed();
-            var digest = sha2.ComputeHash(pkBytes);
-
+            var digest = sha2.ComputeHash(spkiBytes);
             return digest;
         }
 
@@ -44,8 +46,7 @@ namespace Cats.CertificateTransparency.Extensions
 
         internal static IssuerInformation IssuerInformationFromPreCertificate(this X509Certificate2 certificate, X509Certificate2 preCertificate)
         {
-            var x509Cert = new X509CertificateParser().ReadCertificate(certificate.GetRawCertData());
-            var asn1Obj = Asn1Object.FromByteArray(x509Cert.GetTbsCertificate());
+            var asn1Obj = Asn1Object.FromByteArray(certificate.GetTbsCertificateRaw());
             var tbsCert = Org.BouncyCastle.Asn1.X509.TbsCertificateStructure.GetInstance(asn1Obj);
 
             var issuerExtensions = tbsCert?.Extensions;
@@ -60,11 +61,17 @@ namespace Cats.CertificateTransparency.Extensions
             };
         }
 
+        internal static byte[] GetTbsCertificateRaw(this X509Certificate2 certificate)
+        {
+            var x509Cert = Org.BouncyCastle.Security.DotNetUtilities.FromX509Certificate(certificate);
+            return x509Cert.GetTbsCertificate();
+        }
+
         internal static X509Extension GetExtension(this X509Certificate2 certificate, string oid)
             => (certificate.Extensions ?? new X509ExtensionCollection())
-                    .Cast<X509Extension>()
-                    .Where(i => i.Oid.Value.Equals(oid))
-                    .FirstOrDefault();
+                .OfType<X509Extension>()
+                .Where(i => i.Oid.Value.Equals(oid))
+                .FirstOrDefault();
 
         internal static List<SignedCertificateTimestamp> GetSignedCertificateTimestamps(this X509Certificate2 certificate)
         {
@@ -75,7 +82,7 @@ namespace Cats.CertificateTransparency.Extensions
 #if DEBUG
             var sctExtension = certificate is MoqX509Certificate2 moqCert
                 ? moqCert.Extensions
-                         .Cast<X509Extension>()
+                         .OfType<X509Extension>()
                          .Where(i => i.Oid.Value.Equals(Constants.SctCertificateOid))
                          .FirstOrDefault()
                 : certificate.GetExtension(Constants.SctCertificateOid);

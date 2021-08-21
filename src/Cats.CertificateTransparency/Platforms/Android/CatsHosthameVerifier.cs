@@ -12,8 +12,8 @@ namespace Cats.CertificateTransparency
 {
     public class CatsHostnameVerifier : Java.Lang.Object, IHostnameVerifier
     {
-        private readonly ICertificateChainCleaner _certificateCleaner;
-        private readonly ICertificateTransparencyVerifier _certificateTransparencyVerifier;
+        private readonly ICertificateChainCleaner _certCleaner;
+        private readonly ICertificateTransparencyVerifier _verifier;
 
         private readonly Func<string, IList<DotNetX509Certificate>, CtVerificationResult, bool> _verifyResultFunc;
 
@@ -34,18 +34,23 @@ namespace Cats.CertificateTransparency
             ICertificateTransparencyVerifier certificateTransparencyVerifier)
         {
             _verifyResultFunc = verifyResultFunc;
-            _certificateCleaner = certificateCleaner;
-            _certificateTransparencyVerifier = certificateTransparencyVerifier;
+            _certCleaner = certificateCleaner;
+            _verifier = certificateTransparencyVerifier;
         }
 
         public bool Verify(string hostname, ISSLSession session)
         {
-            var certChain = _certificateCleaner.Clean(session.GetPeerCertificates().OfType<X509Certificate>());
+            var certChain = _certCleaner.Clean(session.GetPeerCertificates().OfType<X509Certificate>());
 
             if (certChain.Any())
             {
-                var dotNetCertChain = certChain.Select(c => c.ToDotNetX509Certificate()).ToList();
-                var ctResult = _certificateTransparencyVerifier.IsValidAsync(hostname, dotNetCertChain, default).Result;
+                var dotNetCertChain = certChain.Select(c => c.ToDotNetX509Certificate()).ToArray();
+
+                var ctValueTask = _verifier.IsValidAsync(hostname, dotNetCertChain, default);
+                var ctResult = ctValueTask.IsCompleted
+                    ? ctValueTask.Result
+                    : ctValueTask.AsTask().Result;
+
                 var customResult = _verifyResultFunc?.Invoke(hostname, dotNetCertChain, ctResult);
                 return customResult ?? ctResult.IsValid;
             }

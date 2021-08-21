@@ -25,7 +25,7 @@ namespace Cats.CertificateTransparency.Services
             _ctPolicy = ctPolicy;
         }
 
-        public async Task<CtVerificationResult> IsValidAsync(string hostname, IList<X509Certificate2> chain, CancellationToken cancellationToken)
+        public async ValueTask<CtVerificationResult> IsValidAsync(string hostname, IList<X509Certificate2> chain, CancellationToken cancellationToken)
         {
             if (string.IsNullOrEmpty(hostname)) throw new ArgumentNullException(nameof(hostname));
 
@@ -34,10 +34,10 @@ namespace Cats.CertificateTransparency.Services
                 return await IsValidAsync(chain, cancellationToken).ConfigureAwait(false);
             }
 
-            return CtVerificationResult.DisabledForHost(hostname);
+            return CtVerificationResult.DisabledForHost();
         }
 
-        public async Task<CtVerificationResult> IsValidAsync(IList<X509Certificate2> chain, CancellationToken cancellationToken)
+        public async ValueTask<CtVerificationResult> IsValidAsync(IList<X509Certificate2> chain, CancellationToken cancellationToken)
         {
             if (chain?.Any() != true)
                 return CtVerificationResult.NoCertificates();
@@ -58,7 +58,7 @@ namespace Cats.CertificateTransparency.Services
             var sctResults = scts.Select(sct =>
                     logDictionary.TryGetValue(sct.LogIdBase64, out var log)
                     ? (sct.LogIdBase64, sct.VerifySignature(log, chain))
-                    : (sct.LogIdBase64, SctVerificationResult.NoTrustedLogServerFound()))
+                    : (sct.LogIdBase64, SctVerificationResult.NoTrustedLogServerFound(sct.TimestampUtc)))
                 .ToDictionary(t => t.LogIdBase64, t => t.Item2);
 
             return _ctPolicy.PolicyVerificationResult(leaf, sctResults);

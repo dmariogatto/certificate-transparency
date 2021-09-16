@@ -10,25 +10,24 @@ namespace Cats.CertificateTransparency.Api
 {
     public class GoogleLogListApi : ILogListApi
     {
+        private readonly static Lazy<HttpClient> LazyClient = new Lazy<HttpClient>(() => new HttpClient());
+
         private readonly string _googleLogListUrl;
-        private readonly HttpClient _httpClient;
+        private readonly Uri _baseAddress;
 
         public GoogleLogListApi(string baseUrl)
         {
             _googleLogListUrl = baseUrl;
-            _httpClient = new HttpClient()
-            {
-                BaseAddress = new Uri(_googleLogListUrl)
-            };
+            _baseAddress = new Uri(_googleLogListUrl);
         }
 
         public async Task<byte[]> GetLogListAsync(CancellationToken cancellationToken)
         {
-            using var msg = new HttpRequestMessage(HttpMethod.Get, "log_list.json");
+            using var msg = new HttpRequestMessage(HttpMethod.Get, new Uri(_baseAddress, "log_list.json"));
             msg.Headers.Add("Cache-Control", "no-cache");
             msg.Headers.Add("Max-Size", "1048576");
 
-            var result = await _httpClient.SendAsync(msg, cancellationToken).ConfigureAwait(false);
+            var result = await LazyClient.Value.SendAsync(msg, cancellationToken).ConfigureAwait(false);
             result.EnsureSuccessStatusCode();
 
             return await result.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
@@ -36,11 +35,11 @@ namespace Cats.CertificateTransparency.Api
 
         public async Task<byte[]> GetLogListSignatureAsync(CancellationToken cancellationToken)
         {
-            using var msg = new HttpRequestMessage(HttpMethod.Get, "log_list.sig");
+            using var msg = new HttpRequestMessage(HttpMethod.Get, new Uri(_baseAddress, "log_list.sig"));
             msg.Headers.Add("Cache-Control", "no-cache");
             msg.Headers.Add("Max-Size", "512");
 
-            var result = await _httpClient.SendAsync(msg, cancellationToken).ConfigureAwait(false);
+            var result = await LazyClient.Value.SendAsync(msg, cancellationToken).ConfigureAwait(false);
             result.EnsureSuccessStatusCode();
 
             return await result.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
@@ -48,11 +47,11 @@ namespace Cats.CertificateTransparency.Api
 
         public async Task<(byte[], byte[])> GetLogListWithSigAsync(CancellationToken cancellationToken)
         {
-            using var msg = new HttpRequestMessage(HttpMethod.Get, "log_list.zip");
+            using var msg = new HttpRequestMessage(HttpMethod.Get, new Uri(_baseAddress, "log_list.zip"));
             msg.Headers.Add("Cache-Control", "no-cache");
             msg.Headers.Add("Max-Size", "2097152");
 
-            var result = await _httpClient.SendAsync(msg, cancellationToken).ConfigureAwait(false);
+            var result = await LazyClient.Value.SendAsync(msg, cancellationToken).ConfigureAwait(false);
             result.EnsureSuccessStatusCode();
 
             using var stream = await result.Content.ReadAsStreamAsync().ConfigureAwait(false);

@@ -70,8 +70,7 @@ namespace Cats.CertificateTransparency.Extensions
         internal static X509Extension GetExtension(this X509Certificate2 certificate, string oid)
             => (certificate.Extensions ?? new X509ExtensionCollection())
                 .OfType<X509Extension>()
-                .Where(i => i.Oid.Value.Equals(oid))
-                .FirstOrDefault();
+                .FirstOrDefault(i => i.Oid.Value.Equals(oid));
 
         internal static List<SignedCertificateTimestamp> GetSignedCertificateTimestamps(this X509Certificate2 certificate)
         {
@@ -83,8 +82,7 @@ namespace Cats.CertificateTransparency.Extensions
             var sctExtension = certificate is MoqX509Certificate2 moqCert
                 ? moqCert.Extensions
                          .OfType<X509Extension>()
-                         .Where(i => i.Oid.Value.Equals(Constants.SctCertificateOid))
-                         .FirstOrDefault()
+                         .FirstOrDefault(i => i.Oid.Value.Equals(Constants.SctCertificateOid))
                 : certificate.GetExtension(Constants.SctCertificateOid);
 #else
             var sctExtension = certificate.GetExtension(Constants.SctCertificateOid);

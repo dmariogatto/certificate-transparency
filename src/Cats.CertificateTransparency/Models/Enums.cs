@@ -25,7 +25,7 @@ namespace Cats.CertificateTransparency.Models
     public enum SctVersion
     {
         V1 = 0,
-        Unknow = 256
+        Unknown = 256
     }
 
     public enum SctResult

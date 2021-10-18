@@ -13,10 +13,10 @@
     <Title>Cats.CertificateTransparency</Title>
     <Description>Certificate Transparency aims to remedy certificate-based threats by making the issuance and existence of SSL certificates open to scrutiny by domain owners, CAs, and domain users.</Description>
     <Product>$(AssemblyName) ($(TargetFramework))</Product>
-    <AssemblyVersion>1.1.0.0</AssemblyVersion>
-    <AssemblyFileVersion>1.1.0.0</AssemblyFileVersion>
-    <Version>1.1.0</Version>
-    <PackageVersion>1.1.0</PackageVersion>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <AssemblyFileVersion>1.0.0.0</AssemblyFileVersion>
+    <Version>1.2.0</Version>
+    <PackageVersion>1.2.0</PackageVersion>
     <Authors>dmariogatto</Authors>
     <Owners>dmariogatto</Owners>
     <NeutralLanguage>en</NeutralLanguage>
@@ -53,7 +53,6 @@
     </None>
 
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-
     <PackageReference Include="Portable.BouncyCastle" Version="1.8.10" />
 
     <Compile Remove="Platforms\**\*.*" />

@@ -25,9 +25,7 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
     <PackageReleaseNotes>
-- Removed Refit dependency
-- Updated `BouncyCastle`
-- Migration to `ValueTask`
+- Updated dependencies
     </PackageReleaseNotes>
   </PropertyGroup>
 

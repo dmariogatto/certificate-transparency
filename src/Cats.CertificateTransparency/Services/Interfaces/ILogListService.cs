@@ -8,7 +8,7 @@ namespace Cats.CertificateTransparency.Services
     public interface ILogListService
     {
         bool HasLogList { get; }
-        
+
         public ValueTask<bool> LoadLogListAsync(CancellationToken cancellationToken);
         void ClearLogList();
 

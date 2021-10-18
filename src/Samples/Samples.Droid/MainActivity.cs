@@ -35,7 +35,7 @@ namespace Samples.Droid
         private bool _isLoading = false;
 
         private EditText _uriEditText;
-        private TextView _resultText;       
+        private TextView _resultText;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -98,7 +98,7 @@ namespace Samples.Droid
                 _resultText.Text = $"Loading '{_uriEditText.Text}'...";
 
                 await _httpClient.GetAsync(uri);
-                
+
                 if (_hostnameCache.ContainsKey(uri.Host))
                 {
                     _resultText.TextFormatted = _hostnameCache[uri.Host];
@@ -116,7 +116,7 @@ namespace Samples.Droid
             finally
             {
                 _isLoading = false;
-            }            
+            }
         }
 
         private bool VerifyCtResult(string hostname, IList<DotNetX509Certificate> certChain, CtVerificationResult ctVerificationResult)

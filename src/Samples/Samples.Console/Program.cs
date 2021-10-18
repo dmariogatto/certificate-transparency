@@ -60,7 +60,7 @@ namespace Samples.Console
 
             if (!urlsToValidate.Any())
             {
-                urlsToValidate.Add("https://www.google.com.au");
+                urlsToValidate.Add("https://www.google.com.au/");
                 urlsToValidate.Add("https://github.com/");
                 urlsToValidate.Add("https://www.microsoft.com/");
             }

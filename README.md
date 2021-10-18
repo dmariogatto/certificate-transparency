@@ -7,7 +7,7 @@ C# .NET port of,
 
 ![Cats.CertificateTransparency Logo](https://github.com/dmariogatto/certificate-transparency/raw/main/logo.png)
 
-Download : [Nuget Package](https://www.nuget.org/packages/Cats.CertificateTransparency)
+[![](https://img.shields.io/nuget/v/Cats.CertificateTransparency.svg)](https://nuget.org/packages/Cats.CertificateTransparency)
 
 ```
     Install-Package Cats.CertificateTransparency

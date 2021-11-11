@@ -1,8 +1,11 @@
 ﻿using Cats.CertificateTransparency.Api;
+using Cats.CertificateTransparency.Attributes;
 using Cats.CertificateTransparency.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+
+[assembly: LinkerSafe]
 
 namespace Cats.CertificateTransparency
 {

@@ -15,8 +15,8 @@
     <Product>$(AssemblyName) ($(TargetFramework))</Product>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <AssemblyFileVersion>1.0.0.0</AssemblyFileVersion>
-    <Version>1.2.0</Version>
-    <PackageVersion>1.2.0</PackageVersion>
+    <Version>1.3.0</Version>
+    <PackageVersion>1.3.0</PackageVersion>
     <Authors>dmariogatto</Authors>
     <Owners>dmariogatto</Owners>
     <NeutralLanguage>en</NeutralLanguage>
@@ -26,6 +26,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageReleaseNotes>
 - Updated dependencies
+- Linker safe
     </PackageReleaseNotes>
   </PropertyGroup>
 
@@ -51,7 +52,7 @@
     </None>
 
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
-    <PackageReference Include="Portable.BouncyCastle" Version="1.8.10" />
+    <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
 
     <Compile Remove="Platforms\**\*.*" />
     <None Include="Platforms\**\*.*" />

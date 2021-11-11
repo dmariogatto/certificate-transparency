@@ -1,9 +1,11 @@
 ﻿#if DEBUG
+using Cats.CertificateTransparency.Attributes;
 using System;
 using System.Security.Cryptography.X509Certificates;
 
 namespace Cats.CertificateTransparency.Models
 {
+    [Preserve(AllMembers = true)]
     internal class MoqX509Certificate2 : X509Certificate2
     {
         public MoqX509Certificate2(X509Certificate2 certificate) : base(certificate) { }

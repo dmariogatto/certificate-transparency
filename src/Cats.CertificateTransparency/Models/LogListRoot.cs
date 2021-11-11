@@ -1,16 +1,19 @@
-﻿using Newtonsoft.Json;
+﻿using Cats.CertificateTransparency.Attributes;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Cats.CertificateTransparency.Models
 {
+    [Preserve(AllMembers = true)]
     public class Usable
     {
         [JsonProperty("timestamp")]
         public DateTime Timestamp { get; set; }
     }
 
+    [Preserve(AllMembers = true)]
     public class FinalTreeHead
     {
         [JsonProperty("sha256_root_hash")]
@@ -20,6 +23,7 @@ namespace Cats.CertificateTransparency.Models
         public int TreeSize { get; set; }
     }
 
+    [Preserve(AllMembers = true)]
     public class Readonly
     {
         [JsonProperty("timestamp")]
@@ -29,18 +33,21 @@ namespace Cats.CertificateTransparency.Models
         public FinalTreeHead FinalTreeHead { get; set; }
     }
 
+    [Preserve(AllMembers = true)]
     public class Retired
     {
         [JsonProperty("timestamp")]
         public DateTime Timestamp { get; set; }
     }
 
+    [Preserve(AllMembers = true)]
     public class Qualified
     {
         [JsonProperty("timestamp")]
         public DateTime Timestamp { get; set; }
     }
 
+    [Preserve(AllMembers = true)]
     public class State
     {
         [JsonProperty("usable")]
@@ -56,6 +63,7 @@ namespace Cats.CertificateTransparency.Models
         public Qualified Qualified { get; set; }
     }
 
+    [Preserve(AllMembers = true)]
     public class TemporalInterval
     {
         [JsonProperty("start_inclusive")]
@@ -65,6 +73,7 @@ namespace Cats.CertificateTransparency.Models
         public DateTime EndExclusive { get; set; }
     }
 
+    [Preserve(AllMembers = true)]
     public class Log
     {
         [JsonProperty("description")]
@@ -75,7 +84,7 @@ namespace Cats.CertificateTransparency.Models
 
         private string _key;
         [JsonProperty("key")]
-        public string Key 
+        public string Key
         {
             get => _key;
             set
@@ -113,7 +122,7 @@ namespace Cats.CertificateTransparency.Models
             {
                 if (_keyBytes == null)
                     _keyBytes = Convert.FromBase64String(Key);
-                
+
                 return _keyBytes;
             }
         }
@@ -133,6 +142,7 @@ namespace Cats.CertificateTransparency.Models
         }
     }
 
+    [Preserve(AllMembers = true)]
     public class Operator
     {
         [JsonProperty("name")]
@@ -145,6 +155,7 @@ namespace Cats.CertificateTransparency.Models
         public List<Log> Logs { get; set; }
     }
 
+    [Preserve(AllMembers = true)]
     public class LogListRoot
     {
         [JsonProperty("operators")]

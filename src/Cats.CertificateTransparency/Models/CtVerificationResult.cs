@@ -55,7 +55,7 @@ namespace Cats.CertificateTransparency.Models
             CtResult.NoCertificates => "Failure: No certificates",
             CtResult.LogServersFailed => "Failure: Unable to load log servers",
             CtResult.NoScts => "Failure: Certificate does not have any SCTs",
-            CtResult.TooFewSctsTrusted => "Failure: Certificate does not have any SCTs",
+            CtResult.TooFewSctsTrusted => "Failure: Certificate does not have enough SCTs",
             CtResult.FailedWithException => "Failure: Too few trusted SCTs",
             _ => Result.ToString()
         };

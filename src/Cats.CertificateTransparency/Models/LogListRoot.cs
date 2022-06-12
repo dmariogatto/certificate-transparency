@@ -120,7 +120,7 @@ namespace Cats.CertificateTransparency.Models
         {
             get
             {
-                if (_keyBytes == null)
+                if (_keyBytes is null)
                     _keyBytes = Convert.FromBase64String(Key);
 
                 return _keyBytes;
@@ -132,9 +132,9 @@ namespace Cats.CertificateTransparency.Models
         {
             get
             {
-                if (!_validUntilUtc.HasValue && State?.Retired != null)
+                if (!_validUntilUtc.HasValue && State?.Retired is not null)
                     _validUntilUtc = State.Retired.Timestamp;
-                if (!_validUntilUtc.HasValue && State?.Readonly != null)
+                if (!_validUntilUtc.HasValue && State?.Readonly is not null)
                     _validUntilUtc = State.Readonly.Timestamp;
 
                 return _validUntilUtc;

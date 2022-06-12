@@ -190,7 +190,7 @@ namespace Tests
         {
             var trustManager = new Moq.Mock<IX509TrustManager>();
             trustManager.Setup(tm => tm.GetAcceptedIssuers())
-                        .Returns(rootCert == null
+                        .Returns(rootCert is null
                                  ? Data.LoadCerts(Data.ROOT_CA_CERT)
                                        .ToJavaCerts()
                                        .ToArray()

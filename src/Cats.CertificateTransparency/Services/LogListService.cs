@@ -77,7 +77,7 @@ namespace Cats.CertificateTransparency.Services
 
                         logListRoot = Deserialise<LogListRoot>(logListBytes);
 
-                        if (logListRoot?.Operators != null)
+                        if (logListRoot?.Operators is not null)
                             LogStoreService.SetValue(LogListRootKey, logListRoot);
                     }
                 }
@@ -103,7 +103,7 @@ namespace Cats.CertificateTransparency.Services
             if (!LogStoreService.TryGetValue(LogDictionaryKey, out logDictionary))
             {
                 var logListRoot = await GetLogListRootAsync(cancellationToken).ConfigureAwait(false);
-                if (logListRoot?.Operators != null)
+                if (logListRoot?.Operators is not null)
                 {
                     logDictionary = logListRoot.ToDictionary();
                     if (logDictionary.Any())

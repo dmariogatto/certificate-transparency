@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0-android</TargetFramework>
+    <SupportedOSPlatformVersion>21</SupportedOSPlatformVersion>
+    <OutputType>Exe</OutputType>
+    <ApplicationId>com.tests.certificatetransparency.net6</ApplicationId>
+    <ApplicationVersion>1</ApplicationVersion>
+    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+    <AssemblyName>Tests.Droid.net6</AssemblyName>
+    <RootNamespace>Tests.Droid</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\Tests.Droid\Helpers\Extensions.cs" Link="Helpers\Extensions.cs" />
+    <Compile Include="..\Tests.Droid\Helpers\JavaX509CertificateEquality.cs" Link="Helpers\JavaX509CertificateEquality.cs" />
+    <Compile Include="..\Tests.Droid\MainActivity.cs" Link="MainActivity.cs" />
+    <Compile Include="..\Tests.Droid\TestInstrumentation.cs" Link="TestInstrumentation.cs" />
+    <Compile Include="..\Tests.Droid\Tests\CertificateChainBuilder.cs" Link="Tests\CertificateChainBuilder.cs" />
+    <Compile Include="..\Tests.Droid\Tests\CertificateChainCleanerTest.cs" Link="Tests\CertificateChainCleanerTest.cs" />
+    <Compile Include="..\Tests\CertificateTransparencyVerifierTest.cs" Link="Tests\CertificateTransparencyVerifierTest.cs" />
+    <Compile Include="..\Tests\CtPolicyDefaultTest.cs" Link="Tests\CtPolicyDefaultTest.cs" />
+    <Compile Include="..\Tests\HostnamePatternTest.cs" Link="Tests\HostnamePatternTest.cs" />
+    <Compile Include="..\Tests\StreamExtensionsTest.cs" Link="Tests\StreamExtensionsTest.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\Tests.Droid\Assets\AboutAssets.txt" Link="AboutAssets.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Helpers\" />
+    <Folder Include="Tests\" />
+    <Folder Include="Resources\layout\" />
+    <Folder Include="Resources\mipmap-anydpi-v26\" />
+    <Folder Include="Resources\mipmap-hdpi\" />
+    <Folder Include="Resources\mipmap-mdpi\" />
+    <Folder Include="Resources\mipmap-xhdpi\" />
+    <Folder Include="Resources\mipmap-xxhdpi\" />
+    <Folder Include="Resources\mipmap-xxxhdpi\" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Moq" Version="4.18.1" />
+    <PackageReference Include="Xamarin.Legacy.NUnitLite" Version="0.0.1-alpha" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Cats.CertificateTransparency\Cats.CertificateTransparency.csproj" />
+    <ProjectReference Include="..\Tests.Data\Tests.Data.csproj" />
+  </ItemGroup>
+</Project>

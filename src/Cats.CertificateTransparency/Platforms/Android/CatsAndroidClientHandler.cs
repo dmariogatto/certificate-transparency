@@ -7,7 +7,7 @@ using DotNetX509Certificate = System.Security.Cryptography.X509Certificates.X509
 
 namespace Cats.CertificateTransparency
 {
-    public class CatsAndroidClientHandler : AndroidClientHandler
+    public class CatsAndroidClientHandler : AndroidMessageHandler
     {
         private readonly IHostnameVerifier _hostnameVerifier;
 

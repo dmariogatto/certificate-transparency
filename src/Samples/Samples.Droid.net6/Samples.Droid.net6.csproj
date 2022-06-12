@@ -1,0 +1,80 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net6.0-android</TargetFramework>
+    <SupportedOSPlatformVersion>21</SupportedOSPlatformVersion>
+    <OutputType>Exe</OutputType>
+    <ApplicationId>com.samples.certificatetransparency.net6</ApplicationId>
+    <ApplicationVersion>1</ApplicationVersion>
+    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+    <AssemblyName>Samples.Droid.net6</AssemblyName>
+    <RootNamespace>Samples.Droid</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\Samples.Droid\MainActivity.cs" Link="MainActivity.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="..\Samples.Droid\Resources\layout\activity_main.xml" Link="Resources\layout\activity_main.xml" />
+    <AndroidResource Include="..\Samples.Droid\Resources\layout\content_main.xml" Link="Resources\layout\content_main.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="..\Samples.Droid\Resources\mipmap-anydpi-v26\ic_launcher.xml" Link="Resources\mipmap-anydpi-v26\ic_launcher.xml" />
+    <AndroidResource Include="..\Samples.Droid\Resources\mipmap-anydpi-v26\ic_launcher_round.xml" Link="Resources\mipmap-anydpi-v26\ic_launcher_round.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="..\Samples.Droid\Resources\mipmap-hdpi\ic_launcher.png" Link="Resources\mipmap-hdpi\ic_launcher.png" />
+    <AndroidResource Include="..\Samples.Droid\Resources\mipmap-hdpi\ic_launcher_foreground.png" Link="Resources\mipmap-hdpi\ic_launcher_foreground.png" />
+    <AndroidResource Include="..\Samples.Droid\Resources\mipmap-hdpi\ic_launcher_round.png" Link="Resources\mipmap-hdpi\ic_launcher_round.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="..\Samples.Droid\Resources\mipmap-mdpi\ic_launcher.png" Link="Resources\mipmap-mdpi\ic_launcher.png" />
+    <AndroidResource Include="..\Samples.Droid\Resources\mipmap-mdpi\ic_launcher_foreground.png" Link="Resources\mipmap-mdpi\ic_launcher_foreground.png" />
+    <AndroidResource Include="..\Samples.Droid\Resources\mipmap-mdpi\ic_launcher_round.png" Link="Resources\mipmap-mdpi\ic_launcher_round.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="..\Samples.Droid\Resources\mipmap-xhdpi\ic_launcher.png" Link="Resources\mipmap-xhdpi\ic_launcher.png" />
+    <AndroidResource Include="..\Samples.Droid\Resources\mipmap-xhdpi\ic_launcher_foreground.png" Link="Resources\mipmap-xhdpi\ic_launcher_foreground.png" />
+    <AndroidResource Include="..\Samples.Droid\Resources\mipmap-xhdpi\ic_launcher_round.png" Link="Resources\mipmap-xhdpi\ic_launcher_round.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="..\Samples.Droid\Resources\mipmap-xxhdpi\ic_launcher.png" Link="Resources\mipmap-xxhdpi\ic_launcher.png" />
+    <AndroidResource Include="..\Samples.Droid\Resources\mipmap-xxhdpi\ic_launcher_foreground.png" Link="Resources\mipmap-xxhdpi\ic_launcher_foreground.png" />
+    <AndroidResource Include="..\Samples.Droid\Resources\mipmap-xxhdpi\ic_launcher_round.png" Link="Resources\mipmap-xxhdpi\ic_launcher_round.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="..\Samples.Droid\Resources\mipmap-xxxhdpi\ic_launcher.png" Link="Resources\mipmap-xxxhdpi\ic_launcher.png" />
+    <AndroidResource Include="..\Samples.Droid\Resources\mipmap-xxxhdpi\ic_launcher_foreground.png" Link="Resources\mipmap-xxxhdpi\ic_launcher_foreground.png" />
+    <AndroidResource Include="..\Samples.Droid\Resources\mipmap-xxxhdpi\ic_launcher_round.png" Link="Resources\mipmap-xxxhdpi\ic_launcher_round.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="..\Samples.Droid\Resources\menu\menu_main.xml" Link="Resources\menu\menu_main.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="..\Samples.Droid\Resources\values\colors.xml" Link="Resources\values\colors.xml" />
+    <AndroidResource Include="..\Samples.Droid\Resources\values\dimens.xml" Link="Resources\values\dimens.xml" />
+    <AndroidResource Include="..\Samples.Droid\Resources\values\ic_launcher_background.xml" Link="Resources\values\ic_launcher_background.xml" />
+    <AndroidResource Include="..\Samples.Droid\Resources\values\styles.xml" Link="Resources\values\styles.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="..\Samples.Droid\Resources\xml\network_security_config.xml" Link="Resources\xml\network_security_config.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\Samples.Droid\Assets\AboutAssets.txt" Link="AboutAssets.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Xamarin.Google.Android.Material" Version="1.6.1.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Cats.CertificateTransparency\Cats.CertificateTransparency.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources\layout\" />
+    <Folder Include="Resources\menu\" />
+    <Folder Include="Resources\mipmap-anydpi-v26\" />
+    <Folder Include="Resources\mipmap-hdpi\" />
+    <Folder Include="Resources\mipmap-mdpi\" />
+    <Folder Include="Resources\mipmap-xhdpi\" />
+    <Folder Include="Resources\mipmap-xxhdpi\" />
+    <Folder Include="Resources\mipmap-xxxhdpi\" />
+    <Folder Include="Resources\xml\" />
+  </ItemGroup>
+</Project>

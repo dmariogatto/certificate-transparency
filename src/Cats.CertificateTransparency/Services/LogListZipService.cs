@@ -39,7 +39,7 @@ namespace Cats.CertificateTransparency.Services
 
                         logListRoot = Deserialise<LogListRoot>(logListBytes.list);
 
-                        if (logListRoot?.Operators != null)
+                        if (logListRoot?.Operators is not null)
                             LogStoreService.SetValue(LogListRootKey, logListRoot);
                     }
                 }

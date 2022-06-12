@@ -35,7 +35,7 @@ namespace Cats.CertificateTransparency
 
         public static void InitDomains(IEnumerable<string> includedDomains, IEnumerable<string> excludedDomains)
         {
-            if (IncludedDomains != null || ExcludedDomains != null)
+            if (IncludedDomains is not null || ExcludedDomains is not null)
                 throw new InvalidOperationException($"{nameof(InitDomains)}() can only be called once!");
 
             if (DefaultCertVerifier.IsValueCreated)

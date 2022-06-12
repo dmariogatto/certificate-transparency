@@ -98,7 +98,7 @@ namespace Tests
             while (pemReader.Reader.Peek() > -1)
             {
                 var pemObj = pemReader.ReadPemObject();
-                if (pemObj != null)
+                if (pemObj is not null)
                     pemObjs.Add(pemObj);
             }
 

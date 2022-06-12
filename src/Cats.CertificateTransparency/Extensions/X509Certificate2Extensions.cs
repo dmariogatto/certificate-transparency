@@ -14,26 +14,27 @@ namespace Cats.CertificateTransparency.Extensions
     internal static class X509Certificate2Extensions
     {
         internal static bool IsPreCertificateSigningCert(this X509Certificate2 certificate)
-            => certificate.GetExtension(Constants.PreCertificateSigningOid) != null;
+            => certificate.GetExtension(Constants.PreCertificateSigningOid) is not null;
 
         internal static bool IsPreCertificate(this X509Certificate2 certificate)
             => certificate.GetExtension(Constants.PoisonOid)?.Critical ?? false;
 
         internal static bool HasEmbeddedSct(this X509Certificate2 certificate)
-            => certificate.GetExtension(Constants.SctCertificateOid) != null;
+            => certificate.GetExtension(Constants.SctCertificateOid) is not null;
 
         internal static byte[] PublicKeyHash(this X509Certificate2 certificate)
         {
+#if NET6_0
+            var spkiBytes = certificate.PublicKey.ExportSubjectPublicKeyInfo();
+#else
             var x509Cert = Org.BouncyCastle.Security.DotNetUtilities.FromX509Certificate(certificate);
             var spki = Org.BouncyCastle.X509.SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo(x509Cert.GetPublicKey());
-
             var spkiBytes = spki.GetDerEncoded();
+#endif
 
-            // Not supported in Xamarin
-            // certificate.PublicKey.Key.ExportSubjectPublicKeyInfo();
-
-            using var sha2 = new SHA256Managed();
+            using var sha2 = SHA256.Create();
             var digest = sha2.ComputeHash(spkiBytes);
+
             return digest;
         }
 

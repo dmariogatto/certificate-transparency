@@ -12,7 +12,7 @@ namespace Cats.CertificateTransparency.Services
 
         public T GetValue<T>(string key)
         {
-            if (key != null && _cache.TryGetValue(key, out var objValue) && objValue is T t)
+            if (key is not null && _cache.TryGetValue(key, out var objValue) && objValue is T t)
                 return t;
 
             return default;
@@ -20,7 +20,7 @@ namespace Cats.CertificateTransparency.Services
 
         public bool TryGetValue<T>(string key, out T value)
         {
-            if (key != null && _cache.TryGetValue(key, out var objValue) && objValue is T t)
+            if (key is not null && _cache.TryGetValue(key, out var objValue) && objValue is T t)
             {
                 value = t;
                 return true;

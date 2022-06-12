@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 #if DEBUG
 [assembly: InternalsVisibleTo("Tests")]
 [assembly: InternalsVisibleTo("Tests.Droid")]
+[assembly: InternalsVisibleTo("Tests.Droid.net6")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 #endif
 

@@ -17,7 +17,7 @@ namespace Cats.CertificateTransparency.Extensions
     {
         internal static SctVerificationResult VerifySignature(this SignedCertificateTimestamp sct, Log logServer, IList<X509Certificate2> chain)
         {
-            if (logServer == null || sct == null || chain?.Any() != true || logServer.LogId != sct.LogIdBase64)
+            if (logServer is null || sct is null || chain?.Any() != true || logServer.LogId != sct.LogIdBase64)
                 return SctVerificationResult.FailedVerification(sct.TimestampUtc, logServer?.LogId, "Invalid verification arguments");
 
             var nowUtc = DateTime.UtcNow;
@@ -82,11 +82,11 @@ namespace Cats.CertificateTransparency.Extensions
 
             var asn1Obj = Asn1Object.FromByteArray(preCertificate.GetTbsCertificateRaw());
             var tbsCert = TbsCertificateStructure.GetInstance(asn1Obj);
-            var hasX509AuthorityKeyIdentifier = tbsCert.Extensions.GetExtension(new DerObjectIdentifier(Constants.X509AuthorityKeyIdentifier)) != null;
+            var hasX509AuthorityKeyIdentifier = tbsCert.Extensions.GetExtension(new DerObjectIdentifier(Constants.X509AuthorityKeyIdentifier)) is not null;
 
             if (hasX509AuthorityKeyIdentifier &&
                 issuerInformation.IssuedByPreCertificateSigningCert &&
-                issuerInformation.X509AuthorityKeyIdentifier == null)
+                issuerInformation.X509AuthorityKeyIdentifier is null)
             {
                 throw new InvalidOperationException("PreCertificate was not signed by a PreCertificate signing cert");
             }
@@ -122,7 +122,7 @@ namespace Cats.CertificateTransparency.Extensions
             {
                 if (oid.Id != Constants.PoisonOid && oid.Id != Constants.SctCertificateOid)
                 {
-                    if (oid.Id == Constants.X509AuthorityKeyIdentifier && replacementX509Authority != null)
+                    if (oid.Id == Constants.X509AuthorityKeyIdentifier && replacementX509Authority is not null)
                     {
                         result.Add(oid, replacementX509Authority);
                     }

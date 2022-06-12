@@ -38,7 +38,7 @@ namespace Cats.CertificateTransparency.Models
         {
             get
             {
-                if (string.IsNullOrEmpty(_logIdBase64) && LogId != null)
+                if (string.IsNullOrEmpty(_logIdBase64) && LogId is not null)
                     _logIdBase64 = Convert.ToBase64String(LogId);
 
                 return _logIdBase64 ?? string.Empty;

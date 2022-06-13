@@ -24,7 +24,7 @@ namespace Cats.CertificateTransparency.Extensions
 
         internal static byte[] PublicKeyHash(this X509Certificate2 certificate)
         {
-#if NET6_0
+#if NET6_0_OR_GREATER
             var spkiBytes = certificate.PublicKey.ExportSubjectPublicKeyInfo();
 #else
             var x509Cert = Org.BouncyCastle.Security.DotNetUtilities.FromX509Certificate(certificate);

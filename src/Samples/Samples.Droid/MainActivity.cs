@@ -54,7 +54,12 @@ namespace Samples.Droid
 
             _uriEditText.SetOnKeyListener(new EnterKeyListener(() => fab.CallOnClick()));
 
-            var httpHandler = new CatsAndroidClientHandler(VerifyCtResult);
+            var httpHandler =
+#if NET6_0_OR_GREATER
+                new CatsAndroidMessageHandler(VerifyCtResult);
+#else
+                new CatsAndroidClientHandler(VerifyCtResult);
+#endif
             _httpClient = new HttpClient(httpHandler);
         }
 

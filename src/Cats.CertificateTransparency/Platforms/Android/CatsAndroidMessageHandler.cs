@@ -18,9 +18,9 @@ namespace Cats.CertificateTransparency
         }
 
         public CatsAndroidMessageHandler(
-            Func<string, IList<DotNetX509Certificate>, CtVerificationResult, bool> _verifyResultFunc)
+            Func<string, IList<DotNetX509Certificate>, CtVerificationResult, bool> verifyResultFunc)
         {
-            _hostnameVerifier = new CatsHostnameVerifier(_verifyResultFunc);
+            _hostnameVerifier = new CatsHostnameVerifier(verifyResultFunc);
         }
 
         public CatsAndroidMessageHandler(IHostnameVerifier hostnameVerifier)

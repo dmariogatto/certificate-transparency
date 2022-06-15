@@ -50,9 +50,6 @@ namespace Cats.CertificateTransparency.Services
         {
             var logListRoot = default(LogListRoot);
 
-            var stopwatch = new System.Diagnostics.Stopwatch();
-            stopwatch.Start();
-
             if (!LogStoreService.TryGetValue(LogListRootKey, out logListRoot))
             {
                 await _logListSemaphore.WaitAsync().ConfigureAwait(false);
@@ -91,8 +88,6 @@ namespace Cats.CertificateTransparency.Services
                 }
             }
 
-            stopwatch.Stop();
-
             return logListRoot;
         }
 
@@ -127,9 +122,8 @@ namespace Cats.CertificateTransparency.Services
         protected static byte[] ReadPemPublicKey(string publicKey)
         {
             var encodedPublicKey = publicKey
-                .Replace(Constants.BeginPublicKey, string.Empty)
-                .Replace(Constants.EndPublicKey, string.Empty)
-                .Trim();
+                .Replace(Constants.BeginPublicKey, string.Empty, StringComparison.Ordinal)
+                .Replace(Constants.EndPublicKey, string.Empty, StringComparison.Ordinal);
             return Convert.FromBase64String(encodedPublicKey);
         }
 

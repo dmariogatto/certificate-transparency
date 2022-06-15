@@ -76,6 +76,9 @@
     <Compile Include="..\Tests\HostnamePatternTest.cs">
       <Link>Tests\HostnamePatternTest.cs</Link>
     </Compile>
+    <Compile Include="..\Tests\SpanExtensionsTest.cs">
+      <Link>Tests\SpanExtensionsTest.cs</Link>
+    </Compile>
     <Compile Include="..\Tests\StreamExtensionsTest.cs">
       <Link>Tests\StreamExtensionsTest.cs</Link>
     </Compile>

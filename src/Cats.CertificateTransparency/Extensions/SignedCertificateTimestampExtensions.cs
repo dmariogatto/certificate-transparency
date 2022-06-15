@@ -80,7 +80,7 @@ namespace Cats.CertificateTransparency.Extensions
         {
             if (preCertificate.Version < 3) throw new InvalidOperationException("PreCertificate version must be 3 or higher!");
 
-            var asn1Obj = Asn1Object.FromByteArray(preCertificate.GetTbsCertificateRaw());
+            var asn1Obj = preCertificate.GetTbsCertificateAsn1Object();
             var tbsCert = TbsCertificateStructure.GetInstance(asn1Obj);
             var hasX509AuthorityKeyIdentifier = tbsCert.Extensions.GetExtension(new DerObjectIdentifier(Constants.X509AuthorityKeyIdentifier)) is not null;
 
@@ -91,13 +91,16 @@ namespace Cats.CertificateTransparency.Extensions
                 throw new InvalidOperationException("PreCertificate was not signed by a PreCertificate signing cert");
             }
 
-            var orderedExtensions = GetExtensionsWithoutPoisonAndSct(tbsCert.Extensions, issuerInformation.X509AuthorityKeyIdentifier);
+            var issuer = !string.IsNullOrEmpty(issuerInformation.Name)
+                ? new X509Name(issuerInformation.Name)
+                : tbsCert.Issuer;
+            var orderedExtensions = GetExtensionsWithoutPoisonAndSct(tbsCert.Extensions, issuerInformation);
 
             var generator = new V3TbsCertificateGenerator();
 
             generator.SetSerialNumber(tbsCert.SerialNumber);
             generator.SetSignature(tbsCert.Signature);
-            generator.SetIssuer(issuerInformation.Name ?? tbsCert.Issuer);
+            generator.SetIssuer(issuer);
             generator.SetStartDate(tbsCert.StartDate);
             generator.SetEndDate(tbsCert.EndDate);
             generator.SetSubject(tbsCert.Subject);
@@ -114,17 +117,19 @@ namespace Cats.CertificateTransparency.Extensions
             return generator.GenerateTbsCertificate();
         }
 
-        private static Dictionary<DerObjectIdentifier, X509Extension> GetExtensionsWithoutPoisonAndSct(X509Extensions extensions, X509Extension replacementX509Authority)
+        private static Dictionary<DerObjectIdentifier, X509Extension> GetExtensionsWithoutPoisonAndSct(X509Extensions extensions, IssuerInformation issuerInformation)
         {
             var result = new Dictionary<DerObjectIdentifier, X509Extension>();
 
             foreach (DerObjectIdentifier oid in extensions.GetExtensionOids())
             {
-                if (oid.Id != Constants.PoisonOid && oid.Id != Constants.SctCertificateOid)
+                if (!oid.Id.Equals(Constants.PoisonOid, StringComparison.Ordinal) && !oid.Id.Equals(Constants.SctCertificateOid, StringComparison.Ordinal))
                 {
-                    if (oid.Id == Constants.X509AuthorityKeyIdentifier && replacementX509Authority is not null)
+                    if (issuerInformation?.X509AuthorityKeyIdentifier is not null && oid.Id.Equals(Constants.X509AuthorityKeyIdentifier, StringComparison.Ordinal))
                     {
-                        result.Add(oid, replacementX509Authority);
+                        var critical = issuerInformation.X509AuthorityKeyIdentifier.Critical;
+                        var asn1OctetString = Asn1Object.FromByteArray(issuerInformation.X509AuthorityKeyIdentifier.RawData) as DerOctetString;
+                        result.Add(oid, new X509Extension(critical, asn1OctetString));
                     }
                     else
                     {
@@ -163,9 +168,9 @@ namespace Cats.CertificateTransparency.Extensions
 
             SerialiseCommonFields(bw, sct);
 
-            bw.WriteLong(0, Constants.LogEntryTypeLength); // X509 Entry
-            bw.WriteVariableLength(certificate.RawData, Constants.CertificateMaxLength);
-            bw.WriteVariableLength(sct.Extensions, Constants.ExtensionsMaxLength);
+            bw.WriteLong(0, Constants.LogEntryTypeNumOfBytes); // X509 Entry
+            bw.WriteVariableLength(certificate.RawData, Constants.CertificateMaxValue);
+            bw.WriteVariableLength(sct.Extensions, Constants.ExtensionsMaxValue);
 
             return ms.ToArray();
         }
@@ -177,10 +182,10 @@ namespace Cats.CertificateTransparency.Extensions
 
             SerialiseCommonFields(bw, sct);
 
-            bw.WriteLong(1, Constants.LogEntryTypeLength); // PerCert Entry
+            bw.WriteLong(1, Constants.LogEntryTypeNumOfBytes); // PerCert Entry
             bw.Write(issuerKeyHash);
-            bw.WriteVariableLength(preCert, Constants.CertificateMaxLength);
-            bw.WriteVariableLength(sct.Extensions, Constants.ExtensionsMaxLength);
+            bw.WriteVariableLength(preCert, Constants.CertificateMaxValue);
+            bw.WriteVariableLength(sct.Extensions, Constants.ExtensionsMaxValue);
 
             return ms.ToArray();
         }
@@ -189,9 +194,9 @@ namespace Cats.CertificateTransparency.Extensions
         {
             if (sct.SctVersion != SctVersion.V1) throw new InvalidOperationException("Can only serialise SCT v1!");
 
-            bw.WriteLong((long)sct.SctVersion, Constants.VersionLength);
+            bw.WriteLong((long)sct.SctVersion, Constants.VersionNumOfBytes);
             bw.WriteLong(0, 1); // Certificate Timestamp
-            bw.WriteLong(sct.TimestampMs, Constants.TimestampLength);
+            bw.WriteLong(sct.TimestampMs, Constants.TimestampNumOfBytes);
         }
 
         private static (string oid, CtSignatureAlgorithm sigAlg) GetKeyAlgorithm(byte[] keyBytes)

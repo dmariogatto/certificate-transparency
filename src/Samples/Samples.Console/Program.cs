@@ -61,8 +61,16 @@ namespace Samples.Console
             if (!urlsToValidate.Any())
             {
                 urlsToValidate.Add("https://www.google.com.au/");
-                urlsToValidate.Add("https://github.com/");
+                urlsToValidate.Add("https://www.github.com/");
                 urlsToValidate.Add("https://www.microsoft.com/");
+                urlsToValidate.Add("https://www.facebook.com/");
+                urlsToValidate.Add("https://www.twitter.com/");
+                urlsToValidate.Add("https://www.twitch.tv/");
+                urlsToValidate.Add("https://www.reddit.com/");
+                urlsToValidate.Add("https://www.wikipedia.com/");
+                urlsToValidate.Add("https://www.amazon.com/");
+                urlsToValidate.Add("https://www.baidu.com/");
+                urlsToValidate.Add("https://www.qq.com/");
             }
 
             System.Console.WriteLine($"Found {urlsToValidate.Count} URLs to validate!");

@@ -19,6 +19,7 @@
     <Compile Include="..\Tests\CertificateTransparencyVerifierTest.cs" Link="Tests\CertificateTransparencyVerifierTest.cs" />
     <Compile Include="..\Tests\CtPolicyDefaultTest.cs" Link="Tests\CtPolicyDefaultTest.cs" />
     <Compile Include="..\Tests\HostnamePatternTest.cs" Link="Tests\HostnamePatternTest.cs" />
+    <Compile Include="..\Tests\SpanExtensionsTest.cs" Link="Tests\SpanExtensionsTest.cs" />
     <Compile Include="..\Tests\StreamExtensionsTest.cs" Link="Tests\StreamExtensionsTest.cs" />
   </ItemGroup>
   <ItemGroup>

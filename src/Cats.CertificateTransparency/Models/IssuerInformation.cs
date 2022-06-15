@@ -1,12 +1,12 @@
-﻿using Org.BouncyCastle.Asn1.X509;
-using System;
+﻿using System;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Cats.CertificateTransparency.Models
 {
     public class IssuerInformation
     {
-        public X509Name Name { get; set; }
+        public string Name { get; set; }
         public byte[] KeyHash { get; set; }
         public X509Extension X509AuthorityKeyIdentifier { get; set; }
         public bool IssuedByPreCertificateSigningCert { get; set; }
@@ -14,7 +14,7 @@ namespace Cats.CertificateTransparency.Models
         public override bool Equals(object obj)
         {
             return obj is IssuerInformation issuer &&
-                   Name == issuer.Name &&
+                   string.Equals(Name, issuer.Name, StringComparison.Ordinal) &&
                    KeyHash.SequenceEqual(issuer.KeyHash) &&
                    X509AuthorityKeyIdentifier == issuer.X509AuthorityKeyIdentifier &&
                    IssuedByPreCertificateSigningCert == issuer.IssuedByPreCertificateSigningCert;

@@ -1,9 +1,7 @@
 ﻿using Cats.CertificateTransparency.Models;
 using Org.BouncyCastle.Asn1;
-using Org.BouncyCastle.Crypto.Tls;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
@@ -27,9 +25,10 @@ namespace Cats.CertificateTransparency.Extensions
 #if NET6_0_OR_GREATER
             var spkiBytes = certificate.PublicKey.ExportSubjectPublicKeyInfo();
 #else
-            var x509Cert = Org.BouncyCastle.Security.DotNetUtilities.FromX509Certificate(certificate);
-            var spki = Org.BouncyCastle.X509.SubjectPublicKeyInfoFactory.CreateSubjectPublicKeyInfo(x509Cert.GetPublicKey());
-            var spkiBytes = spki.GetDerEncoded();
+            var asn1Obj = certificate.GetTbsCertificateAsn1Object();
+            var spkiBytes = asn1Obj is Asn1Sequence asn1Seq && Constants.TbsSpkiSequenceIndex < asn1Seq.Count
+                ? asn1Seq[Constants.TbsSpkiSequenceIndex].GetDerEncoded()
+                : throw new InvalidOperationException("Cannot get SPKI from TBS certificate");
 #endif
 
             using var sha2 = SHA256.Create();
@@ -46,32 +45,33 @@ namespace Cats.CertificateTransparency.Extensions
             };
 
         internal static IssuerInformation IssuerInformationFromPreCertificate(this X509Certificate2 certificate, X509Certificate2 preCertificate)
-        {
-            var asn1Obj = Asn1Object.FromByteArray(certificate.GetTbsCertificateRaw());
-            var tbsCert = Org.BouncyCastle.Asn1.X509.TbsCertificateStructure.GetInstance(asn1Obj);
-
-            var issuerExtensions = tbsCert?.Extensions;
-            var x509AuthorityKeyIdentifier = issuerExtensions?.GetExtension(new DerObjectIdentifier(Constants.X509AuthorityKeyIdentifier));
-
-            return new IssuerInformation()
+            => new IssuerInformation()
             {
-                Name = tbsCert.Issuer,
+                Name = certificate.IssuerName.Name,
                 KeyHash = preCertificate.PublicKeyHash(),
-                X509AuthorityKeyIdentifier = x509AuthorityKeyIdentifier,
+                X509AuthorityKeyIdentifier = certificate.GetExtension(Constants.X509AuthorityKeyIdentifier),
                 IssuedByPreCertificateSigningCert = true
             };
-        }
 
-        internal static byte[] GetTbsCertificateRaw(this X509Certificate2 certificate)
+        internal static Asn1Object GetTbsCertificateAsn1Object(this X509Certificate2 certificate)
         {
-            var x509Cert = Org.BouncyCastle.Security.DotNetUtilities.FromX509Certificate(certificate);
-            return x509Cert.GetTbsCertificate();
+            var asn1Tbs = default(Asn1Object);
+            using var asn1Stream = new Asn1InputStream(certificate.RawData);
+
+            if (asn1Stream.ReadObject() is Asn1Object asn1Obj &&
+                Asn1Sequence.GetInstance(asn1Obj) is Asn1Sequence asn1Seq &&
+                Constants.X509TbsSequenceIndex < asn1Seq.Count)
+            {
+                asn1Tbs = asn1Seq[Constants.X509TbsSequenceIndex].ToAsn1Object();
+            }
+
+            return asn1Tbs;
         }
 
         internal static X509Extension GetExtension(this X509Certificate2 certificate, string oid)
-            => (certificate.Extensions ?? new X509ExtensionCollection())
-                .OfType<X509Extension>()
-                .FirstOrDefault(i => i.Oid.Value.Equals(oid));
+            => certificate.Extensions
+                ?.OfType<X509Extension>()
+                ?.FirstOrDefault(i => i.Oid.Value.Equals(oid, StringComparison.Ordinal));
 
         internal static List<SignedCertificateTimestamp> GetSignedCertificateTimestamps(this X509Certificate2 certificate)
         {
@@ -83,63 +83,90 @@ namespace Cats.CertificateTransparency.Extensions
             var sctExtension = certificate is MoqX509Certificate2 moqCert
                 ? moqCert.Extensions
                          .OfType<X509Extension>()
-                         .FirstOrDefault(i => i.Oid.Value.Equals(Constants.SctCertificateOid))
+                         .FirstOrDefault(i => i.Oid.Value.Equals(Constants.SctCertificateOid, StringComparison.Ordinal))
                 : certificate.GetExtension(Constants.SctCertificateOid);
 #else
             var sctExtension = certificate.GetExtension(Constants.SctCertificateOid);
 #endif
-            if (sctExtension?.RawData?.Any() == true)
+
+            var sctRawData = sctExtension?.RawData;
+            if (sctRawData?.Length > 1 && sctRawData[0] == 0x04)
             {
-                var octets = Asn1OctetString.GetInstance(sctExtension.RawData).GetOctets();
-                // could be a nested OCTET string, check leading byte
-                var derOctetString = octets[0] == 0x04
-                    ? Asn1Object.FromByteArray(octets) as DerOctetString
-                    : Asn1Object.FromByteArray(sctExtension.RawData) as DerOctetString;
-
-                using var inputStream = derOctetString.GetOctetStream();
-
-                TlsUtilities.ReadUint16(inputStream);
-
-                while (inputStream.Length - inputStream.Position > 2)
+                var numOfLengthBytes = 0;
+                var encodingLengthByte = sctRawData[1];
+                
+                // Leading bit is 1, (i.e. long format)
+                if ((encodingLengthByte & 0x80) != 0)
                 {
-                    var sctBytes = TlsUtilities.ReadOpaque16(inputStream);
+                    numOfLengthBytes = encodingLengthByte & 0x7F;
+                }
 
-                    using var sctStream = new MemoryStream(sctBytes);
+                var span = sctRawData.AsSpan(numOfLengthBytes + 2);
+                var position = 2;                
 
-                    var version = (SctVersion)sctStream.ReadByte();
+                while (span.Length - position > 2)
+                {
+                    var highOrderByte = span[position++];
+                    var lowOrderByte = span[position++];
+                    var vectorLengthUint16 = lowOrderByte + (highOrderByte << 8);
+
+                    var sctSpan = span.Slice(position, vectorLengthUint16);
+                    position += vectorLengthUint16;
+
+                    var sctPosition = 0;
+
+                    var version = (SctVersion)sctSpan[sctPosition++];
                     if (version != SctVersion.V1)
                         throw new NotSupportedException(UnknowError(nameof(SctVersion), version));
 
-                    var keyId = new byte[Constants.KeyIdLength];
-                    sctStream.Read(keyId, 0, keyId.Length);
+                    var keyId = sctSpan.Slice(sctPosition, Constants.KeyIdNumOfBytes);
+                    sctPosition += Constants.KeyIdNumOfBytes;
 
-                    var timestamp = sctStream.ReadLong(Constants.TimestampLength);
+                    var timestamp = sctSpan.ReadLong(Constants.TimestampNumOfBytes, ref sctPosition);
+                    var extensions = sctSpan.ReadVariableLength(Constants.ExtensionsMaxValue, ref sctPosition);
+                    
+                    var hashAlgo = (CtHashAlgorithm)sctSpan[sctPosition++];
+                    switch (hashAlgo)
+                    {
+                        case CtHashAlgorithm.None:
+                        case CtHashAlgorithm.Md5:
+                        case CtHashAlgorithm.Sha1:
+                        case CtHashAlgorithm.Sha224:
+                        case CtHashAlgorithm.Sha256:
+                        case CtHashAlgorithm.Sha384:
+                        case CtHashAlgorithm.Sha512:
+                            break;
+                        default:
+                            throw new NotSupportedException(UnknowError(nameof(CtHashAlgorithm), hashAlgo));
+                    }
 
-                    var extensions = sctStream.ReadVariableLength(Constants.ExtensionsMaxLength);
+                    var signatureAlgo = (CtSignatureAlgorithm)sctSpan[sctPosition++];
+                    switch (signatureAlgo)
+                    {
+                        case CtSignatureAlgorithm.Anonymous:
+                        case CtSignatureAlgorithm.Rsa:
+                        case CtSignatureAlgorithm.Dsa:
+                        case CtSignatureAlgorithm.Ecdsa:
+                            break;
+                        default:
+                            throw new NotSupportedException(UnknowError(nameof(CtSignatureAlgorithm), signatureAlgo));
+                    }
 
-                    var hashAlgo = (CtHashAlgorithm)sctStream.ReadByte();
-                    if (!Enum.IsDefined(typeof(CtHashAlgorithm), hashAlgo))
-                        throw new NotSupportedException(UnknowError(nameof(CtHashAlgorithm), hashAlgo));
-
-                    var signatureAlgo = (CtSignatureAlgorithm)sctStream.ReadByte();
-                    if (!Enum.IsDefined(typeof(CtSignatureAlgorithm), signatureAlgo))
-                        throw new NotSupportedException(UnknowError(nameof(CtSignatureAlgorithm), signatureAlgo));
-
-                    var signature = sctStream.ReadVariableLength(Constants.SignatureMaxLength);
-
+                    var signature = sctSpan.ReadVariableLength(Constants.SignatureMaxValue, ref sctPosition);
+                    
                     var digitallySigned = new DigitallySigned()
                     {
                         Hash = hashAlgo,
                         Signature = signatureAlgo,
-                        SignatureData = signature
+                        SignatureData = signature.ToArray()
                     };
 
                     var sct = new SignedCertificateTimestamp()
                     {
                         SctVersion = version,
-                        LogId = keyId,
+                        LogId = keyId.ToArray(),
                         TimestampMs = timestamp,
-                        Extensions = extensions,
+                        Extensions = extensions.ToArray(),
                         Signature = digitallySigned
                     };
 

@@ -1,8 +1,5 @@
 ﻿using Cats.CertificateTransparency;
-using Java.Interop;
-using Java.Security;
 using Javax.Net.Ssl;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;

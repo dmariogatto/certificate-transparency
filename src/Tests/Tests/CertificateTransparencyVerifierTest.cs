@@ -316,9 +316,9 @@ namespace Tests
 
                     foreach (var ext in certificate.Extensions)
                     {
-                        if (ext.Oid.Value.Equals(Constants.SctCertificateOid))
+                        if (ext.Oid.Value.Equals(Constants.SctCertificateOid, StringComparison.Ordinal))
                         {
-                            var bytes = Convert.FromBase64String("BHwEegB4AHYAu9nfvB+KcbWTlCOXqpJ7RzhXlQqrUugakJZkNo4e0YUAAAFj7ztQ3wAABAMARzBFAiEA53gntK6Dnr6ROwYGBjqjt5dS4tWM6Zw/TtxIxOvobW8CIF3n4XjIX7/w66gThQD47iF7YmxelwgUQgPzEWNlHQiu");
+                            var bytes = Convert.FromBase64String("BHoAeAB2ALvZ37wfinG1k5Qjl6qSe0c4V5UKq1LoGpCWZDaOHtGFAAABY+87UN8AAAQDAEcwRQIhAOd4J7Sug56+kTsGBgY6o7eXUuLVjOmcP07cSMTr6G1vAiBd5+F4yF+/8OuoE4UA+O4he2JsXpcIFEID8xFjZR0Irg==");                            
                             var newSct = new X509Extension(Constants.SctCertificateOid, bytes, ext.Critical);
                             newCollection.Add(newSct);
                         }

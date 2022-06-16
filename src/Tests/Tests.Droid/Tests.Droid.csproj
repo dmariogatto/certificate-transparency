@@ -19,13 +19,14 @@
     <AndroidResgenClass>Resource</AndroidResgenClass>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
     <AndroidUseLatestPlatformSdk>false</AndroidUseLatestPlatformSdk>
-    <TargetFrameworkVersion>v11.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v12.0</TargetFrameworkVersion>
     <AndroidManifest>Properties\AndroidManifest.xml</AndroidManifest>
     <MonoAndroidResourcePrefix>Resources</MonoAndroidResourcePrefix>
     <MonoAndroidAssetsPrefix>Assets</MonoAndroidAssetsPrefix>
     <AndroidEnableSGenConcurrent>true</AndroidEnableSGenConcurrent>
     <AndroidUseAapt2>true</AndroidUseAapt2>
     <AndroidHttpClientHandlerType>Xamarin.Android.Net.AndroidClientHandler</AndroidHttpClientHandlerType>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>True</DebugSymbols>
@@ -75,6 +76,9 @@
     <Compile Include="..\Tests\HostnamePatternTest.cs">
       <Link>Tests\HostnamePatternTest.cs</Link>
     </Compile>
+    <Compile Include="..\Tests\SpanExtensionsTest.cs">
+      <Link>Tests\SpanExtensionsTest.cs</Link>
+    </Compile>
     <Compile Include="..\Tests\StreamExtensionsTest.cs">
       <Link>Tests\StreamExtensionsTest.cs</Link>
     </Compile>
@@ -106,7 +110,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Moq">
-      <Version>4.16.1</Version>
+      <Version>4.18.1</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>

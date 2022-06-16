@@ -44,7 +44,7 @@ namespace Cats.CertificateTransparency
 
             if (certChain.Any())
             {
-                var dotNetCertChain = certChain.Select(c => c.ToDotNetX509Certificate()).ToArray();
+                var dotNetCertChain = certChain.Select(c => c.ToDotNetX509Certificate()).ToList();
 
                 var ctValueTask = _verifier.IsValidAsync(hostname, dotNetCertChain, default);
                 var ctResult = ctValueTask.IsCompleted

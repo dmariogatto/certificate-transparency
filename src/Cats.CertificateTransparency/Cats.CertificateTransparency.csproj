@@ -1,7 +1,7 @@
-﻿<Project Sdk="MSBuild.Sdk.Extras/2.1.2">
+﻿<Project Sdk="MSBuild.Sdk.Extras/3.0.44">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.1;monoandroid10.0;</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;monoandroid10.0;net6.0;net6.0-android;</TargetFrameworks>
     <LangVersion>latest</LangVersion>
 
     <AssemblyName>Cats.CertificateTransparency</AssemblyName>
@@ -15,8 +15,8 @@
     <Product>$(AssemblyName) ($(TargetFramework))</Product>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <AssemblyFileVersion>1.0.0.0</AssemblyFileVersion>
-    <Version>1.3.0</Version>
-    <PackageVersion>1.3.0</PackageVersion>
+    <Version>2.0.0</Version>
+    <PackageVersion>2.0.0</PackageVersion>
     <Authors>dmariogatto</Authors>
     <Owners>dmariogatto</Owners>
     <NeutralLanguage>en</NeutralLanguage>
@@ -25,14 +25,18 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
     <PackageReleaseNotes>
-- Updated dependencies
-- Linker safe
+- Added net6.0 and net6.0-android support
+- [net6.0-android] `CatsAndroidClientHandler` has been deprecated and removed. Use `CatsAndroidMessageHandler` instead.
     </PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DebugType>portable</DebugType>
     <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="$(TargetFramework.EndsWith('-android'))">
+    <SupportedOSPlatformVersion>21</SupportedOSPlatformVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -58,7 +62,11 @@
     <None Include="Platforms\**\*.*" />
   </ItemGroup>
 
-  <ItemGroup Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
+  <ItemGroup Condition="$(TargetFramework.EndsWith('-android')) ">
+    <Compile Include="Platforms\Android\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition="$(TargetFramework.StartsWith('monoandroid')) ">
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.IO.Compression.FileSystem" />
 

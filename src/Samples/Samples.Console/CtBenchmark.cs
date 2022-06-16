@@ -21,7 +21,7 @@ namespace Samples.Console
             var result = SetupAsync().Result;
             _hostAndCertChains = new Dictionary<string, IList<X509Certificate2>>(result);
 
-            Instance.LogListService.LoadLogListAsync(default);
+            _ = Instance.LogListService.LoadLogListAsync(default);
         }
 
         [Benchmark]

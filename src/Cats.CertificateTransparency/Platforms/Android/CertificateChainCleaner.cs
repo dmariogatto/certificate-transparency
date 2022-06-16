@@ -45,7 +45,7 @@ namespace Cats.CertificateTransparency
                 {
                     trustedCert = _subjectCaCerts[issuer].FirstOrDefault(c => toVerify.IsSignedBy(c));
 
-                    if (trustedCert != null)
+                    if (trustedCert is not null)
                     {
                         if (result.Count > 1 || toVerify != trustedCert)
                             result.Add(trustedCert);

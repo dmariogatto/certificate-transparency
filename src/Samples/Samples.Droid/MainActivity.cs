@@ -1,5 +1,4 @@
 ﻿using Android.App;
-using Android.Content.PM;
 using Android.OS;
 using Android.Runtime;
 using Android.Text;
@@ -42,7 +41,6 @@ namespace Samples.Droid
             _ = Instance.LogListService.LoadLogListAsync(default);
 
             base.OnCreate(savedInstanceState);
-            Xamarin.Essentials.Platform.Init(this, savedInstanceState);
             SetContentView(Resource.Layout.activity_main);
 
             var toolbar = FindViewById<AndroidX.AppCompat.Widget.Toolbar>(Resource.Id.toolbar);
@@ -56,8 +54,8 @@ namespace Samples.Droid
 
             _uriEditText.SetOnKeyListener(new EnterKeyListener(() => fab.CallOnClick()));
 
-            var httpHandler = new CatsAndroidClientHandler(VerifyCtResult);
-            _httpClient = new HttpClient(httpHandler);
+            var handler = new CatsAndroidMessageHandler(VerifyCtResult);
+            _httpClient = new HttpClient(handler);
         }
 
         public override bool OnCreateOptionsMenu(IMenu menu)
@@ -140,13 +138,6 @@ namespace Samples.Droid
             _hostnameCache[hostname] = HtmlCompat.FromHtml(builder.ToString(), HtmlCompat.FromHtmlModeLegacy);
 
             return ctVerificationResult.IsValid;
-        }
-
-        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Permission[] grantResults)
-        {
-            Xamarin.Essentials.Platform.OnRequestPermissionsResult(requestCode, permissions, grantResults);
-
-            base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
         }
 
         private class EnterKeyListener : Java.Lang.Object, View.IOnKeyListener

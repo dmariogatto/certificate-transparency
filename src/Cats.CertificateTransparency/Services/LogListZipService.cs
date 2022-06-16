@@ -20,9 +20,6 @@ namespace Cats.CertificateTransparency.Services
         {
             var logListRoot = default(LogListRoot);
 
-            var stopwatch = new System.Diagnostics.Stopwatch();
-            stopwatch.Start();
-
             if (!LogStoreService.TryGetValue(LogListRootKey, out logListRoot))
             {
                 await _logListSemaphore.WaitAsync().ConfigureAwait(false);
@@ -39,7 +36,7 @@ namespace Cats.CertificateTransparency.Services
 
                         logListRoot = Deserialise<LogListRoot>(logListBytes.list);
 
-                        if (logListRoot?.Operators != null)
+                        if (logListRoot?.Operators is not null)
                             LogStoreService.SetValue(LogListRootKey, logListRoot);
                     }
                 }
@@ -52,8 +49,6 @@ namespace Cats.CertificateTransparency.Services
                     _logListSemaphore.Release();
                 }
             }
-
-            stopwatch.Stop();
 
             return logListRoot;
         }

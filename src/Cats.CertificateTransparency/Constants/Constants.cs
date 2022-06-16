@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 #if DEBUG
 [assembly: InternalsVisibleTo("Tests")]
 [assembly: InternalsVisibleTo("Tests.Droid")]
+[assembly: InternalsVisibleTo("Tests.Droid.net6")]
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
 #endif
 
@@ -12,15 +13,20 @@ namespace Cats.CertificateTransparency
     public static class Constants
     {
         public const int BitsInByte = 8;
+        public const int BytesInLong = 8;
 
-        public const int ExtensionsMaxLength = (1 << 16) - 1;
-        public const int SignatureMaxLength = (1 << 16) - 1;
-        public const int KeyIdLength = 32;
-        public const int TimestampLength = 8;
-        public const int VersionLength = 1;
-        public const int LogEntryTypeLength = 2;
-        public const int CertificateMaxLength = (1 << 24) - 1;
+        public const int X509TbsSequenceIndex = 0;
+        public const int TbsSpkiSequenceIndex = 6;
 
+        public const int ExtensionsMaxValue = (1 << 16) - 1;
+        public const int SignatureMaxValue = (1 << 16) - 1;
+        public const int CertificateMaxValue = (1 << 24) - 1;
+
+        public const int KeyIdNumOfBytes = 32;
+        public const int TimestampNumOfBytes = 8;
+        public const int VersionNumOfBytes = 1;
+        public const int LogEntryTypeNumOfBytes = 2;
+        
         public const string PreCertificateSigningOid = "1.3.6.1.4.1.11129.2.4.4";
         public const string PoisonOid = "1.3.6.1.4.1.11129.2.4.3";
         public const string SctCertificateOid = "1.3.6.1.4.1.11129.2.4.2";
@@ -35,5 +41,21 @@ namespace Cats.CertificateTransparency
 
         public const string Sha256WithRsa = "SHA256withRSA";
         public const string Sha256WithEcdsa = "SHA256withECDSA";
+
+        internal static int BytesToStoreValue(int value)
+        {
+            if (value < 0) throw new ArgumentOutOfRangeException(nameof(value), "Cannot be negative");
+
+            var numBytes = 0;
+            var local = value;
+
+            while (local > 0)
+            {
+                local >>= Constants.BitsInByte;
+                numBytes++;
+            }
+
+            return numBytes;
+        }
     }
 }

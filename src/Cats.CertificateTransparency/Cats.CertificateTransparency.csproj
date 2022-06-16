@@ -26,7 +26,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageReleaseNotes>
 - Added net6.0 and net6.0-android support
-- [net6.0-android] `CatsAndroidClientHandler` has been deprecated. Use `CatsAndroidMessageHandler` instead.
+- [net6.0-android] `CatsAndroidClientHandler` has been deprecated and removed. Use `CatsAndroidMessageHandler` instead.
     </PackageReleaseNotes>
   </PropertyGroup>
 

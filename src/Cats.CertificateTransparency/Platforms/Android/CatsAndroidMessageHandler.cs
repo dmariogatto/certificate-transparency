@@ -1,5 +1,4 @@
-﻿#if NET6_0_OR_GREATER
-using Cats.CertificateTransparency.Models;
+﻿using Cats.CertificateTransparency.Models;
 using Javax.Net.Ssl;
 using System;
 using System.Collections.Generic;
@@ -34,4 +33,3 @@ namespace Cats.CertificateTransparency
         }
     }
 }
-#endif

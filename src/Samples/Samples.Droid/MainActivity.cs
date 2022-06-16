@@ -54,13 +54,8 @@ namespace Samples.Droid
 
             _uriEditText.SetOnKeyListener(new EnterKeyListener(() => fab.CallOnClick()));
 
-            var httpHandler =
-#if NET6_0_OR_GREATER
-                new CatsAndroidMessageHandler(VerifyCtResult);
-#else
-                new CatsAndroidClientHandler(VerifyCtResult);
-#endif
-            _httpClient = new HttpClient(httpHandler);
+            var handler = new CatsAndroidMessageHandler(VerifyCtResult);
+            _httpClient = new HttpClient(handler);
         }
 
         public override bool OnCreateOptionsMenu(IMenu menu)

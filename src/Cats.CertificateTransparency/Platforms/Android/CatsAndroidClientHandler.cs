@@ -1,4 +1,5 @@
-﻿using Cats.CertificateTransparency.Models;
+﻿#if !NET6_0_OR_GREATER
+using Cats.CertificateTransparency.Models;
 using Javax.Net.Ssl;
 using System;
 using System.Collections.Generic;
@@ -7,9 +8,7 @@ using DotNetX509Certificate = System.Security.Cryptography.X509Certificates.X509
 
 namespace Cats.CertificateTransparency
 {
-#if NET6_0_OR_GREATER
-    [Obsolete("CatsAndroidClientHandler has been deprecated. Use CatsAndroidMessageHandler instead.")]
-#endif
+    [Obsolete("CatsAndroidClientHandler has been deprecated & will be removed in net6.0-android. Use CatsAndroidMessageHandler instead.")]
     public class CatsAndroidClientHandler : AndroidClientHandler
     {
         private readonly IHostnameVerifier _hostnameVerifier;
@@ -36,3 +35,4 @@ namespace Cats.CertificateTransparency
         }
     }
 }
+#endif

@@ -61,7 +61,7 @@
     <Content Include="..\Samples.Droid\Assets\AboutAssets.txt" Link="AboutAssets.txt" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Xamarin.Google.Android.Material" Version="1.6.1.1" />
+    <PackageReference Include="Xamarin.Google.Android.Material" Version="1.7.0.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Cats.CertificateTransparency\Cats.CertificateTransparency.csproj" />

@@ -27,7 +27,7 @@ namespace Samples.Droid
         MainLauncher = true)]
     public class MainActivity : AppCompatActivity
     {
-        private readonly Dictionary<string, ISpanned> _hostnameCache = new Dictionary<string, ISpanned>();
+        private readonly Dictionary<string, string> _hostnameHtmlResults = new Dictionary<string, string>();
 
         private HttpClient _httpClient;
 
@@ -77,12 +77,14 @@ namespace Samples.Droid
 
         private async void FabOnClick(object sender, EventArgs eventArgs)
         {
-            if (_isLoading || !(sender is View))
+            if (_isLoading || string.IsNullOrWhiteSpace(_uriEditText.Text) || sender is not View)
                 return;
 
             _isLoading = true;
 
             var view = (View)sender;
+            var hostname = string.Empty;
+            var exceptionHtml = string.Empty;
 
             try
             {
@@ -90,31 +92,28 @@ namespace Samples.Droid
                 imm.HideSoftInputFromWindow(view.WindowToken, HideSoftInputFlags.None);
                 _uriEditText.ClearFocus();
 
-                var url = _uriEditText.Text;
-                var uri = new Uri(url);
+                var uri = new Uri(_uriEditText.Text);
+                hostname = uri.Host;
 
                 _resultText.Text = $"Loading '{_uriEditText.Text}'...";
 
                 await _httpClient.GetAsync(uri);
-
-                if (_hostnameCache.ContainsKey(uri.Host))
-                {
-                    _resultText.TextFormatted = _hostnameCache[uri.Host];
-                }
-                else
-                {
-                    _resultText.Text = $"Loaded '{_uriEditText.Text}', no SCT information!";
-                }
             }
             catch (Exception ex)
             {
                 Snackbar.Make(view, ex.Message, Snackbar.LengthShort).Show();
-                _resultText.Text = ex.ToString();
+                exceptionHtml = $"<p><b># Exception #</b><p>{ex}</p>";
             }
             finally
             {
                 _isLoading = false;
             }
+
+            var htmlResult = _hostnameHtmlResults.ContainsKey(hostname)
+                ? $"{_hostnameHtmlResults[hostname]}{exceptionHtml}"
+                : $"<p>Loaded '{_uriEditText.Text}', no SCT information!<p>{exceptionHtml}";
+
+            _resultText.TextFormatted = HtmlCompat.FromHtml(htmlResult, HtmlCompat.FromHtmlModeLegacy);
         }
 
         private bool VerifyCtResult(string hostname, IList<DotNetX509Certificate> certChain, CtVerificationResult ctVerificationResult)
@@ -135,7 +134,7 @@ namespace Samples.Droid
                 builder.AppendFormat("<p>{0}</p>", certChain[i].ToString().Replace(System.Environment.NewLine, "<br />"));
             }
 
-            _hostnameCache[hostname] = HtmlCompat.FromHtml(builder.ToString(), HtmlCompat.FromHtmlModeLegacy);
+            _hostnameHtmlResults[hostname] = builder.ToString();
 
             return ctVerificationResult.IsValid;
         }

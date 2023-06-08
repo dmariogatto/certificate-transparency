@@ -55,7 +55,7 @@
       <PackagePath></PackagePath>
     </None>
 
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
 
     <Compile Remove="Platforms\**\*.*" />

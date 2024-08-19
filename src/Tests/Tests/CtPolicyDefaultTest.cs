@@ -46,8 +46,8 @@ namespace Tests
 
                 var result = new CtPolicyDefault().PolicyVerificationResult(cert, scts);
 
-                Assert.True(tp.SctsRequired == result.MinSctCount, tp.Description);
-                Assert.True(result.Result == CtResult.TooFewSctsTrusted, tp.Description);
+                Assert.That(tp.SctsRequired == result.MinSctCount, tp.Description);
+                Assert.That(result.Result == CtResult.TooFewSctsTrusted, tp.Description);
             }
         }
 
@@ -71,7 +71,7 @@ namespace Tests
 
                 var result = new CtPolicyDefault().PolicyVerificationResult(cert, scts);
 
-                Assert.True(result.Result == CtResult.Trusted, tp.Description);
+                Assert.That(result.Result == CtResult.Trusted, tp.Description);
             }
         }
 

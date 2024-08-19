@@ -1,10 +1,9 @@
-using Newtonsoft.Json;
 using Org.BouncyCastle.Utilities.IO.Pem;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
-using System.Text;
+using System.Text.Json;
 
 namespace Tests
 {
@@ -108,20 +107,13 @@ namespace Tests
         public static T LoadJson<T>(string path) where T : class
         {
             using var stream = GetResourceStream(path);
-            return Deserialise<T>(stream);
+            return JsonSerializer.Deserialize<T>(stream);
         }
 
         private static Stream GetResourceStream(string name)
         {
             var assembly = typeof(Data).Assembly;
             return assembly.GetManifestResourceStream(name);
-        }
-
-        private static T Deserialise<T>(Stream stream) where T : class
-        {
-            using var reader = new StreamReader(stream, Encoding.UTF8);
-            var jsonSettings = new JsonSerializerSettings() { DateTimeZoneHandling = DateTimeZoneHandling.Utc };
-            return JsonSerializer.Create(jsonSettings).Deserialize(reader, typeof(T)) as T;
         }
     }
 }

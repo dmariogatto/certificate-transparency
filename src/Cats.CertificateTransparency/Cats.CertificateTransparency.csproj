@@ -1,7 +1,7 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras/3.0.44">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.1;monoandroid10.0;net6.0;net6.0-android;</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;monoandroid10.0;net8.0;net8.0-android;</TargetFrameworks>
     <LangVersion>latest</LangVersion>
 
     <AssemblyName>Cats.CertificateTransparency</AssemblyName>
@@ -55,8 +55,8 @@
       <PackagePath></PackagePath>
     </None>
 
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
+    <PackageReference Include="System.Text.Json" Version="8.0.4" />
 
     <Compile Remove="Platforms\**\*.*" />
     <None Include="Platforms\**\*.*" />

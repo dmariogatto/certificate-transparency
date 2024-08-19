@@ -1,12 +1,11 @@
 ﻿using Cats.CertificateTransparency.Api;
 using Cats.CertificateTransparency.Models;
-using Newtonsoft.Json;
 using Org.BouncyCastle.Security;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -72,7 +71,7 @@ namespace Cats.CertificateTransparency.Services
                         if (!isValid)
                             throw new InvalidDataException("Log list failed signature verification!");
 
-                        logListRoot = Deserialise<LogListRoot>(logListBytes);
+                        logListRoot = JsonSerializer.Deserialize<LogListRoot>(logListBytes);
 
                         if (logListRoot?.Operators is not null)
                             LogStoreService.SetValue(LogListRootKey, logListRoot);
@@ -125,14 +124,6 @@ namespace Cats.CertificateTransparency.Services
                 .Replace(Constants.BeginPublicKey, string.Empty, StringComparison.Ordinal)
                 .Replace(Constants.EndPublicKey, string.Empty, StringComparison.Ordinal);
             return Convert.FromBase64String(encodedPublicKey);
-        }
-
-        protected static T Deserialise<T>(byte[] data) where T : class
-        {
-            using var stream = new MemoryStream(data);
-            using var reader = new StreamReader(stream, Encoding.UTF8);
-            var jsonSettings = new JsonSerializerSettings() { DateTimeZoneHandling = DateTimeZoneHandling.Utc };
-            return JsonSerializer.Create(jsonSettings).Deserialize(reader, typeof(T)) as T;
         }
     }
 }

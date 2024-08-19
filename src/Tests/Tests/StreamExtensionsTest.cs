@@ -26,7 +26,7 @@ namespace Tests
 
             var result = reader.ReadLong(numOfBytes);
 
-            Assert.AreEqual(value, result);
+            Assert.That(value == result);
         }
 
         [Test]
@@ -53,8 +53,8 @@ namespace Tests
 
             var result = reader.ReadVariableLength(maxLength);
 
-            Assert.AreEqual(data.Length, result.Length);
-            Assert.IsTrue(data.SequenceEqual(result));
+            Assert.That(data.Length == result.Length);
+            Assert.That(data.SequenceEqual(result));
         }
     }
 }

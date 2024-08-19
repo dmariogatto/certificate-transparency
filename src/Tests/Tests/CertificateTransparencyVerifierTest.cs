@@ -34,7 +34,7 @@ namespace Tests
 
             var result = ctv.IsValidAsync(BabylonHealthCom, certsChain, default).Result;
 
-            Assert.IsTrue(result.Result == CtResult.NoScts);
+            Assert.That(result.Result == CtResult.NoScts);
         }
 
         [Test]
@@ -49,7 +49,7 @@ namespace Tests
 
             var result = ctv.IsValidAsync(BabylonHealthCom, certsChain, default).Result;
 
-            Assert.IsTrue(result.Result == CtResult.DisabledForHost);
+            Assert.That(result.Result == CtResult.DisabledForHost);
         }
 
         [Test]
@@ -64,7 +64,7 @@ namespace Tests
 
             var result = ctv.IsValidAsync(BabylonHealthCom, certsChain, default).Result;
 
-            Assert.IsTrue(result.Result == CtResult.DisabledForHost);
+            Assert.That(result.Result == CtResult.DisabledForHost);
         }
 
         [Test]
@@ -79,8 +79,8 @@ namespace Tests
 
             var result = ctv.IsValidAsync(BabylonHealthCom, certsChain, default).Result;
 
-            Assert.IsTrue(result.Result == CtResult.Trusted);
-            Assert.AreEqual(2, result.ValidSctCount);
+            Assert.That(result.Result == CtResult.Trusted);
+            Assert.That(result.ValidSctCount == 2);
         }
 
         [Test]
@@ -91,11 +91,11 @@ namespace Tests
             try
             {
                 var certsChain = CertificateChainBuilder.Build(certsToCheck);
-                Assert.AreEqual(certsChain, null);
+                Assert.That(certsChain is null);
             }
             catch
             {
-                Assert.IsTrue(true);
+                Assert.That(true);
             }
         }
 
@@ -103,7 +103,7 @@ namespace Tests
         public void NoHostsDefinedDoesNotThrowException()
         {
             var ctv = GetCertVerifier();
-            Assert.IsTrue(ctv is ICertificateTransparencyVerifier);
+            Assert.That(ctv is ICertificateTransparencyVerifier);
         }
 
         [Test]
@@ -118,7 +118,7 @@ namespace Tests
 
             var result = ctv.IsValidAsync(BabylonHealthCom, certsChain, default).Result;
 
-            Assert.IsTrue(result.Result == CtResult.LogServersFailed);
+            Assert.That(result.Result == CtResult.LogServersFailed);
         }
 
         [Test]
@@ -133,7 +133,7 @@ namespace Tests
 
             var result = ctv.IsValidAsync(BabylonHealthCom, certsChain, default).Result;
 
-            Assert.IsTrue(result.Result == CtResult.LogServersFailed);
+            Assert.That(result.Result == CtResult.LogServersFailed);
         }
 
         [Test]
@@ -152,7 +152,7 @@ namespace Tests
 
             var result = ctv.IsValidAsync(BabylonHealthCom, certsChain, default).Result;
 
-            Assert.IsTrue(result.Result == CtResult.TooFewSctsTrusted);
+            Assert.That(result.Result == CtResult.TooFewSctsTrusted);
         }
 
         [Test]
@@ -162,7 +162,7 @@ namespace Tests
 
             var result = ctv.IsValidAsync(BabylonHealthCom, new List<X509Certificate2>(0), default).Result;
 
-            Assert.IsTrue(result.Result == CtResult.NoCertificates);
+            Assert.That(result.Result == CtResult.NoCertificates);
         }
 
         [Test]
@@ -177,7 +177,7 @@ namespace Tests
 
             var result = ctv.IsValidAsync(AllowedRandomCom, certsChain, default).Result;
 
-            Assert.IsTrue(result.Result == CtResult.Trusted);
+            Assert.That(result.Result == CtResult.Trusted);
         }
 
         [Test]
@@ -192,7 +192,7 @@ namespace Tests
 
             var result = ctv.IsValidAsync(DisallowedRandomCom, certsChain, default).Result;
 
-            Assert.IsTrue(result.Result == CtResult.DisabledForHost);
+            Assert.That(result.Result == CtResult.DisabledForHost);
         }
 
         [Test]
@@ -207,7 +207,7 @@ namespace Tests
 
             var result = ctv.IsValidAsync(AllowedRandomCom, certsChain, default).Result;
 
-            Assert.IsTrue(result.Result == CtResult.Trusted);
+            Assert.That(result.Result == CtResult.Trusted);
         }
 
         [Test]
@@ -222,7 +222,7 @@ namespace Tests
 
             var result = ctv.IsValidAsync(AllowedRandomCom, certsChain, default).Result;
 
-            Assert.IsTrue(result.Result == CtResult.DisabledForHost);
+            Assert.That(result.Result == CtResult.DisabledForHost);
         }
 
         [Test]
@@ -237,7 +237,7 @@ namespace Tests
 
             var result = ctv.IsValidAsync(AllowedRandomCom, certsChain, default).Result;
 
-            Assert.IsTrue(result.Result == CtResult.Trusted);
+            Assert.That(result.Result == CtResult.Trusted);
         }
 
         [Test]
@@ -247,7 +247,7 @@ namespace Tests
 
             var result = ctv.IsValidAsync(AllowedRandomCom, new List<X509Certificate2>(0), default).Result;
 
-            Assert.IsTrue(result.Result == CtResult.NoCertificates);
+            Assert.That(result.Result == CtResult.NoCertificates);
         }
 
         [Test]

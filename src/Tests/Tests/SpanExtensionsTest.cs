@@ -24,7 +24,7 @@ namespace Tests
             var position = 0;
 
             var result = span.ReadLong(numOfBytes, ref position);
-            Assert.AreEqual(value, result);
+            Assert.That(value == result);
         }
 
         [Test]
@@ -50,8 +50,8 @@ namespace Tests
 
             var result = span.ReadVariableLength(maxLength, ref position);
 
-            Assert.AreEqual(data.Length, result.Length);
-            Assert.IsTrue(data.SequenceEqual(result.ToArray()));
+            Assert.That(data.Length == result.Length);
+            Assert.That(data.SequenceEqual(result.ToArray()));
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0-android</TargetFramework>
+    <TargetFramework>net8.0-android</TargetFramework>
     <SupportedOSPlatformVersion>21</SupportedOSPlatformVersion>
     <OutputType>Exe</OutputType>
     <ApplicationId>com.samples.certificatetransparency.net6</ApplicationId>
@@ -61,7 +61,7 @@
     <Content Include="..\Samples.Droid\Assets\AboutAssets.txt" Link="AboutAssets.txt" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Xamarin.Google.Android.Material" Version="1.9.0.1" />
+    <PackageReference Include="Xamarin.Google.Android.Material" Version="1.11.0.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Cats.CertificateTransparency\Cats.CertificateTransparency.csproj" />

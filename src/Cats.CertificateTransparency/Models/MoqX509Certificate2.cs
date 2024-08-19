@@ -9,7 +9,9 @@ namespace Cats.CertificateTransparency.Models
     internal class MoqX509Certificate2 : X509Certificate2
     {
         public MoqX509Certificate2(X509Certificate2 certificate) : base(certificate) { }
+#pragma warning disable SYSLIB0026
         public MoqX509Certificate2() { }
+#pragma warning restore SYSLIB0026
 
         public virtual DateTime MoqNotBefore => throw new NotImplementedException();
         public virtual DateTime MoqNotAfter => throw new NotImplementedException();

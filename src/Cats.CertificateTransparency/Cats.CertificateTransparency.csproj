@@ -15,8 +15,8 @@
     <Product>$(AssemblyName) ($(TargetFramework))</Product>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <AssemblyFileVersion>1.0.0.0</AssemblyFileVersion>
-    <Version>2.1.1</Version>
-    <PackageVersion>2.1.1</PackageVersion>
+    <Version>3.0.0</Version>
+    <PackageVersion>2.0.0</PackageVersion>
     <Authors>dmariogatto</Authors>
     <Owners>dmariogatto</Owners>
     <NeutralLanguage>en</NeutralLanguage>
@@ -25,8 +25,9 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
     <PackageReleaseNotes>
-      - Updated Google log list publishing endpoint to v3
-      - Handle exception if log list is unavailable
+      - Updated to net8.0
+      - Replaced `Newtonsoft.Json` with `System.Text.Json`
+      - Added ctor to `GoogleLogListApi` to access custom `HttpClient`
     </PackageReleaseNotes>
   </PropertyGroup>
 

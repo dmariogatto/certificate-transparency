@@ -37,7 +37,7 @@
     <Folder Include="Resources\mipmap-xxxhdpi\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Moq" Version="4.20.70" />
+    <PackageReference Include="Moq" Version="4.20.72" />
     <PackageReference Include="Xamarin.Legacy.NUnitLite" Version="0.0.1-alpha" />
   </ItemGroup>
   <ItemGroup>

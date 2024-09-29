@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0-android</TargetFramework>
+    <TargetFramework>net8.0-android</TargetFramework>
     <SupportedOSPlatformVersion>21</SupportedOSPlatformVersion>
     <OutputType>Exe</OutputType>
     <ApplicationId>com.tests.certificatetransparency.net6</ApplicationId>
@@ -37,7 +37,7 @@
     <Folder Include="Resources\mipmap-xxxhdpi\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Moq" Version="4.18.4" />
+    <PackageReference Include="Moq" Version="4.20.72" />
     <PackageReference Include="Xamarin.Legacy.NUnitLite" Version="0.0.1-alpha" />
   </ItemGroup>
   <ItemGroup>

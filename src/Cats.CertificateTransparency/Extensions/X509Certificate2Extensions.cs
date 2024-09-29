@@ -94,7 +94,7 @@ namespace Cats.CertificateTransparency.Extensions
             {
                 var numOfLengthBytes = 0;
                 var encodingLengthByte = sctRawData[1];
-                
+
                 // Leading bit is 1, (i.e. long format)
                 if ((encodingLengthByte & 0x80) != 0)
                 {
@@ -102,7 +102,7 @@ namespace Cats.CertificateTransparency.Extensions
                 }
 
                 var span = sctRawData.AsSpan(numOfLengthBytes + 2);
-                var position = 2;                
+                var position = 2;
 
                 while (span.Length - position > 2)
                 {
@@ -124,7 +124,7 @@ namespace Cats.CertificateTransparency.Extensions
 
                     var timestamp = sctSpan.ReadLong(Constants.TimestampNumOfBytes, ref sctPosition);
                     var extensions = sctSpan.ReadVariableLength(Constants.ExtensionsMaxValue, ref sctPosition);
-                    
+
                     var hashAlgo = (CtHashAlgorithm)sctSpan[sctPosition++];
                     switch (hashAlgo)
                     {
@@ -153,7 +153,7 @@ namespace Cats.CertificateTransparency.Extensions
                     }
 
                     var signature = sctSpan.ReadVariableLength(Constants.SignatureMaxValue, ref sctPosition);
-                    
+
                     var digitallySigned = new DigitallySigned()
                     {
                         Hash = hashAlgo,

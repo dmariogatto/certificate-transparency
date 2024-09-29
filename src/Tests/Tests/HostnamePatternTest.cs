@@ -25,7 +25,7 @@ namespace Tests
             };
 
             var hostnamePattern = new HostnamePattern(included, excluded);
-            Assert.True(hostnamePattern.ValidateHost("example.com"));
+            Assert.That(hostnamePattern.ValidateHost("example.com"));
         }
 
         [Test]
@@ -41,9 +41,9 @@ namespace Tests
             };
 
             var hostnamePattern = new HostnamePattern(included, excluded);
-            Assert.True(hostnamePattern.ValidateHost("a.example.com"));
-            Assert.True(hostnamePattern.ValidateHost("b.example.com"));
-            Assert.False(hostnamePattern.ValidateHost("c.example.com"));
+            Assert.That(hostnamePattern.ValidateHost("a.example.com"));
+            Assert.That(hostnamePattern.ValidateHost("b.example.com"));
+            Assert.That(!hostnamePattern.ValidateHost("c.example.com"));
         }
 
         [Test]
@@ -59,9 +59,9 @@ namespace Tests
             };
 
             var hostnamePattern = new HostnamePattern(included, excluded);
-            Assert.True(hostnamePattern.ValidateHost("a.exampLe.com"));
-            Assert.True(hostnamePattern.ValidateHost("b.eXample.com"));
-            Assert.False(hostnamePattern.ValidateHost("c.example.com"));
+            Assert.That(hostnamePattern.ValidateHost("a.exampLe.com"));
+            Assert.That(hostnamePattern.ValidateHost("b.eXample.com"));
+            Assert.That(!hostnamePattern.ValidateHost("c.example.com"));
         }
 
         [Test]
@@ -77,10 +77,10 @@ namespace Tests
             };
 
             var hostnamePattern = new HostnamePattern(included, excluded);
-            Assert.True(hostnamePattern.ValidateHost("example.com"));
-            Assert.True(hostnamePattern.ValidateHost("a.example.com"));
-            Assert.False(hostnamePattern.ValidateHost("b.example.com"));
-            Assert.True(hostnamePattern.ValidateHost("c.example.com"));
+            Assert.That(hostnamePattern.ValidateHost("example.com"));
+            Assert.That(hostnamePattern.ValidateHost("a.example.com"));
+            Assert.That(!hostnamePattern.ValidateHost("b.example.com"));
+            Assert.That(hostnamePattern.ValidateHost("c.example.com"));
         }
 
         [Test]

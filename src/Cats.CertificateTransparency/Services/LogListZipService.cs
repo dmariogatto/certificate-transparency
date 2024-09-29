@@ -1,6 +1,7 @@
 ﻿using Cats.CertificateTransparency.Api;
 using Cats.CertificateTransparency.Models;
 using System.IO;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -34,7 +35,7 @@ namespace Cats.CertificateTransparency.Services
                         if (!isValid)
                             throw new InvalidDataException("Log list failed signature verification!");
 
-                        logListRoot = Deserialise<LogListRoot>(logListBytes.list);
+                        logListRoot = JsonSerializer.Deserialize<LogListRoot>(logListBytes.list);
 
                         if (logListRoot?.Operators is not null)
                             LogStoreService.SetValue(LogListRootKey, logListRoot);

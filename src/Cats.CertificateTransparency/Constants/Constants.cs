@@ -26,7 +26,7 @@ namespace Cats.CertificateTransparency
         public const int TimestampNumOfBytes = 8;
         public const int VersionNumOfBytes = 1;
         public const int LogEntryTypeNumOfBytes = 2;
-        
+
         public const string PreCertificateSigningOid = "1.3.6.1.4.1.11129.2.4.4";
         public const string PoisonOid = "1.3.6.1.4.1.11129.2.4.3";
         public const string SctCertificateOid = "1.3.6.1.4.1.11129.2.4.2";

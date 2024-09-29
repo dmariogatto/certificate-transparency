@@ -28,7 +28,7 @@ namespace Tests
             var builtChain = CertificateChainBuilder.Build(certsChain);
 
             // then the expected chain is returned
-            Assert.True(_expectedChain.SequenceEqual(builtChain));
+            Assert.That(_expectedChain.SequenceEqual(builtChain));
         }
 
         [Test]
@@ -41,7 +41,7 @@ namespace Tests
 
             var builtChain = CertificateChainBuilder.Build(certsChain);
 
-            Assert.AreEqual(builtChain, null);
+            Assert.That(builtChain is null);
         }
 
         [Test]
@@ -56,7 +56,7 @@ namespace Tests
             var builtChain = CertificateChainBuilder.Build(certsChain);
 
             // then the expected chain is returned
-            Assert.True(_expectedChain.SequenceEqual(builtChain));
+            Assert.That(_expectedChain.SequenceEqual(builtChain));
         }
 
         [Test]
@@ -77,7 +77,7 @@ namespace Tests
             var builtChain = CertificateChainBuilder.Build(certsChain);
 
             // then the expected chain is returned
-            Assert.True(_expectedChain.SequenceEqual(builtChain));
+            Assert.That(_expectedChain.SequenceEqual(builtChain));
         }
 
         [Test]
@@ -88,7 +88,7 @@ namespace Tests
 
             var builtChain = CertificateChainBuilder.Build(certsChain);
 
-            Assert.AreEqual(builtChain, null);
+            Assert.That(builtChain is null);
         }
 
         [Test]
@@ -103,7 +103,7 @@ namespace Tests
             expected.Add(rootCert);
 
             // then the expected chain is returned
-            Assert.True(expected.SequenceEqual(builtChain));
+            Assert.That(expected.SequenceEqual(builtChain));
         }
 
         [Test]
@@ -116,7 +116,7 @@ namespace Tests
             var builtChain = CertificateChainBuilder.Build(certsChain, trustedCert);
 
             // then the expected chain is returned
-            Assert.True(certsChain.SequenceEqual(builtChain));
+            Assert.That(certsChain.SequenceEqual(builtChain));
         }
 
         [Test]
@@ -128,7 +128,7 @@ namespace Tests
             var builtChain = CertificateChainBuilder.Build(certsChain, rootCert);
 
             // when we clean a chain with more than 10 certs (inc root)
-            Assert.IsTrue(builtChain.Count > 10);
+            Assert.That(builtChain.Count > 10);
         }
 
         [Test]
@@ -141,7 +141,7 @@ namespace Tests
             var builtChain = CertificateChainBuilder.Build(certsChain, rootCert);
 
             // then the expected chain is returned
-            Assert.True(certsChain.SequenceEqual(builtChain));
+            Assert.That(certsChain.SequenceEqual(builtChain));
         }
     }
 }

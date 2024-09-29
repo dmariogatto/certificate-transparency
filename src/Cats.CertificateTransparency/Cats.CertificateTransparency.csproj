@@ -1,7 +1,7 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras/3.0.44">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.1;monoandroid10.0;net6.0;net6.0-android;</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;monoandroid10.0;net8.0;net8.0-android;</TargetFrameworks>
     <LangVersion>latest</LangVersion>
 
     <AssemblyName>Cats.CertificateTransparency</AssemblyName>
@@ -15,8 +15,8 @@
     <Product>$(AssemblyName) ($(TargetFramework))</Product>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <AssemblyFileVersion>1.0.0.0</AssemblyFileVersion>
-    <Version>2.1.1</Version>
-    <PackageVersion>2.1.1</PackageVersion>
+    <Version>3.0.0</Version>
+    <PackageVersion>3.0.0</PackageVersion>
     <Authors>dmariogatto</Authors>
     <Owners>dmariogatto</Owners>
     <NeutralLanguage>en</NeutralLanguage>
@@ -25,8 +25,9 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
     <PackageReleaseNotes>
-      - Updated Google log list publishing endpoint to v3
-      - Handle exception if log list is unavailable
+      - Updated to net8.0
+      - Replaced `Newtonsoft.Json` with `System.Text.Json`
+      - Added ctor to `GoogleLogListApi` to set custom `HttpClient`
     </PackageReleaseNotes>
   </PropertyGroup>
 
@@ -55,8 +56,8 @@
       <PackagePath></PackagePath>
     </None>
 
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
     <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
+    <PackageReference Include="System.Text.Json" Version="8.0.4" />
 
     <Compile Remove="Platforms\**\*.*" />
     <None Include="Platforms\**\*.*" />

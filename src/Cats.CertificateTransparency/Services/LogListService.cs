@@ -90,9 +90,9 @@ namespace Cats.CertificateTransparency.Services
             return logListRoot;
         }
 
-        public async ValueTask<IDictionary<string, Log>> GetLogDictionaryAsync(CancellationToken cancellationToken)
+        public async ValueTask<IDictionary<string, ILog>> GetLogDictionaryAsync(CancellationToken cancellationToken)
         {
-            var logDictionary = default(IDictionary<string, Log>);
+            var logDictionary = default(IDictionary<string, ILog>);
 
             if (!LogStoreService.TryGetValue(LogDictionaryKey, out logDictionary))
             {
@@ -105,7 +105,7 @@ namespace Cats.CertificateTransparency.Services
                 }
             }
 
-            return logDictionary ?? new Dictionary<string, Log>(0);
+            return logDictionary ?? new Dictionary<string, ILog>(0);
         }
 
         protected static bool VerifyGoogleSignature(byte[] data, byte[] signature)

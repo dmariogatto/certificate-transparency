@@ -1,7 +1,7 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras/3.0.44">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.1;monoandroid10.0;net8.0;net8.0-android;</TargetFrameworks>
+    <TargetFrameworks>netstandard2.1;net9.0;net9.0-android;</TargetFrameworks>
     <LangVersion>latest</LangVersion>
 
     <AssemblyName>Cats.CertificateTransparency</AssemblyName>
@@ -15,8 +15,8 @@
     <Product>$(AssemblyName) ($(TargetFramework))</Product>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <AssemblyFileVersion>1.0.0.0</AssemblyFileVersion>
-    <Version>3.0.1</Version>
-    <PackageVersion>3.0.1</PackageVersion>
+    <Version>4.0.0</Version>
+    <PackageVersion>4.0.0</PackageVersion>
     <Authors>dmariogatto</Authors>
     <Owners>dmariogatto</Owners>
     <NeutralLanguage>en</NeutralLanguage>
@@ -25,9 +25,9 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
     <PackageReleaseNotes>
-      - Updated to net8.0
-      - Replaced `Newtonsoft.Json` with `System.Text.Json`
-      - Added ctor to `GoogleLogListApi` to set custom `HttpClient`
+      - Updated to net9.0
+      - Added support for tiled logs
+      - Removed support for monoandroid10
     </PackageReleaseNotes>
   </PropertyGroup>
 
@@ -57,7 +57,7 @@
     </None>
 
     <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
-    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    <PackageReference Include="System.Text.Json" Version="9.0.0" />
 
     <Compile Remove="Platforms\**\*.*" />
     <None Include="Platforms\**\*.*" />

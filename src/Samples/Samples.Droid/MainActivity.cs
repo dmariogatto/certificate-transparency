@@ -1,12 +1,12 @@
 ﻿using Android.App;
 using Android.OS;
 using Android.Runtime;
-using Android.Text;
 using Android.Views;
 using Android.Views.InputMethods;
 using Android.Widget;
 using AndroidX.AppCompat.App;
 using AndroidX.Core.Text;
+using AndroidX.Core.View;
 using Cats.CertificateTransparency;
 using Cats.CertificateTransparency.Models;
 using Google.Android.Material.FloatingActionButton;
@@ -25,7 +25,7 @@ namespace Samples.Droid
         Theme = "@style/AppTheme.NoActionBar",
         WindowSoftInputMode = SoftInput.AdjustResize,
         MainLauncher = true)]
-    public class MainActivity : AppCompatActivity
+    public class MainActivity : AppCompatActivity, IOnApplyWindowInsetsListener
     {
         private readonly Dictionary<string, string> _hostnameHtmlResults = new Dictionary<string, string>();
 
@@ -41,7 +41,11 @@ namespace Samples.Droid
             _ = Instance.LogListService.LoadLogListAsync(default);
 
             base.OnCreate(savedInstanceState);
+
             SetContentView(Resource.Layout.activity_main);
+
+            var content = FindViewById(Android.Resource.Id.Content);
+            ViewCompat.SetOnApplyWindowInsetsListener(content, this);
 
             var toolbar = FindViewById<AndroidX.AppCompat.Widget.Toolbar>(Resource.Id.toolbar);
             SetSupportActionBar(toolbar);
@@ -138,6 +142,22 @@ namespace Samples.Droid
 
             return ctVerificationResult.IsValid;
         }
+
+        #region IOnApplyWindowInsetsListener
+        public WindowInsetsCompat OnApplyWindowInsets(View v, WindowInsetsCompat insets)
+        {
+            var systemBars = insets.GetInsets(WindowInsetsCompat.Type.SystemBars());
+
+            v.SetPadding(
+                systemBars.Left,
+                systemBars.Top,
+                systemBars.Right,
+                systemBars.Bottom
+            );
+
+            return WindowInsetsCompat.Consumed;
+        }
+        #endregion
 
         private class EnterKeyListener : Java.Lang.Object, View.IOnKeyListener
         {

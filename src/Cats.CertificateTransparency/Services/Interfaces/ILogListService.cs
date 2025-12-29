@@ -13,6 +13,6 @@ namespace Cats.CertificateTransparency.Services
         void ClearLogList();
 
         public ValueTask<LogListRoot> GetLogListRootAsync(CancellationToken cancellationToken);
-        public ValueTask<IDictionary<string, Log>> GetLogDictionaryAsync(CancellationToken cancellationToken);
+        public ValueTask<IDictionary<string, ILog>> GetLogDictionaryAsync(CancellationToken cancellationToken);
     }
 }

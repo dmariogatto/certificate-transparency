@@ -48,14 +48,14 @@ namespace Cats.CertificateTransparency.Services
             if (scts?.Any() != true)
                 return CtVerificationResult.NoScts();
 
-            var logDictionary = default(IDictionary<string, Log>);
+            var logDictionary = default(IDictionary<string, ILog>);
 
             try
             {
                 logDictionary = await _logListService.GetLogDictionaryAsync(cancellationToken).ConfigureAwait(false);
             }
-            catch (Exception ex) 
-            {                
+            catch (Exception ex)
+            {
                 System.Diagnostics.Debug.WriteLine(ex);
                 logDictionary = null;
             }

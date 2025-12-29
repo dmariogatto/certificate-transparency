@@ -74,7 +74,7 @@ namespace Cats.CertificateTransparency.Models
     }
 
     [Preserve(AllMembers = true)]
-    public class Log
+    public abstract class BaseLog : ILog
     {
         [JsonPropertyName("description")]
         public string Description { get; set; }
@@ -93,9 +93,6 @@ namespace Cats.CertificateTransparency.Models
                 _keyBytes = null;
             }
         }
-
-        [JsonPropertyName("url")]
-        public string Url { get; set; }
 
         [JsonPropertyName("mmd")]
         public int Mmd { get; set; }
@@ -143,6 +140,23 @@ namespace Cats.CertificateTransparency.Models
     }
 
     [Preserve(AllMembers = true)]
+    public class Log : BaseLog
+    {
+        [JsonPropertyName("url")]
+        public string Url { get; set; }
+    }
+
+    [Preserve(AllMembers = true)]
+    public class TiledLog : BaseLog
+    {
+        [JsonPropertyName("submission_url")]
+        public string SubmissionUrl { get; set; }
+
+        [JsonPropertyName("monitoring_url")]
+        public string MonitoringUrl { get; set; }
+    }
+
+    [Preserve(AllMembers = true)]
     public class Operator
     {
         [JsonPropertyName("name")]
@@ -153,6 +167,9 @@ namespace Cats.CertificateTransparency.Models
 
         [JsonPropertyName("logs")]
         public List<Log> Logs { get; set; }
+
+        [JsonPropertyName("tiled_logs")]
+        public List<TiledLog> TiledLogs { get; set; }
     }
 
     [Preserve(AllMembers = true)]
@@ -161,10 +178,9 @@ namespace Cats.CertificateTransparency.Models
         [JsonPropertyName("operators")]
         public List<Operator> Operators { get; set; }
 
-        public IDictionary<string, Log> ToDictionary()
+        public IDictionary<string, ILog> ToDictionary()
             => Operators
-                .Where(o => o.Logs?.Any() == true)
-                .SelectMany(o => o.Logs)
-                .ToDictionary(l => l.LogId, l => l);
+                .SelectMany(o => (o.Logs ?? Enumerable.Empty<ILog>()).Concat(o.TiledLogs ?? []))
+                .ToDictionary(l => l.LogId, l => l, StringComparer.Ordinal);
     }
 }

@@ -274,7 +274,7 @@ namespace Tests
                 .Returns(() => new ValueTask<LogListRoot>(logListRoot));
             logService
                 .Setup(m => m.GetLogDictionaryAsync(default))
-                .Returns(() => new ValueTask<IDictionary<string, Log>>(logDictionary));
+                .Returns(() => new ValueTask<IDictionary<string, ILog>>(logDictionary));
 
             var hostnameValidator = inclHostPatterns?.Any() == true
                 ? new HostnamePattern(inclHostPatterns, exclHostPatterns)
@@ -293,7 +293,7 @@ namespace Tests
                 .Returns(() => new ValueTask<LogListRoot>(default(LogListRoot)));
             logService
                 .Setup(m => m.GetLogDictionaryAsync(default))
-                .Returns(() => new ValueTask<IDictionary<string, Log>>(new Dictionary<string, Log>(0)));
+                .Returns(() => new ValueTask<IDictionary<string, ILog>>(new Dictionary<string, ILog>(0)));
 
             var hostnameValidator = inclHostPatterns?.Any() == true
                 ? new HostnamePattern(inclHostPatterns, exclHostPatterns)
@@ -318,7 +318,7 @@ namespace Tests
                     {
                         if (ext.Oid.Value.Equals(Constants.SctCertificateOid, StringComparison.Ordinal))
                         {
-                            var bytes = Convert.FromBase64String("BHoAeAB2ALvZ37wfinG1k5Qjl6qSe0c4V5UKq1LoGpCWZDaOHtGFAAABY+87UN8AAAQDAEcwRQIhAOd4J7Sug56+kTsGBgY6o7eXUuLVjOmcP07cSMTr6G1vAiBd5+F4yF+/8OuoE4UA+O4he2JsXpcIFEID8xFjZR0Irg==");                            
+                            var bytes = Convert.FromBase64String("BHoAeAB2ALvZ37wfinG1k5Qjl6qSe0c4V5UKq1LoGpCWZDaOHtGFAAABY+87UN8AAAQDAEcwRQIhAOd4J7Sug56+kTsGBgY6o7eXUuLVjOmcP07cSMTr6G1vAiBd5+F4yF+/8OuoE4UA+O4he2JsXpcIFEID8xFjZR0Irg==");
                             var newSct = new X509Extension(Constants.SctCertificateOid, bytes, ext.Critical);
                             newCollection.Add(newSct);
                         }

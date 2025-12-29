@@ -30,7 +30,7 @@ namespace Samples.Console
             {
                 System.Console.WriteLine($"Validating '{f.Name}'");
 
-                var certificate = new X509Certificate2(f.FullName);
+                var certificate = X509CertificateLoader.LoadCertificateFromFile(f.FullName);
 
                 var certChain = new X509Chain();
                 certChain.ChainPolicy.RevocationFlag = X509RevocationFlag.EntireChain;

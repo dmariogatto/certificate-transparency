@@ -15,7 +15,7 @@ namespace Cats.CertificateTransparency.Extensions
 {
     internal static class SignedCertificateTimestampExtensions
     {
-        internal static SctVerificationResult VerifySignature(this SignedCertificateTimestamp sct, Log logServer, IList<X509Certificate2> chain)
+        internal static SctVerificationResult VerifySignature(this SignedCertificateTimestamp sct, ILog logServer, IList<X509Certificate2> chain)
         {
             if (logServer is null || sct is null || chain?.Any() != true || logServer.LogId != sct.LogIdBase64)
                 return SctVerificationResult.FailedVerification(sct.TimestampUtc, logServer?.LogId, "Invalid verification arguments");
@@ -69,7 +69,7 @@ namespace Cats.CertificateTransparency.Extensions
             }
         }
 
-        internal static SctVerificationResult VerifySctOverPreCertificate(this SignedCertificateTimestamp sct, Log logServer, X509Certificate2 certificate, IssuerInformation issuerInfo)
+        internal static SctVerificationResult VerifySctOverPreCertificate(this SignedCertificateTimestamp sct, ILog logServer, X509Certificate2 certificate, IssuerInformation issuerInfo)
         {
             var preCertificateTbs = CreateTbsForVerification(certificate, issuerInfo);
             var toVerify = sct.SerialiseSignedSctDataForPreCertificate(preCertificateTbs.GetEncoded(), issuerInfo.KeyHash);
@@ -141,7 +141,7 @@ namespace Cats.CertificateTransparency.Extensions
             return result;
         }
 
-        private static SctVerificationResult VerifySctSignatureOverBytes(this SignedCertificateTimestamp sct, Log logServer, byte[] toVerify)
+        private static SctVerificationResult VerifySctSignatureOverBytes(this SignedCertificateTimestamp sct, ILog logServer, byte[] toVerify)
         {
             var (oid, sigAlg) = GetKeyAlgorithm(logServer.KeyBytes);
             var signer = sigAlg switch

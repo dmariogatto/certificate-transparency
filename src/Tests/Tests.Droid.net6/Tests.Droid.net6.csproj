@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0-android</TargetFramework>
-    <SupportedOSPlatformVersion>21</SupportedOSPlatformVersion>
+    <TargetFramework>net9.0-android</TargetFramework>
+    <SupportedOSPlatformVersion>23</SupportedOSPlatformVersion>
     <OutputType>Exe</OutputType>
     <ApplicationId>com.tests.certificatetransparency.net6</ApplicationId>
     <ApplicationVersion>1</ApplicationVersion>
@@ -38,6 +38,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Moq" Version="4.20.72" />
+    <PackageReference Include="Xamarin.AndroidX.Core" Version="1.16.0.3" />
     <PackageReference Include="Xamarin.Legacy.NUnitLite" Version="0.0.1-alpha" />
   </ItemGroup>
   <ItemGroup>

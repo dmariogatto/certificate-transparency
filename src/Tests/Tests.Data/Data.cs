@@ -1,4 +1,3 @@
-using Org.BouncyCastle.Utilities.IO.Pem;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -91,17 +90,12 @@ namespace Tests
             using var stream = GetResourceStream(cert);
             using var reader = new StreamReader(stream);
 
-            var pemReader = new Org.BouncyCastle.OpenSsl.PemReader(reader);
+            var pemText = reader.ReadToEnd();
 
-            var pemObjs = new List<PemObject>();
-            while (pemReader.Reader.Peek() > -1)
-            {
-                var pemObj = pemReader.ReadPemObject();
-                if (pemObj is not null)
-                    pemObjs.Add(pemObj);
-            }
+            var collection = new X509Certificate2Collection();
+            collection.ImportFromPem(pemText);
 
-            return pemObjs.Select(po => new X509Certificate2(po.Content)).ToList();
+            return collection.Cast<X509Certificate2>().ToList();
         }
 
         public static T LoadJson<T>(string path) where T : class

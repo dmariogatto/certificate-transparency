@@ -1,10 +1,10 @@
 ﻿using Cats.CertificateTransparency.Api;
 using Cats.CertificateTransparency.Models;
-using Org.BouncyCastle.Security;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -110,20 +110,16 @@ namespace Cats.CertificateTransparency.Services
 
         protected static bool VerifyGoogleSignature(byte[] data, byte[] signature)
         {
-            var signer = SignerUtilities.GetSigner(Constants.Sha256WithRsa);
-            var pubKey = PublicKeyFactory.CreateKey(ReadPemPublicKey(Constants.GoogleLogListPublicKey));
-            signer.Init(false, pubKey);
-            signer.BlockUpdate(data, 0, data.Length);
-            var isValid = signer.VerifySignature(signature);
-            return isValid;
-        }
+            using var rsa = RSA.Create();
 
-        protected static byte[] ReadPemPublicKey(string publicKey)
-        {
-            var encodedPublicKey = publicKey
-                .Replace(Constants.BeginPublicKey, string.Empty, StringComparison.Ordinal)
-                .Replace(Constants.EndPublicKey, string.Empty, StringComparison.Ordinal);
-            return Convert.FromBase64String(encodedPublicKey);
+            // If PEM string includes headers, use ImportFromPem directly
+            rsa.ImportFromPem(Constants.GoogleLogListPublicKey);
+
+            return rsa.VerifyData(
+                data,
+                signature,
+                HashAlgorithmName.SHA256,
+                RSASignaturePadding.Pkcs1);
         }
     }
 }

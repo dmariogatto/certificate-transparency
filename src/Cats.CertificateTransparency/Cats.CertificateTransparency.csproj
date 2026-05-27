@@ -1,7 +1,7 @@
-﻿<Project Sdk="MSBuild.Sdk.Extras/3.0.44">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.1;net9.0;net9.0-android;</TargetFrameworks>
+    <TargetFrameworks>net10.0;net10.0-android;</TargetFrameworks>
     <LangVersion>latest</LangVersion>
 
     <AssemblyName>Cats.CertificateTransparency</AssemblyName>
@@ -25,9 +25,8 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <RepositoryType>git</RepositoryType>
     <PackageReleaseNotes>
-      - Updated to net9.0
-      - Added support for tiled logs
-      - Removed support for monoandroid10
+      - Updated to net10.0
+      - Removed BouncyCastle dependency
     </PackageReleaseNotes>
   </PropertyGroup>
 
@@ -55,9 +54,6 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
-
-    <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
-    <PackageReference Include="System.Text.Json" Version="9.0.0" />
 
     <Compile Remove="Platforms\**\*.*" />
     <None Include="Platforms\**\*.*" />

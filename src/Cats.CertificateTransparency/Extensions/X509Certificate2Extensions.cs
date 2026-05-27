@@ -1,7 +1,7 @@
 ﻿using Cats.CertificateTransparency.Models;
-using Org.BouncyCastle.Asn1;
 using System;
 using System.Collections.Generic;
+using System.Formats.Asn1;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
@@ -53,19 +53,16 @@ namespace Cats.CertificateTransparency.Extensions
                 IssuedByPreCertificateSigningCert = true
             };
 
-        internal static Asn1Object GetTbsCertificateAsn1Object(this X509Certificate2 certificate)
+        internal static ReadOnlyMemory<byte> GetTbsCertificate(this X509Certificate2 certificate)
         {
-            var asn1Tbs = default(Asn1Object);
-            using var asn1Stream = new Asn1InputStream(certificate.RawData);
+            var reader = new AsnReader(certificate.RawData, AsnEncodingRules.DER);
 
-            if (asn1Stream.ReadObject() is Asn1Object asn1Obj &&
-                Asn1Sequence.GetInstance(asn1Obj) is Asn1Sequence asn1Seq &&
-                Constants.X509TbsSequenceIndex < asn1Seq.Count)
-            {
-                asn1Tbs = asn1Seq[Constants.X509TbsSequenceIndex].ToAsn1Object();
-            }
+            // Certificate ::= SEQUENCE
+            var certificateSequence = reader.ReadSequence();
+            // TBSCertificate is the first element inside Certificate
+            var tbs = certificateSequence.ReadEncodedValue();
 
-            return asn1Tbs;
+            return tbs;
         }
 
         internal static X509Extension GetExtension(this X509Certificate2 certificate, string oid)

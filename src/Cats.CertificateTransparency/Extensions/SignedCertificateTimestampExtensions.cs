@@ -118,7 +118,7 @@ namespace Cats.CertificateTransparency.Extensions
             }
 
             // Parse, filter, and modify Extensions [3] EXPLICIT OPTIONAL
-            bool hasX509AuthorityKeyIdentifier = false;
+            var hasX509AuthorityKeyIdentifier = false;
             byte[] modifiedExtensionsRaw = null;
 
             if (tbsSequence.HasData && tbsSequence.PeekTag().HasSameClassAndValue(new Asn1Tag(TagClass.ContextSpecific, 3, isConstructed: true)))

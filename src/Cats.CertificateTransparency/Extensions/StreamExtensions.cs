@@ -5,59 +5,79 @@ namespace Cats.CertificateTransparency.Extensions
 {
     internal static class StreamExtensions
     {
-        internal static long ReadLong(this Stream stream, int numberOfBytes)
+        internal static long ReadLong(this Stream stream, int byteCount)
         {
-            if (numberOfBytes > Constants.BytesInLong)
-                throw new ArgumentOutOfRangeException(nameof(numberOfBytes), $"Cannot read long of length {numberOfBytes} bytes");
+            if (byteCount > Constants.BytesInLong)
+                throw new ArgumentOutOfRangeException(nameof(byteCount), $"Cannot read long of length {byteCount} bytes");
+
+            Span<byte> buffer = stackalloc byte[8];
+            var slice = buffer[..byteCount];
+
+            Fill(stream, slice);
 
             var result = 0L;
-
-            for (var i = 0; i < numberOfBytes; i++)
+            for (var i = 0; i < byteCount; i++)
             {
-                var readVal = stream.ReadByte();
-                if (readVal < 0) throw new IOException($"Missing length bytes: Expected {numberOfBytes}, got {i}");
-                result = (result << Constants.BitsInByte) | (uint)readVal;
+                result = (result << 8) | slice[i];
             }
 
             return result;
         }
 
-        internal static byte[] ReadVariableLength(this Stream stream, int maxDataValue)
+        internal static Span<byte> ReadVariableLength(this Stream stream, int maxLength)
         {
-            var bytesForDataLength = Constants.BytesToStoreValue(maxDataValue);
-            var dataLength = ReadLong(stream, bytesForDataLength);
+            var lenBytes = Constants.BytesToStoreValue(maxLength);
+            var length = stream.ReadLong(lenBytes);
 
-            var data = new byte[dataLength];
-            var readBytes = stream.Read(data, 0, (int)dataLength);
+            var result = new byte[length];
 
-            if (readBytes != dataLength) throw new IOException($"Incomplete data. Expected {dataLength} bytes, got {readBytes}");
+            Fill(stream, result);
 
-            return data;
+            return result;
         }
 
-        internal static void WriteLong(this BinaryWriter writer, long value, int numberOfBytes)
+        internal static void WriteLong(this Stream stream, long value, int byteCount)
         {
-            if (value < 0) throw new ArgumentOutOfRangeException(nameof(value));
-            if (value > Math.Pow(256, numberOfBytes)) throw new InvalidOperationException($"Value {value} cannot be stored in {numberOfBytes} bytes");
+            if (value < 0)
+                throw new ArgumentOutOfRangeException(nameof(value));
 
-            var numberOfBytesRemaining = numberOfBytes;
-            while (numberOfBytesRemaining > 0)
+            if (byteCount < 8 && value >= (1L << (byteCount * 8)))
+                throw new InvalidOperationException($"Value {value} cannot be stored in {byteCount} bytes");
+
+            Span<byte> buffer = stackalloc byte[8];
+
+            for (int i = byteCount - 1; i >= 0; i--)
             {
-                var shiftBy = (numberOfBytesRemaining - 1) * Constants.BitsInByte;
-                var mask = (long)0xff << shiftBy;
-                var byteToWrite = (byte)((value & mask) >> shiftBy);
-                writer.Write(byteToWrite);
-                numberOfBytesRemaining--;
+                buffer[i] = (byte)value;
+                value >>= 8;
             }
+
+            stream.Write(buffer[..byteCount]);
         }
 
-        internal static void WriteVariableLength(this BinaryWriter writer, byte[] data, int maxDataLength)
+        internal static void WriteVariableLength(this Stream stream, ReadOnlySpan<byte> data, int maxLength)
         {
-            if (data.Length > maxDataLength) throw new ArgumentOutOfRangeException($"Length {data.Length} is greater than max data length {maxDataLength}");
+            if (data.Length > maxLength)
+                throw new ArgumentOutOfRangeException($"Length {data.Length} is greater than max length {maxLength}");
 
-            var bytesForDataLength = Constants.BytesToStoreValue(maxDataLength);
-            writer.WriteLong(data.Length, bytesForDataLength);
-            writer.Write(data, 0, data.Length);
+            var lenBytes = Constants.BytesToStoreValue(maxLength);
+
+            stream.WriteLong(data.Length, lenBytes);
+            stream.Write(data);
+        }
+
+        private static void Fill(Stream stream, Span<byte> buffer)
+        {
+            var total = 0;
+
+            while (total < buffer.Length)
+            {
+                var read = stream.Read(buffer[total..]);
+                if (read <= 0)
+                    throw new IOException("Unexpected EOF");
+
+                total += read;
+            }
         }
     }
 }

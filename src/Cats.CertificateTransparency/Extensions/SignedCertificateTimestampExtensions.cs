@@ -118,7 +118,7 @@ namespace Cats.CertificateTransparency.Extensions
             }
 
             // Parse, filter, and modify Extensions [3] EXPLICIT OPTIONAL
-            bool hasX509AuthorityKeyIdentifier = false;
+            var hasX509AuthorityKeyIdentifier = false;
             byte[] modifiedExtensionsRaw = null;
 
             if (tbsSequence.HasData && tbsSequence.PeekTag().HasSameClassAndValue(new Asn1Tag(TagClass.ContextSpecific, 3, isConstructed: true)))
@@ -269,13 +269,12 @@ namespace Cats.CertificateTransparency.Extensions
         private static byte[] SerialiseSignedSctData(this SignedCertificateTimestamp sct, X509Certificate2 certificate)
         {
             using var ms = new MemoryStream();
-            using var bw = new BinaryWriter(ms);
 
-            SerialiseCommonFields(bw, sct);
+            SerialiseCommonFields(ms, sct);
 
-            bw.WriteLong(0, Constants.LogEntryTypeNumOfBytes); // X509 Entry
-            bw.WriteVariableLength(certificate.RawData, Constants.CertificateMaxValue);
-            bw.WriteVariableLength(sct.Extensions, Constants.ExtensionsMaxValue);
+            ms.WriteLong(0, Constants.LogEntryTypeNumOfBytes); // X509 Entry
+            ms.WriteVariableLength(certificate.RawData, Constants.CertificateMaxValue);
+            ms.WriteVariableLength(sct.Extensions, Constants.ExtensionsMaxValue);
 
             return ms.ToArray();
         }
@@ -283,25 +282,24 @@ namespace Cats.CertificateTransparency.Extensions
         private static byte[] SerialiseSignedSctDataForPreCertificate(this SignedCertificateTimestamp sct, byte[] preCert, byte[] issuerKeyHash)
         {
             using var ms = new MemoryStream();
-            using var bw = new BinaryWriter(ms);
 
-            SerialiseCommonFields(bw, sct);
+            SerialiseCommonFields(ms, sct);
 
-            bw.WriteLong(1, Constants.LogEntryTypeNumOfBytes); // PerCert Entry
-            bw.Write(issuerKeyHash);
-            bw.WriteVariableLength(preCert, Constants.CertificateMaxValue);
-            bw.WriteVariableLength(sct.Extensions, Constants.ExtensionsMaxValue);
+            ms.WriteLong(1, Constants.LogEntryTypeNumOfBytes); // PerCert Entry
+            ms.Write(issuerKeyHash);
+            ms.WriteVariableLength(preCert, Constants.CertificateMaxValue);
+            ms.WriteVariableLength(sct.Extensions, Constants.ExtensionsMaxValue);
 
             return ms.ToArray();
         }
 
-        private static void SerialiseCommonFields(BinaryWriter bw, SignedCertificateTimestamp sct)
+        private static void SerialiseCommonFields(Stream stream, SignedCertificateTimestamp sct)
         {
             if (sct.SctVersion != SctVersion.V1) throw new InvalidOperationException("Can only serialise SCT v1!");
 
-            bw.WriteLong((long)sct.SctVersion, Constants.VersionNumOfBytes);
-            bw.WriteLong(0, 1); // Certificate Timestamp
-            bw.WriteLong(sct.TimestampMs, Constants.TimestampNumOfBytes);
+            stream.WriteLong((long)sct.SctVersion, Constants.VersionNumOfBytes);
+            stream.WriteLong(0, 1); // Certificate Timestamp
+            stream.WriteLong(sct.TimestampMs, Constants.TimestampNumOfBytes);
         }
 
         private static (string oid, CtSignatureAlgorithm sigAlg) GetKeyAlgorithm(byte[] keyBytes)

@@ -22,14 +22,7 @@ namespace Cats.CertificateTransparency.Extensions
 
         internal static byte[] PublicKeyHash(this X509Certificate2 certificate)
         {
-#if NET6_0_OR_GREATER
             var spkiBytes = certificate.PublicKey.ExportSubjectPublicKeyInfo();
-#else
-            var asn1Obj = certificate.GetTbsCertificateAsn1Object();
-            var spkiBytes = asn1Obj is Asn1Sequence asn1Seq && Constants.TbsSpkiSequenceIndex < asn1Seq.Count
-                ? asn1Seq[Constants.TbsSpkiSequenceIndex].GetDerEncoded()
-                : throw new InvalidOperationException("Cannot get SPKI from TBS certificate");
-#endif
 
             using var sha2 = SHA256.Create();
             var digest = sha2.ComputeHash(spkiBytes);

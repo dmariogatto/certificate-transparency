@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Samples.Console
 {
-    class Program
+    static class Program
     {
         static async Task Main(string[] args)
         {

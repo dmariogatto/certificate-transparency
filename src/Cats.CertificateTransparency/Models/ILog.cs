@@ -12,5 +12,7 @@ namespace Cats.CertificateTransparency.Models
         State State { get; set; }
         TemporalInterval TemporalInterval { get; set; }
         DateTime? ValidUntilUtc { get; }
+
+        bool Verify(ReadOnlySpan<byte> data, ReadOnlySpan<byte> signature);
     }
 }

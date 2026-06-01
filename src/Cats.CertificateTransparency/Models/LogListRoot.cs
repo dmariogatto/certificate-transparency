@@ -1,8 +1,11 @@
 ﻿using Cats.CertificateTransparency.Attributes;
 using System;
 using System.Collections.Generic;
+using System.Formats.Asn1;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text.Json.Serialization;
+using System.Threading;
 
 namespace Cats.CertificateTransparency.Models
 {
@@ -74,8 +77,19 @@ namespace Cats.CertificateTransparency.Models
     }
 
     [Preserve(AllMembers = true)]
-    public abstract class BaseLog : ILog
+    public abstract class BaseLog : ILog, IDisposable
     {
+        internal const string PkcsOidRsaEncryption = "1.2.840.113549.1.1.1";
+        internal const string X9OidIdECPublicKey = "1.2.840.10045.2.1";
+
+        private bool _disposed;
+
+        private CtSignatureAlgorithm _algorithm = CtSignatureAlgorithm.Unknown;
+        private string _oid = string.Empty;
+
+        private ThreadLocal<RSA> _rsa;
+        private ThreadLocal<ECDsa> _ecdsa;
+
         [JsonPropertyName("description")]
         public string Description { get; set; }
 
@@ -83,6 +97,7 @@ namespace Cats.CertificateTransparency.Models
         public string LogId { get; set; }
 
         private string _key;
+
         [JsonPropertyName("key")]
         public string Key
         {
@@ -90,7 +105,18 @@ namespace Cats.CertificateTransparency.Models
             set
             {
                 _key = value;
-                _keyBytes = null;
+
+                KeyBytes = !string.IsNullOrWhiteSpace(value)
+                    ? Convert.FromBase64String(value)
+                    : Array.Empty<byte>();
+
+                (_oid, _algorithm) = GetKeyAlgorithm(KeyBytes);
+
+                // Reset thread-local instances when key changes
+                _rsa?.Dispose();
+                _ecdsa?.Dispose();
+                _rsa = null;
+                _ecdsa = null;
             }
         }
 
@@ -112,17 +138,7 @@ namespace Cats.CertificateTransparency.Models
         [JsonPropertyName("temporal_interval")]
         public TemporalInterval TemporalInterval { get; set; }
 
-        private ReadOnlyMemory<byte>? _keyBytes;
-        public ReadOnlyMemory<byte> KeyBytes
-        {
-            get
-            {
-                if (_keyBytes is null)
-                    _keyBytes = Convert.FromBase64String(Key);
-
-                return _keyBytes ?? Array.Empty<byte>();
-            }
-        }
+        public ReadOnlyMemory<byte> KeyBytes { get; private set; }
 
         private DateTime? _validUntilUtc;
         public DateTime? ValidUntilUtc
@@ -135,6 +151,89 @@ namespace Cats.CertificateTransparency.Models
                     _validUntilUtc = State.Readonly.Timestamp;
 
                 return _validUntilUtc;
+            }
+        }
+
+        public bool Verify(ReadOnlySpan<byte> data, ReadOnlySpan<byte> signature)
+        {
+            if (_disposed)
+                throw new ObjectDisposedException(nameof(BaseLog));
+
+            var keyBytes = KeyBytes.Span;
+
+            return _algorithm switch
+            {
+                CtSignatureAlgorithm.Rsa => VerifyRsa(data, signature),
+                CtSignatureAlgorithm.Ecdsa => VerifyEcdsa(data, signature),
+                _ => throw new NotImplementedException($"Signature algorithm '{_algorithm}' not supported, with OID '{_oid}'")
+            };
+        }
+
+        private bool VerifyRsa(ReadOnlySpan<byte> data, ReadOnlySpan<byte> sig)
+        {
+            _rsa ??= new ThreadLocal<RSA>(() =>
+            {
+                var rsa = RSA.Create();
+                rsa.ImportSubjectPublicKeyInfo(KeyBytes.Span, out _);
+                return rsa;
+            });
+
+            return _rsa.Value.VerifyData(data, sig, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+        }
+
+        private bool VerifyEcdsa(ReadOnlySpan<byte> data, ReadOnlySpan<byte> sig)
+        {
+            _ecdsa ??= new ThreadLocal<ECDsa>(() =>
+            {
+                var ecdsa = ECDsa.Create();
+                ecdsa.ImportSubjectPublicKeyInfo(KeyBytes.Span, out _);
+                return ecdsa;
+            });
+
+            return _ecdsa.Value.VerifyData(data, sig, HashAlgorithmName.SHA256, DSASignatureFormat.Rfc3279DerSequence);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    _rsa?.Dispose();
+                    _ecdsa?.Dispose();
+                    _rsa = null;
+                    _ecdsa = null;
+                }
+
+                _disposed = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private static (string oid, CtSignatureAlgorithm sigAlg) GetKeyAlgorithm(ReadOnlyMemory<byte> keyBytes)
+        {
+            try
+            {
+                var reader = new AsnReader(keyBytes, AsnEncodingRules.DER);
+                var outer = reader.ReadSequence();
+                var algId = outer.ReadSequence();
+                var oid = algId.ReadObjectIdentifier();
+
+                return oid switch
+                {
+                    PkcsOidRsaEncryption => (oid, CtSignatureAlgorithm.Rsa),
+                    X9OidIdECPublicKey => (oid, CtSignatureAlgorithm.Ecdsa),
+                    _ => (oid, CtSignatureAlgorithm.Unknown)
+                };
+            }
+            catch (AsnContentException)
+            {
+                return (string.Empty, CtSignatureAlgorithm.Unknown);
             }
         }
     }

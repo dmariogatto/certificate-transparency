@@ -74,10 +74,10 @@ namespace Cats.CertificateTransparency.Extensions
             }
         }
 
-        internal static SctVerificationResult VerifySctOverPreCertificate(this SignedCertificateTimestamp sct, ILog logServer, X509Certificate2 certificate, IssuerInformation issuerInfo)
+        internal static SctVerificationResult VerifySctOverPreCertificate(this SignedCertificateTimestamp sct, ILog logServer, X509Certificate2 certificate, IssuerInformation issuerInformation)
         {
-            var preCertificateTbs = CreateTbsForVerification(certificate, issuerInfo);
-            var toVerify = sct.SerialiseSignedSctDataForPreCertificate(preCertificateTbs, issuerInfo.KeyHash.Span);
+            var preCertificateTbs = CreateTbsForVerification(certificate, issuerInformation);
+            var toVerify = sct.SerialiseSignedSctDataForPreCertificate(preCertificateTbs, issuerInformation.KeyHash.Span);
             return sct.VerifySctSignatureOverBytes(logServer, toVerify);
         }
 
@@ -216,34 +216,13 @@ namespace Cats.CertificateTransparency.Extensions
         public static bool HasTag(Asn1Tag tag, Asn1Tag expected)
             => tag.TagClass == expected.TagClass && tag.TagValue == expected.TagValue;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static SctVerificationResult VerifySctSignatureOverBytes(this SignedCertificateTimestamp sct, ILog logServer, byte[] toVerify)
         {
-            var (oid, sigAlg) = GetKeyAlgorithm(logServer.KeyBytes);
-
-            var isValid = sigAlg switch
-            {
-                CtSignatureAlgorithm.Rsa => VerifyRsa(logServer.KeyBytes.Span, toVerify, sct.Signature.SignatureData.Span),
-                CtSignatureAlgorithm.Ecdsa => VerifyEcdsa(logServer.KeyBytes.Span, toVerify, sct.Signature.SignatureData.Span),
-                _ => throw new NotImplementedException($"Signature algorithm '{sigAlg}' not supported, with OID '{oid}'")
-            };
-
+            var isValid = logServer.Verify(toVerify, sct.Signature.SignatureData.Span);
             return isValid
                 ? SctVerificationResult.Valid(sct.TimestampUtc, logServer.LogId)
                 : SctVerificationResult.FailedVerification(sct.TimestampUtc, logServer.LogId);
-
-            static bool VerifyRsa(ReadOnlySpan<byte> keyBytes, ReadOnlySpan<byte> data, ReadOnlySpan<byte> signature)
-            {
-                using var rsa = RSA.Create();
-                rsa.ImportSubjectPublicKeyInfo(keyBytes, out _);
-                return rsa.VerifyData(data, signature, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
-            }
-
-            static bool VerifyEcdsa(ReadOnlySpan<byte> keyBytes, ReadOnlySpan<byte> data, ReadOnlySpan<byte> signature)
-            {
-                using var ecdsa = ECDsa.Create();
-                ecdsa.ImportSubjectPublicKeyInfo(keyBytes, out _);
-                return ecdsa.VerifyData(data, signature, HashAlgorithmName.SHA256, DSASignatureFormat.Rfc3279DerSequence);
-            }
         }
 
         private static byte[] SerialiseSignedSctData(this SignedCertificateTimestamp sct, X509Certificate2 certificate)
@@ -280,28 +259,6 @@ namespace Cats.CertificateTransparency.Extensions
             stream.WriteLong((long)sct.SctVersion, Constants.VersionNumOfBytes);
             stream.WriteLong(0, 1); // Certificate Timestamp
             stream.WriteLong(sct.TimestampMs, Constants.TimestampNumOfBytes);
-        }
-
-        private static (string oid, CtSignatureAlgorithm sigAlg) GetKeyAlgorithm(ReadOnlyMemory<byte> keyBytes)
-        {
-            try
-            {
-                var reader = new AsnReader(keyBytes, AsnEncodingRules.DER);
-                var outerSequence = reader.ReadSequence();
-                var algorithmIdentifier = outerSequence.ReadSequence();
-                var oid = algorithmIdentifier.ReadObjectIdentifier();
-
-                return oid switch
-                {
-                    Constants.PkcsOidRsaEncryption => (oid, CtSignatureAlgorithm.Rsa),
-                    Constants.X9OidIdECPublicKey => (oid, CtSignatureAlgorithm.Ecdsa),
-                    _ => (oid, CtSignatureAlgorithm.Unknown)
-                };
-            }
-            catch (AsnContentException)
-            {
-                return (string.Empty, CtSignatureAlgorithm.Unknown);
-            }
         }
     }
 }

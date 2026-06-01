@@ -20,14 +20,10 @@ namespace Cats.CertificateTransparency.Extensions
         internal static bool HasEmbeddedSct(this X509Certificate2 certificate)
             => certificate.GetExtension(Constants.SctCertificateOid) is not null;
 
-        internal static byte[] PublicKeyHash(this X509Certificate2 certificate)
+        internal static ReadOnlyMemory<byte> PublicKeyHash(this X509Certificate2 certificate)
         {
             var spkiBytes = certificate.PublicKey.ExportSubjectPublicKeyInfo();
-
-            using var sha2 = SHA256.Create();
-            var digest = sha2.ComputeHash(spkiBytes);
-
-            return digest;
+            return SHA256.HashData(spkiBytes);
         }
 
         internal static IssuerInformation IssuerInformation(this X509Certificate2 certificate)

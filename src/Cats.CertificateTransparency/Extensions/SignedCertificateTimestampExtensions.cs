@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Formats.Asn1;
 using System.IO;
-using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
@@ -11,10 +11,19 @@ namespace Cats.CertificateTransparency.Extensions
 {
     internal static class SignedCertificateTimestampExtensions
     {
+        internal static readonly Asn1Tag Version = new(TagClass.ContextSpecific, 0, isConstructed: true);
+        internal static readonly Asn1Tag IssuerUniqueId = new(TagClass.ContextSpecific, 1);
+        internal static readonly Asn1Tag SubjectUniqueId = new(TagClass.ContextSpecific, 2);
+        internal static readonly Asn1Tag Extensions = new(TagClass.ContextSpecific, 3, isConstructed: true);
+
         internal static SctVerificationResult VerifySignature(this SignedCertificateTimestamp sct, ILog logServer, IList<X509Certificate2> chain)
         {
-            if (logServer is null || sct is null || chain?.Any() != true || logServer.LogId != sct.LogIdBase64)
-                return SctVerificationResult.FailedVerification(sct.TimestampUtc, logServer?.LogId, "Invalid verification arguments");
+            if (logServer is null)
+                return SctVerificationResult.FailedVerification(sct.TimestampUtc, logServer?.LogId, $"Invalid verification arguments, ${nameof(logServer)} is null");
+            if (chain is null || chain.Count == 0)
+                return SctVerificationResult.FailedVerification(sct.TimestampUtc, logServer?.LogId, $"Invalid verification arguments, ${nameof(chain)} is null or empty");
+            if (!string.Equals(logServer.LogId, sct.LogIdBase64, StringComparison.Ordinal))
+                return SctVerificationResult.FailedVerification(sct.TimestampUtc, logServer?.LogId, "Invalid verification arguments, Log Server and SCT LogId do not match");
 
             var nowUtc = DateTime.UtcNow;
             if (sct.TimestampUtc > nowUtc)
@@ -25,7 +34,7 @@ namespace Cats.CertificateTransparency.Extensions
 
             try
             {
-                var leafCert = chain.First();
+                var leafCert = chain[0];
                 var notPreCert = !leafCert.IsPreCertificate();
                 var noEmbeddedSct = !leafCert.HasEmbeddedSct();
                 if (notPreCert && noEmbeddedSct)
@@ -68,148 +77,66 @@ namespace Cats.CertificateTransparency.Extensions
         internal static SctVerificationResult VerifySctOverPreCertificate(this SignedCertificateTimestamp sct, ILog logServer, X509Certificate2 certificate, IssuerInformation issuerInfo)
         {
             var preCertificateTbs = CreateTbsForVerification(certificate, issuerInfo);
-            var toVerify = sct.SerialiseSignedSctDataForPreCertificate(preCertificateTbs, issuerInfo.KeyHash);
+            var toVerify = sct.SerialiseSignedSctDataForPreCertificate(preCertificateTbs, issuerInfo.KeyHash.Span);
             return sct.VerifySctSignatureOverBytes(logServer, toVerify);
         }
 
         private static byte[] CreateTbsForVerification(X509Certificate2 preCertificate, IssuerInformation issuerInformation)
         {
-            // Extract original TBS Certificate bytes from the X509Certificate2
             var tbsBytes = preCertificate.GetTbsCertificate();
             var reader = new AsnReader(tbsBytes, AsnEncodingRules.DER);
-            // Outer TBSCertificate SEQUENCE
             var tbsSequence = reader.ReadSequence();
 
-            // Parse and validate Version [0] EXPLICIT
-            var versionReader = tbsSequence.ReadSequence(new Asn1Tag(TagClass.ContextSpecific, 0, isConstructed: true));
+            // --- Version [0] EXPLICIT ---
+            var versionReader = tbsSequence.ReadSequence(Version);
             var version = versionReader.ReadInteger();
-            // Version 3 is encoded as integer 2 (0-based)
             if (version < 2)
-            {
                 throw new InvalidOperationException("PreCertificate version must be 3 or higher!");
-            }
 
-            // Keep immutable elements raw to preserve exact DER-encoding signatures
+            // Preserve original DER where required
             var serialNumberRaw = tbsSequence.ReadEncodedValue();
             var signatureRaw = tbsSequence.ReadEncodedValue();
 
-            // Process Issuer Name (Update if a custom issuer name is specified)
+            // Issuer (optionally overridden)
             var originalIssuerRaw = tbsSequence.ReadEncodedValue();
+
             ReadOnlySpan<byte> issuerRaw = !string.IsNullOrEmpty(issuerInformation?.Name)
                 ? new X500DistinguishedName(issuerInformation.Name).RawData
                 : originalIssuerRaw.Span;
 
-            // Read standard validity, subject, and PKI
             var validityRaw = tbsSequence.ReadEncodedValue();
             var subjectRaw = tbsSequence.ReadEncodedValue();
             var spkiRaw = tbsSequence.ReadEncodedValue();
 
-            // Capture Optional Unique IDs if present
+            // Optional unique IDs
             ReadOnlyMemory<byte>? issuerUniqueIdRaw = null;
-            if (tbsSequence.HasData && tbsSequence.PeekTag().HasSameClassAndValue(new Asn1Tag(TagClass.ContextSpecific, 1)))
-            {
+            if (tbsSequence.HasData && HasTag(tbsSequence.PeekTag(), IssuerUniqueId))
                 issuerUniqueIdRaw = tbsSequence.ReadEncodedValue();
-            }
 
             ReadOnlyMemory<byte>? subjectUniqueIdRaw = null;
-            if (tbsSequence.HasData && tbsSequence.PeekTag().HasSameClassAndValue(new Asn1Tag(TagClass.ContextSpecific, 2)))
-            {
+            if (tbsSequence.HasData && HasTag(tbsSequence.PeekTag(), SubjectUniqueId))
                 subjectUniqueIdRaw = tbsSequence.ReadEncodedValue();
-            }
 
-            // Parse, filter, and modify Extensions [3] EXPLICIT OPTIONAL
-            var hasX509AuthorityKeyIdentifier = false;
-            byte[] modifiedExtensionsRaw = null;
+            // --- Extensions ---
+            var hasAki = false;
+            var hasExtensions = tbsSequence.HasData && HasTag(tbsSequence.PeekTag(), Extensions);
 
-            if (tbsSequence.HasData && tbsSequence.PeekTag().HasSameClassAndValue(new Asn1Tag(TagClass.ContextSpecific, 3, isConstructed: true)))
+            AsnReader extensionsSequenceReader = null;
+
+            if (hasExtensions)
             {
-                var explicitTagReader = tbsSequence.ReadSequence(new Asn1Tag(TagClass.ContextSpecific, 3, isConstructed: true));
-                // Inner SEQUENCE OF Extension
-                var extensionsSequenceReader = explicitTagReader.ReadSequence();
-
-                var writerExtensions = new AsnWriter(AsnEncodingRules.DER);
-                // Start inner collection sequence
-                writerExtensions.PushSequence();
-
-                while (extensionsSequenceReader.HasData)
-                {
-                    var extensionRaw = extensionsSequenceReader.ReadEncodedValue();
-
-                    // Temporary reader to inspect the OID and Criticality of the current extension
-                    var tempReader = new AsnReader(extensionRaw, AsnEncodingRules.DER);
-                    var extSequence = tempReader.ReadSequence();
-                    var oid = extSequence.ReadObjectIdentifier();
-
-                    var critical = false;
-                    if (extSequence.PeekTag().HasSameClassAndValue(Asn1Tag.Boolean))
-                    {
-                        critical = extSequence.ReadBoolean();
-                    }
-
-                    if (oid == Constants.X509AuthorityKeyIdentifier)
-                    {
-                        hasX509AuthorityKeyIdentifier = true;
-                    }
-
-                    // Skip Poison and SCT extensions
-                    if (oid == Constants.PoisonOid || oid == Constants.SctCertificateOid)
-                    {
-                        continue;
-                    }
-
-                    // Replace Authority Key Identifier if requested
-                    if (oid == Constants.X509AuthorityKeyIdentifier && issuerInformation?.X509AuthorityKeyIdentifier is not null)
-                    {
-                        var newAki = issuerInformation.X509AuthorityKeyIdentifier;
-                        var akiWriter = new AsnWriter(AsnEncodingRules.DER);
-                        akiWriter.PushSequence();
-                        akiWriter.WriteObjectIdentifier(Constants.X509AuthorityKeyIdentifier);
-                        if (newAki.Critical)
-                        {
-                            akiWriter.WriteBoolean(true);
-                        }
-                        akiWriter.WriteEncodedValue(newAki.RawData);
-                        akiWriter.PopSequence();
-
-                        writerExtensions.WriteEncodedValue(akiWriter.Encode());
-                    }
-                    else
-                    {
-                        // Retain original extension bytes exactly as encoded
-                        writerExtensions.WriteEncodedValue(extensionRaw.Span);
-                    }
-                }
-
-                // End inner collection sequence
-                writerExtensions.PopSequence();
-
-                // Wrap everything inside the [3] EXPLICIT context tag
-                var explicitTagWriter = new AsnWriter(AsnEncodingRules.DER);
-                var extensionsTag = new Asn1Tag(TagClass.ContextSpecific, 3, isConstructed: true);
-
-                explicitTagWriter.PushSequence(extensionsTag);
-                explicitTagWriter.WriteEncodedValue(writerExtensions.Encode());
-                explicitTagWriter.PopSequence(extensionsTag);
-
-                modifiedExtensionsRaw = explicitTagWriter.Encode();
+                var explicitReader = tbsSequence.ReadSequence(Extensions);
+                extensionsSequenceReader = explicitReader.ReadSequence();
             }
 
-            // Perform structural pre-cert validation
-            if (hasX509AuthorityKeyIdentifier &&
-                issuerInformation is { IssuedByPreCertificateSigningCert: true, X509AuthorityKeyIdentifier: null })
-            {
-                throw new InvalidOperationException("PreCertificate was not signed by a PreCertificate signing cert");
-            }
-
-            // Reconstruct the finalised TBSCertificate Sequence
+            // --- Build output ---
             var writer = new AsnWriter(AsnEncodingRules.DER);
             writer.PushSequence();
 
-            // Version [0] EXPLICIT
-            var versionTag = new Asn1Tag(TagClass.ContextSpecific, 0, isConstructed: true);
-            writer.PushSequence(versionTag);
+            // Version (force v3)
+            writer.PushSequence(Version);
             writer.WriteInteger(2);
-            writer.PopSequence(versionTag);
+            writer.PopSequence(Version);
 
             writer.WriteEncodedValue(serialNumberRaw.Span);
             writer.WriteEncodedValue(signatureRaw.Span);
@@ -219,22 +146,75 @@ namespace Cats.CertificateTransparency.Extensions
             writer.WriteEncodedValue(spkiRaw.Span);
 
             if (issuerUniqueIdRaw.HasValue)
-            {
                 writer.WriteEncodedValue(issuerUniqueIdRaw.Value.Span);
-            }
+
             if (subjectUniqueIdRaw.HasValue)
-            {
                 writer.WriteEncodedValue(subjectUniqueIdRaw.Value.Span);
-            }
-            if (modifiedExtensionsRaw != null)
+
+            if (hasExtensions)
             {
-                writer.WriteEncodedValue(modifiedExtensionsRaw);
+                // [3] EXPLICIT
+                writer.PushSequence(Extensions);
+                // SEQUENCE OF Extension
+                writer.PushSequence();
+
+                while (extensionsSequenceReader.HasData)
+                {
+                    var extensionRaw = extensionsSequenceReader.ReadEncodedValue();
+                    var extSeq = new AsnReader(extensionRaw, AsnEncodingRules.DER).ReadSequence();
+
+                    var oid = extSeq.ReadObjectIdentifier();
+
+                    var critical = false;
+                    if (extSeq.HasData && extSeq.PeekTag().HasSameClassAndValue(Asn1Tag.Boolean))
+                        critical = extSeq.ReadBoolean();
+
+                    if (oid == Constants.X509AuthorityKeyIdentifier)
+                        hasAki = true;
+
+                    // Skip unwanted
+                    if (oid == Constants.PoisonOid || oid == Constants.SctCertificateOid)
+                        continue;
+
+                    // Replace AKI inline (no intermediate encode)
+                    if (oid == Constants.X509AuthorityKeyIdentifier && issuerInformation?.X509AuthorityKeyIdentifier is not null)
+                    {
+                        var newAki = issuerInformation.X509AuthorityKeyIdentifier;
+
+                        writer.PushSequence();
+                        writer.WriteObjectIdentifier(Constants.X509AuthorityKeyIdentifier);
+
+                        if (newAki.Critical)
+                            writer.WriteBoolean(true);
+
+                        writer.WriteEncodedValue(newAki.RawData);
+                        writer.PopSequence();
+                    }
+                    else
+                    {
+                        writer.WriteEncodedValue(extensionRaw.Span);
+                    }
+                }
+
+                // SEQUENCE OF
+                writer.PopSequence();
+                writer.PopSequence(Extensions);
             }
 
-            // End TBSCertificate SEQUENCE
+            // Structural validation
+            if (hasAki && issuerInformation is { IssuedByPreCertificateSigningCert: true, X509AuthorityKeyIdentifier: null })
+            {
+                throw new InvalidOperationException("PreCertificate was not signed by a PreCertificate signing cert");
+            }
+
             writer.PopSequence();
+
             return writer.Encode();
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool HasTag(Asn1Tag tag, Asn1Tag expected)
+            => tag.TagClass == expected.TagClass && tag.TagValue == expected.TagValue;
 
         private static SctVerificationResult VerifySctSignatureOverBytes(this SignedCertificateTimestamp sct, ILog logServer, byte[] toVerify)
         {
@@ -242,8 +222,8 @@ namespace Cats.CertificateTransparency.Extensions
 
             var isValid = sigAlg switch
             {
-                CtSignatureAlgorithm.Rsa => VerifyRsa(logServer.KeyBytes, toVerify, sct.Signature.SignatureData),
-                CtSignatureAlgorithm.Ecdsa => VerifyEcdsa(logServer.KeyBytes, toVerify, sct.Signature.SignatureData),
+                CtSignatureAlgorithm.Rsa => VerifyRsa(logServer.KeyBytes.Span, toVerify, sct.Signature.SignatureData.Span),
+                CtSignatureAlgorithm.Ecdsa => VerifyEcdsa(logServer.KeyBytes.Span, toVerify, sct.Signature.SignatureData.Span),
                 _ => throw new NotImplementedException($"Signature algorithm '{sigAlg}' not supported, with OID '{oid}'")
             };
 
@@ -251,14 +231,14 @@ namespace Cats.CertificateTransparency.Extensions
                 ? SctVerificationResult.Valid(sct.TimestampUtc, logServer.LogId)
                 : SctVerificationResult.FailedVerification(sct.TimestampUtc, logServer.LogId);
 
-            static bool VerifyRsa(byte[] keyBytes, byte[] data, byte[] signature)
+            static bool VerifyRsa(ReadOnlySpan<byte> keyBytes, ReadOnlySpan<byte> data, ReadOnlySpan<byte> signature)
             {
                 using var rsa = RSA.Create();
                 rsa.ImportSubjectPublicKeyInfo(keyBytes, out _);
                 return rsa.VerifyData(data, signature, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
             }
 
-            static bool VerifyEcdsa(byte[] keyBytes, byte[] data, byte[] signature)
+            static bool VerifyEcdsa(ReadOnlySpan<byte> keyBytes, ReadOnlySpan<byte> data, ReadOnlySpan<byte> signature)
             {
                 using var ecdsa = ECDsa.Create();
                 ecdsa.ImportSubjectPublicKeyInfo(keyBytes, out _);
@@ -274,12 +254,12 @@ namespace Cats.CertificateTransparency.Extensions
 
             ms.WriteLong(0, Constants.LogEntryTypeNumOfBytes); // X509 Entry
             ms.WriteVariableLength(certificate.RawData, Constants.CertificateMaxValue);
-            ms.WriteVariableLength(sct.Extensions, Constants.ExtensionsMaxValue);
+            ms.WriteVariableLength(sct.Extensions.Span, Constants.ExtensionsMaxValue);
 
             return ms.ToArray();
         }
 
-        private static byte[] SerialiseSignedSctDataForPreCertificate(this SignedCertificateTimestamp sct, byte[] preCert, byte[] issuerKeyHash)
+        private static byte[] SerialiseSignedSctDataForPreCertificate(this SignedCertificateTimestamp sct, ReadOnlySpan<byte> preCert, ReadOnlySpan<byte> issuerKeyHash)
         {
             using var ms = new MemoryStream();
 
@@ -288,7 +268,7 @@ namespace Cats.CertificateTransparency.Extensions
             ms.WriteLong(1, Constants.LogEntryTypeNumOfBytes); // PerCert Entry
             ms.Write(issuerKeyHash);
             ms.WriteVariableLength(preCert, Constants.CertificateMaxValue);
-            ms.WriteVariableLength(sct.Extensions, Constants.ExtensionsMaxValue);
+            ms.WriteVariableLength(sct.Extensions.Span, Constants.ExtensionsMaxValue);
 
             return ms.ToArray();
         }
@@ -302,7 +282,7 @@ namespace Cats.CertificateTransparency.Extensions
             stream.WriteLong(sct.TimestampMs, Constants.TimestampNumOfBytes);
         }
 
-        private static (string oid, CtSignatureAlgorithm sigAlg) GetKeyAlgorithm(byte[] keyBytes)
+        private static (string oid, CtSignatureAlgorithm sigAlg) GetKeyAlgorithm(ReadOnlyMemory<byte> keyBytes)
         {
             try
             {

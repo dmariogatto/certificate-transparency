@@ -1,61 +1,112 @@
 ﻿using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Jobs;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading;
 using System.Threading.Tasks;
 using Cats.CertificateTransparency;
 using Cats.CertificateTransparency.Services;
 
 namespace Samples.Console
 {
+    [MemoryDiagnoser] // <-- memory + GC stats
+    [SimpleJob(RuntimeMoniker.Net10_0)] // adjust if needed
     public class CtBenchmark
     {
         private readonly ICertificateTransparencyVerifier _verifier = Instance.CertificateTransparencyVerifier;
-        private readonly IDictionary<string, IList<X509Certificate2>> _hostAndCertChains;
 
-        public CtBenchmark()
+        private IDictionary<string, IList<X509Certificate2>> _hostAndCertChains;
+
+        // Popular / diverse endpoints (CDN, cloud, geo, etc.)
+        private static readonly string[] Urls =
         {
-            var result = SetupAsync().Result;
-            _hostAndCertChains = new Dictionary<string, IList<X509Certificate2>>(result);
+            "https://www.google.com.au",
+            "https://www.google.com",
+            "https://github.com",
+            "https://stackoverflow.com",
+            "https://learn.microsoft.com",
+            "https://azure.microsoft.com",
+            "https://aws.amazon.com",
+            "https://www.cloudflare.com",
+            "https://www.reddit.com",
+            "https://news.ycombinator.com",
+            "https://www.wikipedia.org",
+            "https://twitter.com",
+            "https://www.youtube.com",
+            "https://openai.com"
+        };
 
-            _ = Instance.LogListService.LoadLogListAsync(default);
+        [GlobalSetup]
+        public async Task GlobalSetup()
+        {
+            _hostAndCertChains = await SetupAsync().ConfigureAwait(false);
+
+            // warm log list (avoid skewing benchmark)
+            await Instance.LogListService.LoadLogListAsync(CancellationToken.None)
+                .ConfigureAwait(false);
         }
 
-        [Benchmark]
-        public async Task VerifyAsync()
+        // Baseline: iterate all hosts
+        [Benchmark(Baseline = true)]
+        public async Task Verify_All()
         {
             foreach (var kv in _hostAndCertChains)
             {
-                await _verifier.IsValidAsync(kv.Key, kv.Value, default);
+                await _verifier.IsValidAsync(kv.Key, kv.Value, CancellationToken.None).ConfigureAwait(false);
             }
         }
 
-        private async Task<IDictionary<string, IList<X509Certificate2>>> SetupAsync()
+        // Variant: parallel (realistic high-throughput scenario)
+        [Benchmark]
+        public async Task Verify_All_Parallel()
+        {
+            var tasks = _hostAndCertChains
+                .Select(kv => _verifier.IsValidAsync(kv.Key, kv.Value, CancellationToken.None).AsTask())
+                .ToList();
+            await Task.WhenAll(tasks).ConfigureAwait(false);
+        }
+
+        // Variant: single host (isolates per-call cost)
+        [Benchmark]
+        public async Task Verify_Single()
+        {
+            var first = _hostAndCertChains.First();
+            await _verifier.IsValidAsync(first.Key, first.Value, default)
+                .ConfigureAwait(false);
+        }
+
+        private static async Task<IDictionary<string, IList<X509Certificate2>>> SetupAsync()
         {
             var hostAndCertChains = new ConcurrentDictionary<string, IList<X509Certificate2>>();
 
-            var client = new HttpClient(new HttpClientHandler()
+            var handler = new HttpClientHandler
             {
                 ServerCertificateCustomValidationCallback = (request, certificate, certChain, sslPolicyErrors) =>
                 {
-                    var certs = certChain.ChainElements
-                        .OfType<X509ChainElement>()
-                        .Select(i => new X509Certificate2(i.Certificate.RawData))
-                        .ToList();
-                    var host = request.RequestUri.Host;
-                    hostAndCertChains[host] = certs;
+                    if (certChain?.ChainElements != null)
+                    {
+                        var certs = certChain.ChainElements
+                            .OfType<X509ChainElement>()
+                            .Select(e => X509CertificateLoader.LoadCertificate(e.Certificate.RawData))
+                            .ToList();
+
+                        var host = request.RequestUri.Host;
+                        hostAndCertChains[host] = certs;
+                    }
 
                     return sslPolicyErrors == SslPolicyErrors.None;
                 }
-            });
+            };
 
-            await Task.WhenAll(
-                client.GetAsync("https://www.google.com.au"),
-                client.GetAsync("https://github.com/"),
-                client.GetAsync("https://www.microsoft.com/")).ConfigureAwait(false);
+            using var client = new HttpClient(handler);
+
+            // fire all requests concurrently
+            await Task.WhenAll(Urls.Select(u => client.GetAsync(u)))
+                .ConfigureAwait(false);
 
             return hostAndCertChains;
         }

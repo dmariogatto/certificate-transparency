@@ -112,15 +112,15 @@ namespace Cats.CertificateTransparency.Models
         [JsonPropertyName("temporal_interval")]
         public TemporalInterval TemporalInterval { get; set; }
 
-        private byte[] _keyBytes;
-        public byte[] KeyBytes
+        private ReadOnlyMemory<byte>? _keyBytes;
+        public ReadOnlyMemory<byte> KeyBytes
         {
             get
             {
                 if (_keyBytes is null)
                     _keyBytes = Convert.FromBase64String(Key);
 
-                return _keyBytes;
+                return _keyBytes ?? Array.Empty<byte>();
             }
         }
 

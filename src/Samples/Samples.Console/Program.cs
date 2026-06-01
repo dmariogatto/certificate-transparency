@@ -13,6 +13,12 @@ namespace Samples.Console
     {
         static async Task Main(string[] args)
         {
+#if RELEASE
+            BenchmarkDotNet.Running.BenchmarkRunner.Run<CtBenchmark>();
+            System.Console.ReadKey();
+            return;
+#endif
+
             Instance.InitDomains(new[] { "*.*" }, null);
             var certVerifier = Instance.CertificateTransparencyVerifier;
 
@@ -88,11 +94,11 @@ namespace Samples.Console
 
                     if (ctResult.IsValid)
                     {
-                        System.Console.WriteLine($"Valid! Result: {ctResult.Description}");
+                        System.Console.WriteLine($"✅✅✅ Valid! Result: {ctResult.Description}");
                     }
                     else
                     {
-                        System.Console.WriteLine($"NOT Valid! Result: {ctResult.Description}");
+                        System.Console.WriteLine($"❌❌❌ NOT Valid! Result: {ctResult.Description}");
                     }
 
                     return true;

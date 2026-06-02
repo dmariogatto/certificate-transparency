@@ -154,48 +154,67 @@ namespace Cats.CertificateTransparency.Models
         public bool Verify(ReadOnlySpan<byte> data, ReadOnlySpan<byte> signature)
         {
             if (_disposed)
-                throw new ObjectDisposedException(nameof(BaseLog));
-
-            var keyBytes = KeyBytes.Span;
+                throw new ObjectDisposedException(GetType().Name);
 
             return _algorithm switch
             {
-                CtSignatureAlgorithm.Rsa => VerifyRsa(data, signature),
-                CtSignatureAlgorithm.Ecdsa => VerifyEcdsa(data, signature),
+                CtSignatureAlgorithm.Rsa => GetOrCreateRsa().Value.VerifyData(data, signature, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1),
+                CtSignatureAlgorithm.Ecdsa => GetOrCreateECDsa().Value.VerifyData(data, signature, HashAlgorithmName.SHA256, DSASignatureFormat.Rfc3279DerSequence),
                 _ => throw new NotImplementedException($"Signature algorithm '{_algorithm}' not supported, with OID '{_oid}'")
             };
         }
 
-        private bool VerifyRsa(ReadOnlySpan<byte> data, ReadOnlySpan<byte> sig)
+        private ThreadLocal<RSA> GetOrCreateRsa()
         {
-            _rsa ??= new ThreadLocal<RSA>(() =>
+            var current = _rsa;
+            if (current is not null)
+                return current;
+
+            var keyBytes = KeyBytes;
+            var created = new ThreadLocal<RSA>(() =>
             {
                 var rsa = RSA.Create();
-                rsa.ImportSubjectPublicKeyInfo(KeyBytes.Span, out _);
+                rsa.ImportSubjectPublicKeyInfo(keyBytes.Span, out _);
                 return rsa;
-            });
+            }, true);
 
-            return _rsa.Value.VerifyData(data, sig, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+            return Interlocked.CompareExchange(ref _rsa, created, null) ?? created;
         }
 
-        private bool VerifyEcdsa(ReadOnlySpan<byte> data, ReadOnlySpan<byte> sig)
+        private ThreadLocal<ECDsa> GetOrCreateECDsa()
         {
-            _ecdsa ??= new ThreadLocal<ECDsa>(() =>
+            var current = _ecdsa;
+            if (current is not null)
+                return current;
+
+            var keyBytes = KeyBytes;
+            var created = new ThreadLocal<ECDsa>(() =>
             {
                 var ecdsa = ECDsa.Create();
-                ecdsa.ImportSubjectPublicKeyInfo(KeyBytes.Span, out _);
+                ecdsa.ImportSubjectPublicKeyInfo(keyBytes.Span, out _);
                 return ecdsa;
-            });
+            }, true);
 
-            return _ecdsa.Value.VerifyData(data, sig, HashAlgorithmName.SHA256, DSASignatureFormat.Rfc3279DerSequence);
+            return Interlocked.CompareExchange(ref _ecdsa, created, null) ?? created;
         }
 
         private void ResetVerifiers()
         {
-            _rsa?.Dispose();
-            _ecdsa?.Dispose();
-            _rsa = null;
-            _ecdsa = null;
+            var rsa = Interlocked.Exchange(ref _rsa, null);
+            if (rsa is not null)
+            {
+                foreach (var r in rsa.Values)
+                    r.Dispose();
+                rsa.Dispose();
+            }
+
+            var ecdsa = Interlocked.Exchange(ref _ecdsa, null);
+            if (ecdsa is not null)
+            {
+                foreach (var e in ecdsa.Values)
+                    e.Dispose();
+                ecdsa.Dispose();
+            }
         }
 
         protected virtual void Dispose(bool disposing)

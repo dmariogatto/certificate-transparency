@@ -18,8 +18,8 @@ namespace Cats.CertificateTransparency
         {
             var keyEquality = new X500PrincipalEquality();
             _subjectCaCerts = trustManager.GetAcceptedIssuers()
-                    .GroupBy(i => i.SubjectX500Principal, keyEquality)
-                    .ToDictionary(g => g.Key, g => g.Select(i => i).ToArray(), keyEquality);
+                .GroupBy(i => i.SubjectX500Principal, keyEquality)
+                .ToDictionary(g => g.Key, g => g.Select(i => i).ToArray(), keyEquality);
         }
 
         public IList<JavaX509Certificate> Clean(IEnumerable<JavaX509Certificate> chain)

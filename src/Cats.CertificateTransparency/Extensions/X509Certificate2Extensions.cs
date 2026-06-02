@@ -1,7 +1,7 @@
 ﻿using Cats.CertificateTransparency.Models;
-using Org.BouncyCastle.Asn1;
 using System;
 using System.Collections.Generic;
+using System.Formats.Asn1;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
@@ -20,21 +20,10 @@ namespace Cats.CertificateTransparency.Extensions
         internal static bool HasEmbeddedSct(this X509Certificate2 certificate)
             => certificate.GetExtension(Constants.SctCertificateOid) is not null;
 
-        internal static byte[] PublicKeyHash(this X509Certificate2 certificate)
+        internal static ReadOnlyMemory<byte> PublicKeyHash(this X509Certificate2 certificate)
         {
-#if NET6_0_OR_GREATER
             var spkiBytes = certificate.PublicKey.ExportSubjectPublicKeyInfo();
-#else
-            var asn1Obj = certificate.GetTbsCertificateAsn1Object();
-            var spkiBytes = asn1Obj is Asn1Sequence asn1Seq && Constants.TbsSpkiSequenceIndex < asn1Seq.Count
-                ? asn1Seq[Constants.TbsSpkiSequenceIndex].GetDerEncoded()
-                : throw new InvalidOperationException("Cannot get SPKI from TBS certificate");
-#endif
-
-            using var sha2 = SHA256.Create();
-            var digest = sha2.ComputeHash(spkiBytes);
-
-            return digest;
+            return SHA256.HashData(spkiBytes);
         }
 
         internal static IssuerInformation IssuerInformation(this X509Certificate2 certificate)
@@ -48,24 +37,22 @@ namespace Cats.CertificateTransparency.Extensions
             => new IssuerInformation()
             {
                 Name = certificate.IssuerName.Name,
+                NameBytes = certificate.IssuerName.RawData,
                 KeyHash = preCertificate.PublicKeyHash(),
                 X509AuthorityKeyIdentifier = certificate.GetExtension(Constants.X509AuthorityKeyIdentifier),
                 IssuedByPreCertificateSigningCert = true
             };
 
-        internal static Asn1Object GetTbsCertificateAsn1Object(this X509Certificate2 certificate)
+        internal static ReadOnlyMemory<byte> GetTbsCertificate(this X509Certificate2 certificate)
         {
-            var asn1Tbs = default(Asn1Object);
-            using var asn1Stream = new Asn1InputStream(certificate.RawData);
+            var reader = new AsnReader(certificate.RawData, AsnEncodingRules.DER);
 
-            if (asn1Stream.ReadObject() is Asn1Object asn1Obj &&
-                Asn1Sequence.GetInstance(asn1Obj) is Asn1Sequence asn1Seq &&
-                Constants.X509TbsSequenceIndex < asn1Seq.Count)
-            {
-                asn1Tbs = asn1Seq[Constants.X509TbsSequenceIndex].ToAsn1Object();
-            }
+            // Certificate ::= SEQUENCE
+            var certificateSequence = reader.ReadSequence();
+            // TBSCertificate is the first element inside Certificate
+            var tbs = certificateSequence.ReadEncodedValue();
 
-            return asn1Tbs;
+            return tbs;
         }
 
         internal static X509Extension GetExtension(this X509Certificate2 certificate, string oid)

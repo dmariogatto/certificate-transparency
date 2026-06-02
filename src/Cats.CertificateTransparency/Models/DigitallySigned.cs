@@ -4,23 +4,34 @@ using System.Linq;
 
 namespace Cats.CertificateTransparency.Models
 {
-    public class DigitallySigned
+    public readonly struct DigitallySigned : IEquatable<DigitallySigned>
     {
-        public CtHashAlgorithm Hash { get; set; }
-        public CtSignatureAlgorithm Signature { get; set; }
-        public byte[] SignatureData { get; set; }
+        public CtHashAlgorithm Hash { get; init; }
+        public CtSignatureAlgorithm Signature { get; init; }
+        public ReadOnlyMemory<byte> SignatureData { get; init; }
 
         public string PrettyPrint() => string.Join(Environment.NewLine,
-                new object[] { Hash, Signature, SignatureData.ToHexString() }).Trim();
+                new object[] { Hash, Signature, SignatureData.Span.ToHexString() });
 
-        public override bool Equals(object obj)
+        public bool Equals(DigitallySigned other)
         {
-            return obj is DigitallySigned signed &&
-                   Hash == signed.Hash &&
-                   Signature == signed.Signature &&
-                   SignatureData.SequenceEqual(signed.SignatureData);
+            return Hash == other.Hash &&
+                   Signature == other.Signature &&
+                   SignatureData.Span.SequenceEqual(other.SignatureData.Span);
         }
 
-        public override int GetHashCode() => (Hash, Signature, SignatureData).GetHashCode();
+        public override bool Equals(object obj)
+            => obj is DigitallySigned other && Equals(other);
+
+        public override int GetHashCode()
+        {
+            var hc = new HashCode();
+            hc.Add(Hash);
+            hc.Add(Signature);
+
+            hc.AddBytes(SignatureData.Span);
+
+            return hc.ToHashCode();
+        }
     }
 }

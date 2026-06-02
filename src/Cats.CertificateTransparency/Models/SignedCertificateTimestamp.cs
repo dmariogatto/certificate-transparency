@@ -1,75 +1,71 @@
 ﻿using Cats.CertificateTransparency.Extensions;
 using System;
-using System.Linq;
 
 namespace Cats.CertificateTransparency.Models
 {
-    public class SignedCertificateTimestamp
+    public readonly struct SignedCertificateTimestamp : IEquatable<SignedCertificateTimestamp>
     {
-        public SctVersion SctVersion { get; set; }
+        public SignedCertificateTimestamp()
+        {
+        }
 
-        private byte[] _logId = null;
-        public byte[] LogId
+        public SctVersion SctVersion { get; init; }
+
+        private readonly ReadOnlyMemory<byte> _logId;
+        public ReadOnlyMemory<byte> LogId
         {
             get => _logId;
-            set
+            init
             {
                 _logId = value;
-                _logIdBase64 = null;
+                LogIdBase64 = !LogId.IsEmpty ? Convert.ToBase64String(LogId.Span) : string.Empty;
             }
         }
 
-        private long _timestampMs;
+        private readonly long _timestampMs;
         public long TimestampMs
         {
             get => _timestampMs;
-            set
+            init
             {
                 _timestampMs = value;
-                _timestampUtc = null;
+                TimestampUtc = DateTimeOffset.FromUnixTimeMilliseconds(TimestampMs).UtcDateTime;
             }
         }
 
-        public DigitallySigned Signature { get; set; }
-        public byte[] Extensions { get; set; }
+        public DigitallySigned Signature { get; init; }
+        public ReadOnlyMemory<byte> Extensions { get; init; }
 
-        private string _logIdBase64;
-        public string LogIdBase64
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(_logIdBase64) && LogId is not null)
-                    _logIdBase64 = Convert.ToBase64String(LogId);
-
-                return _logIdBase64 ?? string.Empty;
-            }
-        }
-
-        private DateTime? _timestampUtc;
-        public DateTime TimestampUtc
-        {
-            get
-            {
-                if (!_timestampUtc.HasValue)
-                    _timestampUtc = DateTimeOffset.FromUnixTimeMilliseconds(TimestampMs).UtcDateTime;
-
-                return _timestampUtc.Value;
-            }
-        }
+        public string LogIdBase64 { get; private init; }
+        public DateTime TimestampUtc { get; private init; }
 
         public string PrettyPrint() => string.Join(Environment.NewLine,
-                new object[] { SctVersion, LogId.ToHexString(), TimestampUtc, Signature.PrettyPrint(), Extensions.ToHexString() }).Trim();
+                new object[] { SctVersion, LogId.Span.ToHexString(), TimestampUtc, Signature.PrettyPrint(), Extensions.Span.ToHexString() });
 
-        public override bool Equals(object obj)
+
+        public bool Equals(SignedCertificateTimestamp other)
         {
-            return obj is SignedCertificateTimestamp timestamp &&
-                   SctVersion == timestamp.SctVersion &&
-                   LogId.SequenceEqual(timestamp.LogId) &&
-                   TimestampMs == timestamp.TimestampMs &&
-                   Signature.Equals(timestamp.Signature) &&
-                   Extensions.SequenceEqual(timestamp.Extensions);
+            return SctVersion == other.SctVersion &&
+                   TimestampMs == other.TimestampMs &&
+                   Signature.Equals(other.Signature) &&
+                   LogId.Span.SequenceEqual(other.LogId.Span) &&
+                   Extensions.Span.SequenceEqual(other.Extensions.Span);
         }
 
-        public override int GetHashCode() => (SctVersion, LogId, TimestampMs, Signature, Extensions).GetHashCode();
+        public override bool Equals(object obj)
+            => obj is SignedCertificateTimestamp other && Equals(other);
+
+        public override int GetHashCode()
+        {
+            var hc = new HashCode();
+            hc.Add(SctVersion);
+            hc.Add(TimestampMs);
+            hc.Add(Signature);
+
+            hc.AddBytes(LogId.Span);
+            hc.AddBytes(Extensions.Span);
+
+            return hc.ToHashCode();
+        }
     }
 }

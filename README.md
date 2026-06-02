@@ -25,7 +25,7 @@ Instance.InitDomains(new [] { "*.google.com", "microsoft.com" }, new [] { "nuget
 
 ## Examples
 
-### Plain old .NET Framework
+### .NET
 
 ```csharp
 var client = new HttpClient(new HttpClientHandler()
@@ -45,7 +45,7 @@ var client = new HttpClient(new HttpClientHandler()
 });
 ```
 
-### Xamarin Android
+### Android
 
 ```csharp
 bool VerifyCtResult(string hostname, IList<DotNetX509Certificate> certificateChain, CtVerificationResult result)
@@ -59,7 +59,7 @@ var httpHandler = new Cats.CertificateTransparency.CatsAndroidClientHandler(Veri
 var client = new HttpClient(httpHandler);
 ```
 
-### Xamarin iOS
+### iOS
 
 There is currently no platform specific implementation for iOS. Certificate transparency is already enabled since iOS 12.1.1, however, it can be disabled per domain via a property list setting [NSRequiresCertificateTransparency](https://developer.apple.com/documentation/bundleresources/information_property_list/nsapptransportsecurity/nsexceptiondomains).
 

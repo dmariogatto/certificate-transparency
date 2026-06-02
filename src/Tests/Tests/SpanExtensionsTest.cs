@@ -13,12 +13,11 @@ namespace Tests
         public void ReadLong()
         {
             using var ms = new MemoryStream();
-            using var bw = new BinaryWriter(ms);
 
             var numOfBytes = 8;
             var value = new Random().Next();
 
-            bw.WriteLong(value, numOfBytes);
+            ms.WriteLong(value, numOfBytes);
 
             var span = ms.ToArray().AsSpan();
             var position = 0;
@@ -31,7 +30,6 @@ namespace Tests
         public void ReadVariableLength()
         {
             using var ms = new MemoryStream();
-            using var bw = new BinaryWriter(ms);
 
             var rand = new Random();
 
@@ -43,7 +41,7 @@ namespace Tests
             for (var i = 0; i < dataLength; i++)
                 data[i] = (byte)rand.Next(0, 255);
 
-            bw.WriteVariableLength(data, maxLength);
+            ms.WriteVariableLength(data, maxLength);
 
             var span = ms.ToArray().AsSpan();
             var position = 0;

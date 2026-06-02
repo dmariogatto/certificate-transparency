@@ -5,33 +5,33 @@ namespace Cats.CertificateTransparency.Extensions
 {
     internal static class SpanExtensions
     {
-        internal static long ReadLong(this Span<byte> span, int bytesToRead, ref int position)
+        internal static long ReadLong(this ReadOnlySpan<byte> span, int byteCount, ref int pos)
         {
-            if (bytesToRead > Constants.BytesInLong)
-                throw new ArgumentOutOfRangeException(nameof(bytesToRead), $"Cannot read long of length {bytesToRead} bytes");
+            if (byteCount > Constants.BytesInLong)
+                throw new ArgumentOutOfRangeException(nameof(byteCount));
 
             var result = 0L;
 
-            for (var i = 0; i < bytesToRead; i++)
+            for (var i = 0; i < byteCount; i++)
             {
-                var readVal = span[position++];
-                result = (result << Constants.BitsInByte) | readVal;
+                result = (result << 8) | span[pos++];
             }
 
             return result;
         }
 
-        internal static Span<byte> ReadVariableLength(this Span<byte> span, int maxDataValue, ref int position)
+        internal static ReadOnlySpan<byte> ReadVariableLength(this ReadOnlySpan<byte> span, int maxLength, ref int pos)
         {
-            var bytesForDataLength = Constants.BytesToStoreValue(maxDataValue);
-            var dataLength = ReadLong(span, bytesForDataLength, ref position);
+            var lenBytes = Constants.BytesToStoreValue(maxLength);
+            var length = span.ReadLong(lenBytes, ref pos);
 
-            var data = span.Slice(position, (int)dataLength);
-            position += data.Length;
+            if (length > span.Length - pos)
+                throw new IOException("Incomplete data");
 
-            if (data.Length != dataLength) throw new IOException($"Incomplete data. Expected {dataLength} bytes, got {span.Length}");
+            var slice = span.Slice(pos, (int)length);
+            pos += (int)length;
 
-            return data;
+            return slice;
         }
     }
 }

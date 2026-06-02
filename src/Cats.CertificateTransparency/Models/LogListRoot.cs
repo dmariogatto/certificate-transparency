@@ -113,10 +113,7 @@ namespace Cats.CertificateTransparency.Models
                 (_oid, _algorithm) = GetKeyAlgorithm(KeyBytes);
 
                 // Reset thread-local instances when key changes
-                _rsa?.Dispose();
-                _ecdsa?.Dispose();
-                _rsa = null;
-                _ecdsa = null;
+                ResetVerifiers();
             }
         }
 
@@ -193,16 +190,21 @@ namespace Cats.CertificateTransparency.Models
             return _ecdsa.Value.VerifyData(data, sig, HashAlgorithmName.SHA256, DSASignatureFormat.Rfc3279DerSequence);
         }
 
+        private void ResetVerifiers()
+        {
+            _rsa?.Dispose();
+            _ecdsa?.Dispose();
+            _rsa = null;
+            _ecdsa = null;
+        }
+
         protected virtual void Dispose(bool disposing)
         {
             if (!_disposed)
             {
                 if (disposing)
                 {
-                    _rsa?.Dispose();
-                    _ecdsa?.Dispose();
-                    _rsa = null;
-                    _ecdsa = null;
+                    ResetVerifiers();
                 }
 
                 _disposed = true;

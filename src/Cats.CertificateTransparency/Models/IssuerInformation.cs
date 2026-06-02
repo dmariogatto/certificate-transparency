@@ -7,6 +7,7 @@ namespace Cats.CertificateTransparency.Models
     public class IssuerInformation
     {
         public string Name { get; init; }
+        public ReadOnlyMemory<byte> NameBytes { get; init; }
         public ReadOnlyMemory<byte> KeyHash { get; init; }
         public X509Extension X509AuthorityKeyIdentifier { get; init; }
         public bool IssuedByPreCertificateSigningCert { get; init; }
@@ -20,6 +21,7 @@ namespace Cats.CertificateTransparency.Models
 
             return obj is IssuerInformation issuer &&
                    string.Equals(Name, issuer.Name, StringComparison.Ordinal) &&
+                   NameBytes.Span.SequenceEqual(issuer.NameBytes.Span) &&
                    KeyHash.Span.SequenceEqual(issuer.KeyHash.Span) &&
                    X509AuthorityKeyIdentifier == issuer.X509AuthorityKeyIdentifier &&
                    IssuedByPreCertificateSigningCert == issuer.IssuedByPreCertificateSigningCert;
@@ -29,6 +31,7 @@ namespace Cats.CertificateTransparency.Models
         {
             var hc = new HashCode();
             hc.Add(Name);
+            hc.AddBytes(NameBytes.Span);
             hc.AddBytes(KeyHash.Span);
             hc.Add(X509AuthorityKeyIdentifier);
             hc.Add(IssuedByPreCertificateSigningCert);

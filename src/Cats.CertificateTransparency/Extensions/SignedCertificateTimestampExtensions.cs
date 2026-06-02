@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Formats.Asn1;
 using System.IO;
 using System.Runtime.CompilerServices;
-using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 
 namespace Cats.CertificateTransparency.Extensions
@@ -35,34 +34,38 @@ namespace Cats.CertificateTransparency.Extensions
             try
             {
                 var leafCert = chain[0];
-                var notPreCert = !leafCert.IsPreCertificate();
-                var noEmbeddedSct = !leafCert.HasEmbeddedSct();
-                if (notPreCert && noEmbeddedSct)
+
+                // Case 1: Final certificate without embedded SCTs can be verified directly
+                if (!leafCert.IsPreCertificate() && !leafCert.HasEmbeddedSct())
                 {
-                    // When verifying final cert without embedded SCTs, we don't need the issuer but can verify directly
                     var toVerify = sct.SerialiseSignedSctData(leafCert);
                     return sct.VerifySctSignatureOverBytes(logServer, toVerify);
                 }
 
+                // Beyond this point, we need at least the issuer certificate
                 if (chain.Count < 2)
-                    return SctVerificationResult.FailedVerification(sct.TimestampUtc, logServer.LogId, "Chain with PreCertificate or Certificate must contain issuer");
+                {
+                    return SctVerificationResult.FailedVerification(sct.TimestampUtc, logServer.LogId,
+                        "Chain with PreCertificate or Certificate must contain issuer");
+                }
 
-                // PreCertificate or final certificate with embedded SCTs, we want the issuerInformation
                 var issuerCert = chain[1];
-                var isPreCertificateSigningCert = issuerCert.IsPreCertificateSigningCert();
+                IssuerInformation issuerInformation;
 
-                var issuerInformation = default(IssuerInformation);
-
-                if (!isPreCertificateSigningCert)
+                // Case 2: Issuer is a standard CA cert
+                if (!issuerCert.IsPreCertificateSigningCert())
                 {
                     issuerInformation = issuerCert.IssuerInformation();
                 }
-                else if (chain.Count < 3)
-                {
-                    return SctVerificationResult.FailedVerification(sct.TimestampUtc, logServer.LogId, "Chain with PreCertificate signed by PreCertificate Signing Cert must contain issuer");
-                }
+                // Case 3: Issuer is a PreCertificate Signing Cert (requires the root/parent CA at index 2)
                 else
                 {
+                    if (chain.Count < 3)
+                    {
+                        return SctVerificationResult.FailedVerification(sct.TimestampUtc, logServer.LogId,
+                            "Chain with PreCertificate signed by PreCertificate Signing Cert must contain issuer");
+                    }
+
                     issuerInformation = issuerCert.IssuerInformationFromPreCertificate(chain[2]);
                 }
 
@@ -100,8 +103,8 @@ namespace Cats.CertificateTransparency.Extensions
             // Issuer (optionally overridden)
             var originalIssuerRaw = tbsSequence.ReadEncodedValue();
 
-            ReadOnlySpan<byte> issuerRaw = !string.IsNullOrEmpty(issuerInformation?.Name)
-                ? new X500DistinguishedName(issuerInformation.Name).RawData
+            var issuerRaw = !string.IsNullOrEmpty(issuerInformation?.Name) && !issuerInformation.NameBytes.IsEmpty
+                ? issuerInformation.NameBytes.Span
                 : originalIssuerRaw.Span;
 
             var validityRaw = tbsSequence.ReadEncodedValue();

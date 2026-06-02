@@ -37,6 +37,7 @@ namespace Cats.CertificateTransparency.Extensions
             => new IssuerInformation()
             {
                 Name = certificate.IssuerName.Name,
+                NameBytes = certificate.IssuerName.RawData,
                 KeyHash = preCertificate.PublicKeyHash(),
                 X509AuthorityKeyIdentifier = certificate.GetExtension(Constants.X509AuthorityKeyIdentifier),
                 IssuedByPreCertificateSigningCert = true

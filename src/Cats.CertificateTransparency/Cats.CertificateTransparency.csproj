@@ -28,7 +28,7 @@
 - Updated to net10.0
 - Removed BouncyCastle dependency
 - Added User-Agent for Chrome log list requests (Android-only temporary workaround)
-- Added note in README on the issues with using the Chrome CT log lists
+- Added note in README on the issues with using the Chrome CT log list
 - Added note in README to avoid use of this library on Android 16+ (API 36)
     </PackageReleaseNotes>
     <PackageReadmeFile>README.md</PackageReadmeFile>

@@ -15,8 +15,8 @@
     <Product>$(AssemblyName) ($(TargetFramework))</Product>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <AssemblyFileVersion>1.0.0.0</AssemblyFileVersion>
-    <Version>5.0.0</Version>
-    <PackageVersion>5.0.0</PackageVersion>
+    <Version>5.0.1</Version>
+    <PackageVersion>5.0.1</PackageVersion>
     <Authors>dmariogatto</Authors>
     <Owners>dmariogatto</Owners>
     <NeutralLanguage>en</NeutralLanguage>
@@ -27,6 +27,9 @@
     <PackageReleaseNotes>
 - Updated to net10.0
 - Removed BouncyCastle dependency
+- Added User-Agent for Chrome log list requests (Android-only temporary workaround)
+- Added note in README on the issues with using the Chrome CT log lists
+- Added note in README to avoid use of this library on Android 16+ (API 36)
     </PackageReleaseNotes>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>

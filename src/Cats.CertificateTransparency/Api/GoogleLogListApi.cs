@@ -10,12 +10,15 @@ namespace Cats.CertificateTransparency.Api
 {
     public class GoogleLogListApi : ILogListApi
     {
+        private readonly string _userAgent;
         private readonly HttpClient _client;
 
-        public GoogleLogListApi(string baseUrl)
+        public GoogleLogListApi(string baseUrl, string userAgent)
         {
             if (string.IsNullOrEmpty(baseUrl))
                 throw new ArgumentException(nameof(baseUrl));
+
+            _userAgent = userAgent;
 
             _client = new HttpClient()
             {
@@ -31,6 +34,10 @@ namespace Cats.CertificateTransparency.Api
         public async Task<byte[]> GetLogListAsync(CancellationToken cancellationToken)
         {
             using var msg = new HttpRequestMessage(HttpMethod.Get, "log_list.json");
+            if (!string.IsNullOrEmpty(_userAgent))
+            {
+                msg.Headers.UserAgent.TryParseAdd(_userAgent);
+            }
             msg.Headers.Add("Cache-Control", "no-cache");
             msg.Headers.Add("Max-Size", "1048576");
 
@@ -43,6 +50,10 @@ namespace Cats.CertificateTransparency.Api
         public async Task<byte[]> GetLogListSignatureAsync(CancellationToken cancellationToken)
         {
             using var msg = new HttpRequestMessage(HttpMethod.Get, "log_list.sig");
+            if (!string.IsNullOrEmpty(_userAgent))
+            {
+                msg.Headers.UserAgent.TryParseAdd(_userAgent);
+            }
             msg.Headers.Add("Cache-Control", "no-cache");
             msg.Headers.Add("Max-Size", "512");
 
@@ -55,6 +66,10 @@ namespace Cats.CertificateTransparency.Api
         public async Task<(byte[], byte[])> GetLogListWithSigAsync(CancellationToken cancellationToken)
         {
             using var msg = new HttpRequestMessage(HttpMethod.Get, "log_list.zip");
+            if (!string.IsNullOrEmpty(_userAgent))
+            {
+                msg.Headers.UserAgent.TryParseAdd(_userAgent);
+            }
             msg.Headers.Add("Cache-Control", "no-cache");
             msg.Headers.Add("Max-Size", "2097152");
 

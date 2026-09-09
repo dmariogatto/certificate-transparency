@@ -9,15 +9,34 @@ C# .NET port of,
 
 [![](https://img.shields.io/nuget/v/Cats.CertificateTransparency.svg)](https://nuget.org/packages/Cats.CertificateTransparency)
 
-```
+```powershell
     Install-Package Cats.CertificateTransparency
 ```
 
 [Blog Post](https://dgatto.com/posts/2020/12/cats-certificate-transparency/)
 
-The library is designed to be dependency injection friendly, every service class has a matching interface. However, to get things up and running quickly there is also a static `Instance` class which will construct lazy singletons for both `ILogListService` and `CertificateTransparencyVerifier`.
+> [!WARNING]
+> ## Google CT Log List
+>
+> By default, this library uses the Certificate Transparency log list published by Google for Chrome:
+>
+> `https://www.gstatic.com/ct/log_list/v3/`
+>
+> **This is not recommended for production use.**
+>
+> Google's CT log list endpoints are intended to support Chrome and are subject to Google's [Acceptable Use Policy](https://googlechrome.github.io/CertificateTransparency/log_lists.html). Google explicitly states that third-party CT enforcement libraries relying on these endpoints may break.
+>
+> Google can change the endpoint, format, schema, or availability of the log list at any time. Google is also actively [fingerprinting and restricting third-party access](https://groups.google.com/a/chromium.org/g/ct-policy/c/qY3aOKr5-sU).
+>
+> As a result, applications using the default Google log list may **stop working without any change to this library or the application**. This has already occurred for Android clients using a mobile `User-Agent`, and further breakage is likely.
+>
+> **For production applications, you should ideally maintain and host your own CT log list** rather than depending on Google's Chrome-specific infrastructure. This gives you control over the list, endpoint, schema and availability.
+>
+> If you continue to use Google's log list, treat it as an external dependency that Google can change or break at any time.
 
-If you want to provide a custom list of included and excluded domains to these static instances you must first call `Instance.InitDomains`. By default validation will be enabled for all TLS secured domains.
+The library is designed to be dependency-injection friendly; every service class has a matching interface. However, to get things running quickly, there is also a static `Instance` class which constructs lazy singletons for both `ILogListService` and `CertificateTransparencyVerifier`.
+
+If you want to provide a custom list of included and excluded domains to these static instances, call `Instance.InitDomains` first. By default, validation is enabled for all TLS-secured domains.
 
 ```csharp
 Instance.InitDomains(new [] { "*.google.com", "microsoft.com" }, new [] { "nuget.org" });
@@ -47,14 +66,26 @@ var client = new HttpClient(new HttpClientHandler()
 
 ### Android
 
+> [!IMPORTANT]
+> **Android 16+ (API 36) should use the native Android Certificate Transparency implementation instead of this library.**
+>
+> See [Android's native CT enforcement](https://developer.android.com/privacy-and-security/security-config#CertificateTransparencySummary) and the default [Android CT policy](https://developer.android.com/privacy-and-security/certificate-transparency-policy).
+
+For applications targeting **Android versions prior to Android 16**, the Android implementation can be used:
+
 ```csharp
 bool VerifyCtResult(string hostname, IList<DotNetX509Certificate> certificateChain, CtVerificationResult result)
 {
-    // any extra checks or logging you might want to add
+    // Fail open if the CT log list is unreachable.
+    if (result == CtResult.LogServersFailed)
+    {
+        return true;
+    }
+
+    // Add any additional checks or logging here.
     return result.IsValid;
 }
 
-// optionally pass in a function to manually handle the transparency result
 var httpHandler = new Cats.CertificateTransparency.CatsAndroidClientHandler(VerifyCtResult);
 var client = new HttpClient(httpHandler);
 ```
@@ -64,6 +95,22 @@ var client = new HttpClient(httpHandler);
 There is currently no platform specific implementation for iOS. Certificate transparency is already enabled since iOS 12.1.1, however, it can be disabled per domain via a property list setting [NSRequiresCertificateTransparency](https://developer.apple.com/documentation/bundleresources/information_property_list/nsapptransportsecurity/nsexceptiondomains).
 
 If you are keen you could use the `CertificateVerifier` to build your own `HttpClientHandler`, similar to the included Android implementation.
+
+## Log Lists
+
+A CT log list contains the Certificate Transparency logs that are trusted for verification.
+
+For production applications, **maintaining your own log list is recommended**. Your application then controls:
+
+- Which CT logs are trusted.
+- Where the log list is hosted.
+- The availability of the log list.
+- Updates to the log list.
+- The format and schema used by your application.
+
+Using Google's Chrome log lists is convenient but creates a dependency on infrastructure that is outside the control of this project. Google may change or restrict access to the list without notice, and **applications should expect the Chrome log lists to break eventually**.
+
+If you maintain your own log list, configure the library to use it through the appropriate `ILogListService` implementation.
 
 ## Contributions
 

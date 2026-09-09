@@ -14,7 +14,12 @@ namespace Cats.CertificateTransparency
         private static readonly Lazy<ILogListService> DefaultLogListService =
            new Lazy<ILogListService>(() =>
            {
-               var logListApi = new GoogleLogListApi(Constants.GoogleLogListUrl);
+#if ANDROID
+               var logListApi = new GoogleLogListApi(Constants.GoogleLogListUrl, Constants.ChromeUserAgent);
+#else
+               var logListApi = new GoogleLogListApi(Constants.GoogleLogListUrl, string.Empty);
+#endif
+
                var logStoreService = new LogStoreService();
                return new LogListZipService(logListApi, logStoreService);
            });

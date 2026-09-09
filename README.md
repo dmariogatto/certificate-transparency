@@ -108,7 +108,7 @@ For production applications, **maintaining your own log list is recommended**. Y
 - Updates to the log list.
 - The format and schema used by your application.
 
-Using Google's Chrome log lists is convenient but creates a dependency on infrastructure that is outside the control of this project. Google may change or restrict access to the list without notice, and **applications should expect the Chrome log lists to break eventually**.
+Using Google's Chrome log list is convenient but creates a dependency on infrastructure that is outside the control of this project. Google may change or restrict access to the list without notice, and **applications should expect the Chrome log list to break eventually**.
 
 If you maintain your own log list, configure the library to use it through the appropriate `ILogListService` implementation.
 

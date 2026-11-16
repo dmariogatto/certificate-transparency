@@ -23,7 +23,7 @@ namespace Cats.CertificateTransparency.Models
         public string Sha256RootHash { get; set; }
 
         [JsonPropertyName("tree_size")]
-        public int TreeSize { get; set; }
+        public long TreeSize { get; set; }
     }
 
     [Preserve(AllMembers = true)]
